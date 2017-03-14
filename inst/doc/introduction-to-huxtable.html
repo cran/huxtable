@@ -11,7 +11,7 @@
 
 <meta name="author" content="David Hugh-Jones" />
 
-<meta name="date" content="2017-03-09" />
+<meta name="date" content="2017-03-14" />
 
 <title>Introduction to Huxtable</title>
 
@@ -119,19 +119,19 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Introduction to Huxtable</h1>
 <h4 class="author"><em>David Hugh-Jones</em></h4>
-<h4 class="date"><em>2017-03-09</em></h4>
+<h4 class="date"><em>2017-03-14</em></h4>
 
 </div>
 
 
-<table class="huxtable" style="width: 60pt; margin-left: auto; margin-right: auto;height: 60pt;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 60pt; margin-left: auto; margin-right: auto;height: 60pt;">
 <col style="width: 40%;"><col style="width: 30%;"><col style="width: 30%;"><tr>
-  <td  rowspan="2" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 4px 2px 4px; background-color: rgb(232, 58, 188); "><span style="font-size:42pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">h</span></td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 4px 2px 4px; "><span style="font-size:24pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">u</span></td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 4px 2px 4px; background-color: rgb(0, 0, 0); "><span style="color: rgb(255, 255, 255); font-size:24pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">x</span></td>
+  <td  rowspan="2" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 4pt 2pt 4pt; background-color: rgb(232, 58, 188); "><span style="font-size:42pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">h</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 4pt 2pt 4pt; "><span style="font-size:24pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">u</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 4pt 2pt 4pt; background-color: rgb(0, 0, 0); "><span style="color: rgb(255, 255, 255); font-size:24pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">x</span></td>
 </tr>
 <tr>
-  <td  colspan="2" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 4px 2px 4px; "><span style="font-size:20pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">table</span></td>
+  <td  colspan="2" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 4pt 2pt 4pt; "><span style="font-size:20pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">table</span></td>
 </tr>
 </table>
 
@@ -154,29 +154,28 @@ ht &lt;- hux(
 car_ht &lt;- as_hux(mtcars)</code></pre>
 <p>Huxtables are simply data frames, along with some extra information on how to display them. If you look at them in R, they’ll appear just like ordinary data frames. Notice that we’ve added the column names to the data frame itself. We’re going to print them out, so it makes sense that they need to be part of the actual table.</p>
 <pre class="r"><code>print(ht)</code></pre>
-<pre><code>##           Employee Salary
-## 1         Employee Salary
-## 2       John Smith  50000
-## 3         Jane Doe  50000
-## 4 David Hugh-Jones  40000</code></pre>
+<pre><code>##    Employee           Salary     
+##    John Smith         50000.00   
+##    Jane Doe           50000.00   
+##    David Hugh-Jones   40000.00</code></pre>
 <p>To print them out using LaTeX or HTML, just call <code>print_latex</code> or <code>print_html</code>. In knitr documents, like this one, you can simply evaluate the hux. It will know what format to print itself in.</p>
 <pre class="r"><code>ht</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: NA;"><col style="width: NA;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">Employee</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">Salary</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">Employee</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">Salary</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">John Smith</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">John Smith</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">Jane Doe</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">Jane Doe</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">David Hugh-Jones</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">40000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">David Hugh-Jones</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">40000.00</td>
 </tr>
 </table>
 
@@ -188,22 +187,22 @@ right_padding(ht)      &lt;- 10
 left_padding(ht)       &lt;- 10
 
 ht</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: NA;"><col style="width: NA;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Employee</span></td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Salary</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">John Smith</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">John Smith</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">Jane Doe</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">Jane Doe</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">David Hugh-Jones</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">40000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">David Hugh-Jones</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">40000.00</td>
 </tr>
 </table>
 
@@ -214,22 +213,22 @@ ht</code></pre>
 <pre class="r"><code>caption(ht) &lt;- 'Employee table'
 
 ht</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: NA;"><col style="width: NA;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Employee</span></td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Salary</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">John Smith</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">John Smith</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">Jane Doe</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">Jane Doe</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">David Hugh-Jones</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">40000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">David Hugh-Jones</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">40000.00</td>
 </tr>
 </table>
 
@@ -245,22 +244,22 @@ ht %&gt;%
       set_align(-1, 2, 'right')       %&gt;%
       set_right_padding(1:4, 1:2, 10) %&gt;%
       set_left_padding(1:4, 1:2, 10)</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: NA;"><col style="width: NA;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Employee</span></td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Salary</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">John Smith</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">John Smith</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">Jane Doe</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">Jane Doe</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">David Hugh-Jones</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">40000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">David Hugh-Jones</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">40000.00</td>
 </tr>
 </table>
 
@@ -283,84 +282,84 @@ ht %&gt;%
 <p>You can change how huxtable formats numbers using <code>number_format</code>. Huxtable guesses whether your cell is a number based on its contents, not on the column type. Set <code>number_format</code> to a number of decimal places (for more advanced options, see the help files).</p>
 <pre class="r"><code>number_format(car_ht) &lt;- 0
 add_colnames(car_ht[1:5,])</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">mpg</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">cyl</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">disp</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">hp</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">drat</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">wt</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">qsec</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">vs</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">am</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">gear</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">carb</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">mpg</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">cyl</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">disp</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">hp</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">drat</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">wt</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">qsec</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">vs</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">am</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">gear</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">carb</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">160</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">110</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">3</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">16</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">0</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">160</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">110</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">3</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">16</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">160</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">110</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">3</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">17</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">0</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">160</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">110</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">3</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">17</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">23</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">108</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">93</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">2</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">19</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">23</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">108</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">93</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">2</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">19</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">258</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">110</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">3</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">3</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">19</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">0</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">3</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">258</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">110</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">3</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">3</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">19</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">3</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">19</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">360</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">175</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">3</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">3</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">17</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">0</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">0</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">3</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">2</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">19</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">360</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">175</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">3</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">3</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">17</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">3</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">2</td>
 </tr>
 </table>
 
@@ -370,22 +369,22 @@ add_colnames(car_ht[1:5,])</code></pre>
 <p>You can set column widths using the <code>col_width</code> property:</p>
 <pre class="r"><code>col_width(ht) &lt;- c('30pt', '40pt')
 ht</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: 30pt;"><col style="width: 40pt;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Employee</span></td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Salary</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">John Smith</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">John Smith</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">Jane Doe</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">Jane Doe</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">David Hugh-Jones</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">40000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">David Hugh-Jones</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">40000.00</td>
 </tr>
 </table>
 
@@ -393,44 +392,44 @@ ht</code></pre>
 <p>By default, if a cell contains long contents, it will be stretched. Use the <code>wrap</code> property to allow cell contents to wrap over multiple lines:</p>
 <pre class="r"><code>ht[4, 1] &lt;- 'David Arthur Shrimpton Hugh-Jones'
 ht </code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: 30pt;"><col style="width: 40pt;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Employee</span></td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Salary</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">John Smith</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">John Smith</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">Jane Doe</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">Jane Doe</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">David Arthur Shrimpton Hugh-Jones</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">40000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">David Arthur Shrimpton Hugh-Jones</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">40000.00</td>
 </tr>
 </table>
 
 <pre class="r"><code>ht_wrapped &lt;- ht
 wrap(ht_wrapped) &lt;- TRUE
 ht_wrapped</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: 30pt;"><col style="width: 40pt;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Employee</span></td>
-  <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 1px 0px; border-style: solid; padding: 4px 10px 4px 10px; "><span style="font-weight: bold; ">Salary</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
+  <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 1px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">John Smith</td>
-  <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">John Smith</td>
+  <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">Jane Doe</td>
-  <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">50000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">Jane Doe</td>
+  <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">50000.00</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">David Arthur Shrimpton Hugh-Jones</td>
-  <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 10px 4px 10px; ">40000.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">David Arthur Shrimpton Hugh-Jones</td>
+  <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 10pt 4pt 10pt; ">40000.00</td>
 </tr>
 </table>
 
@@ -446,36 +445,36 @@ cars_mpg &lt;- cars_mpg %&gt;%
       huxtable::add_colnames()
 
 cars_mpg[1:5,]</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">Car name</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">mpg</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">cyl</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">am</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">Car name</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">mpg</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">cyl</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">am</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">Datsun 710</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">23</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">Datsun 710</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">23</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">Merc 240D</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">24</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">Merc 240D</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">24</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">Merc 230</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">23</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">Merc 230</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">23</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">Fiat 128</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">32</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4px 4px 4px 4px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">Fiat 128</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">32</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 4pt 4pt 4pt 4pt; ">1</td>
 </tr>
 </table>
 
@@ -505,211 +504,211 @@ col_width(cars_mpg) &lt;- c(.4 , .3 , .1, .1, .1)
 
 if (is_latex) font_size(cars_mpg) &lt;- 10
 cars_mpg</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: 40%;"><col style="width: 30%;"><col style="width: 10%;"><col style="width: 10%;"><col style="width: 10%;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; "></td>
-  <td  colspan="4" style="vertical-align: top; text-align: center; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">List of cars</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; "></td>
+  <td  colspan="4" style="vertical-align: top; text-align: center; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">List of cars</td>
 </tr>
 <tr>
-  <td  rowspan="12" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Four cylinders</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Car name</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">mpg</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">cyl</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">am</td>
+  <td  rowspan="12" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Four cylinders</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Car name</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">mpg</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">cyl</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">am</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Datsun 710</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">23</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Datsun 710</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">23</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Merc 240D</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">24</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Merc 240D</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">24</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Merc 230</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">23</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Merc 230</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">23</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Fiat 128</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">32</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Fiat 128</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">32</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Honda Civic</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">30</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Honda Civic</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">30</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Toyota Corolla</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">34</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Toyota Corolla</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">34</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Toyota Corona</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">22</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Toyota Corona</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">22</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Fiat X1-9</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">27</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Fiat X1-9</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">27</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Porsche 914-2</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">26</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Porsche 914-2</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">26</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Lotus Europa</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">30</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Lotus Europa</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">30</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Volvo 142E</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Volvo 142E</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  rowspan="7" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Six cylinders</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Mazda RX4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  rowspan="7" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Six cylinders</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Mazda RX4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Mazda RX4 Wag</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Mazda RX4 Wag</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Hornet 4 Drive</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Hornet 4 Drive</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Valiant</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">18</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Valiant</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">18</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Merc 280</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">19</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Merc 280</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">19</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Merc 280C</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">18</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Merc 280C</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">18</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Ferrari Dino</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">20</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Ferrari Dino</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">20</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  rowspan="14" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Eight cylinders</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Hornet Sportabout</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">19</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  rowspan="14" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Eight cylinders</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Hornet Sportabout</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">19</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Duster 360</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">14</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Duster 360</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">14</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Merc 450SE</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">16</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Merc 450SE</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">16</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Merc 450SL</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">17</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Merc 450SL</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">17</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Merc 450SLC</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">15</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Merc 450SLC</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">15</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Cadillac Fleetwood</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">10</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Cadillac Fleetwood</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">10</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Lincoln Continental</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">10</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Lincoln Continental</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">10</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Chrysler Imperial</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">15</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Chrysler Imperial</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">15</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Dodge Challenger</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">16</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Dodge Challenger</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">16</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">AMC Javelin</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">15</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">AMC Javelin</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">15</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Camaro Z28</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">13</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Camaro Z28</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">13</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Pontiac Firebird</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">19</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Pontiac Firebird</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">19</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Ford Pantera L</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">16</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Ford Pantera L</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">16</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">Maserati Bora</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">15</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">8</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2px 2px 2px 2px; ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">Maserati Bora</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">15</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 </table>
 
@@ -718,49 +717,49 @@ cars_mpg</code></pre>
 <h2>Quick themes</h2>
 <p>Huxtable comes with predefined themes that change various parts of formatting:</p>
 <pre class="r"><code>theme_striped(cars_mpg[14:20,], stripe = 'bisque1', header_col = FALSE, header_row = FALSE)</code></pre>
-<table class="huxtable" style="width: 50%; margin-left: auto; margin-right: auto;">
+<table class="huxtable" style="margin-bottom: 12pt; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: 40%;"><col style="width: 30%;"><col style="width: 10%;"><col style="width: 10%;"><col style="width: 10%;"><tr>
-  <td  rowspan="7" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">Six cylinders</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">Mazda RX4</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">1</td>
+  <td  rowspan="7" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Six cylinders</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Mazda RX4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">Mazda RX4 Wag</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">Mazda RX4 Wag</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">1</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">Hornet 4 Drive</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">21</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Hornet 4 Drive</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">21</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">Valiant</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">18</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">Valiant</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">18</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">Merc 280</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">19</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Merc 280</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">19</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">Merc 280C</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">18</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 228, 196); ">0</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">Merc 280C</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">18</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">0</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">Ferrari Dino</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">20</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">6</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2px 2px 2px 2px; background-color: rgb(255, 255, 255); ">1</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Ferrari Dino</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">20</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">1</td>
 </tr>
 </table>
 
@@ -770,15 +769,11 @@ cars_mpg</code></pre>
 <p>Lastly, you can print a huxtable on screen using <code>print_screen</code>. Borders, column and row spans and cell alignment are shown:</p>
 <pre class="r"><code>print_screen(ht)</code></pre>
 <pre><code>## Employee table
-##                                                   
 ##    Employee                              Salary   
 ##  ------------------------------------------------ 
 ##    John Smith                          50000.00   
-##                                                   
 ##    Jane Doe                            50000.00   
-##                                                   
-##    David Arthur Shrimpton Hugh-Jones   40000.00   
-## </code></pre>
+##    David Arthur Shrimpton Hugh-Jones   40000.00</code></pre>
 </div>
 <div id="for-more-information" class="section level2">
 <h2>For more information</h2>

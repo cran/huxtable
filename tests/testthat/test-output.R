@@ -32,6 +32,7 @@ test_that('Multi-rowspan screen output is sane', {
 
 test_that('Four spaces does not cause <pre><code> markup', {
   #skip('Waiting for knitr fix')
+  skip_without_pandoc()
   output <- rmarkdown::render('fourspace-html-test.Rmd', quiet = TRUE)
   lines <- readLines(output)
   file.remove(output)
@@ -39,6 +40,14 @@ test_that('Four spaces does not cause <pre><code> markup', {
 })
 
 test_that('Row heights do not screw up latex multicol', {
+  skip_without_pandoc()
   expect_silent(output <- rmarkdown::render('rowheight-multicol-test.Rmd', quiet = TRUE))
   if (exists('output')) file.remove(output)
+})
+
+test_that('Vignettes build without pandoc',{
+  skip('Too hard to make file paths work in automated testing')
+  with_mock(`rmarkdown::pandoc_available` = function (...) FALSE, {
+    expect_error(rmarkdown::render('design-principles.Rmd'), regexp = NA) # expect no error
+  })
 })
