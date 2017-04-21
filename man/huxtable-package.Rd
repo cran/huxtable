@@ -2,7 +2,7 @@
 % Please edit documentation in R/huxtable.R
 \name{huxtable-package}
 \alias{huxtable-package}
-\title{Huxtable: Simply Create LaTeX and HTML Tables}
+\title{Huxtable: simply create LaTeX and HTML tables}
 \description{
 Huxtable is a package for creating HTML and LaTeX tables. It provides similar
 functionality to xtable, with a simpler interface.
@@ -10,5 +10,14 @@ functionality to xtable, with a simpler interface.
 \details{
 To create a huxtable object, use \code{\link{huxtable}} or \code{\link{as_huxtable}}.
 
-For more information, see \href{https://hughjonesd.github.io/huxtable/}{the website}.
+For more information, see \href{https://hughjonesd.github.io/huxtable/}{the website} or
+read the vignette with \code{vignette('huxtable')}.
 }
+\section{Package options}{
+
+
+\itemize{
+  \item \code{options('huxtable.print')} sets the print method for huxtable objects. See \code{\link{print.huxtable}}.
+}
+}
+

@@ -6,34 +6,47 @@
 \alias{set_na_string}
 \alias{na_string.huxtable}
 \alias{na_string<-.huxtable}
-\title{Get or Set String to Use For NA}
+\title{NA string}
 \usage{
 na_string(ht)
 na_string(ht) <- value
-set_na_string(ht, row, col, value)
+set_na_string(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{A character string. This will be used to replace NA values in the display. Set to \code{NA} for the default, which is the empty string. To get literal "NA", set to "NA". Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{na_string}, the \code{na_string} attribute.
 For \code{set_na_string}, the \code{ht} object.
 }
 \description{
-Functions to get or set the string to use for na property of huxtable table cells.
+Functions to get or set the na string property of huxtable table cells.
 }
 \examples{
 
 ht <- huxtable(a = 1:3, b = 1:3)
 na_string(ht) <-  '--'
 na_string(ht)
+ht[2,2] <- NA 
 print_screen(ht)
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_na_string(ht, '--')
+na_string(ht2)
+ht3 <- set_na_string(ht, 1:2, 1, '--')
+na_string(ht3)
+ht4 <- set_na_string(ht, 1:2, 1:2, c('--', ''), byrow = TRUE)
+na_string(ht4)
+ht5 <- set_na_string(ht, where(ht == 1), '--')
+na_string(ht5)
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

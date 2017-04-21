@@ -12,47 +12,49 @@
 \alias{right_padding<-}
 \alias{top_padding<-}
 \alias{bottom_padding<-}
-\alias{right_padding<-<-}
 \alias{right_padding.huxtable}
 \alias{top_padding.huxtable}
 \alias{bottom_padding.huxtable}
 \alias{right_padding<-.huxtable}
 \alias{top_padding<-.huxtable}
 \alias{bottom_padding<-.huxtable}
-\alias{right_padding<-<-.huxtable}
 \alias{set_right_padding}
 \alias{set_top_padding}
 \alias{set_bottom_padding}
-\alias{set_right_padding<-}
 \alias{right_padding}
 \alias{bottom_padding}
 \alias{top_padding}
-\title{Get or Set Cell Padding}
+\alias{set_all_padding}
+\title{Cell padding}
 \usage{
 left_padding(ht)
 left_padding(ht) <- value
-set_left_padding(ht, row, col, value)
+set_left_padding(ht, row, col, value, byrow = FALSE)
 
 right_padding(ht)
 right_padding(ht) <- value
-set_right_padding(ht, row, col, value)
+set_right_padding(ht, row, col, value, byrow = FALSE)
 
 bottom_padding(ht)
 bottom_padding(ht) <- value
-set_bottom_padding(ht, row, col, value)
+set_bottom_padding(ht, row, col, value, byrow = FALSE)
 
 top_padding(ht)
 top_padding(ht) <- value
-set_top_padding(ht, row, col, value)
+set_top_padding(ht, row, col, value, byrow = FALSE)
+
+set_all_padding(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+
+\item{col}{An optional column specifier.}
+
 \item{value}{A vector or matrix. Characters must be valid CSS or LaTeX lengths. Numbers will be interpreted as lengths in points. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
-
-\item{col}{A column specifier.}
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{left_padding}, the \code{left_padding} attribute.
@@ -63,10 +65,28 @@ Similarly for the other functions.
 \description{
 Functions to get or set the cell padding property of huxtable table cells.
 }
+\details{
+\code{set_all_padding} is a convenience function which sets left, right, top and bottom cell padding
+for the specified cells.
+}
 \examples{
 
 ht <- huxtable(a = 1:3, b = 1:3)
 left_padding(ht) <-  20
 left_padding(ht)
 
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_left_padding(ht, 20)
+left_padding(ht2)
+ht3 <- set_left_padding(ht, 1:2, 1, 20)
+left_padding(ht3)
+ht4 <- set_left_padding(ht, 1:2, 1:2, c(20, 10), byrow = TRUE)
+left_padding(ht4)
+ht5 <- set_left_padding(ht, where(ht == 1), 20)
+left_padding(ht5)
+ht <- huxtable(a = 1:3, b = 1:3)
+ht <- set_all_padding(ht, 1:3, 1:2, "20px")
+left_padding(ht)
+right_padding(ht)
 }

@@ -6,30 +6,32 @@
 \alias{set_rotation}
 \alias{rotation.huxtable}
 \alias{rotation<-.huxtable}
-\title{Get or Set Cell Text Rotation}
+\title{Text rotation}
 \usage{
 rotation(ht)
 rotation(ht) <- value
-set_rotation(ht, row, col, value)
+set_rotation(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A numeric vector. 0 is normal direction, 90 is going up, etc. Set to \code{NA} to reset to the default.}
+\item{value}{A numeric vector. Clockwise from the x axis, so 0 is left to right, 90 is going up, etc. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{rotation}, the \code{rotation} attribute.
 For \code{set_rotation}, the \code{ht} object.
 }
 \description{
-Functions to get or set the cell text rotation property of huxtable table cells.
+Functions to get or set the text rotation property of huxtable table cells.
 }
 \details{
-You will likely need to set \code{\link{col_width}} and \code{\link{row_height}} explicitly
+You will probably need to set \code{\link{col_width}} and \code{\link{row_height}} explicitly
 to achieve a nice result, in both HTML and LaTeX.
 }
 \examples{
@@ -38,4 +40,14 @@ ht <- huxtable(a = 1:3, b = 1:3)
 rotation(ht) <-  90
 rotation(ht)
 
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_rotation(ht, 90)
+rotation(ht2)
+ht3 <- set_rotation(ht, 1:2, 1, 90)
+rotation(ht3)
+ht4 <- set_rotation(ht, 1:2, 1:2, c(90, 270), byrow = TRUE)
+rotation(ht4)
+ht5 <- set_rotation(ht, where(ht == 1), 90)
+rotation(ht5)
 }

@@ -6,20 +6,22 @@
 \alias{set_font_size}
 \alias{font_size.huxtable}
 \alias{font_size<-.huxtable}
-\title{Get or Set Font Size}
+\title{Font size}
 \usage{
 font_size(ht)
 font_size(ht) <- value
-set_font_size(ht, row, col, value)
+set_font_size(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{A numeric vector. This sets the font size in points. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{font_size}, the \code{font_size} attribute.
@@ -34,6 +36,16 @@ ht <- huxtable(a = 1:3, b = 1:3)
 font_size(ht) <-  14
 font_size(ht)
 
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_font_size(ht, 14)
+font_size(ht2)
+ht3 <- set_font_size(ht, 1:2, 1, 14)
+font_size(ht3)
+ht4 <- set_font_size(ht, 1:2, 1:2, c(14, 12), byrow = TRUE)
+font_size(ht4)
+ht5 <- set_font_size(ht, where(ht == 1), 14)
+font_size(ht5)
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

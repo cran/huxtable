@@ -1,7 +1,7 @@
 Package: huxtable
 Type: Package
 Title: Simply Create LaTeX and HTML Tables
-Version: 0.1.1
+Version: 0.2.0
 Author: David Hugh-Jones
 Maintainer: David Hugh-Jones <davidhughjones@gmail.com>
 Description: Creates HTML and LaTeX tables. Provides similar 
@@ -9,13 +9,14 @@ Description: Creates HTML and LaTeX tables. Provides similar
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Suggests: testthat, dplyr, devtools
+Suggests: testthat, devtools, broom, ggplot2, ReporteRs, psych, nnet
 RoxygenNote: 6.0.1
 URL: https://hughjonesd.github.io/huxtable
 BugReports: https://github.com/hughjonesd/huxtable/issues
-Imports: knitr, rmarkdown, xtable, htmltools, lazyeval
+Imports: knitr, rmarkdown, xtable, htmltools, lazyeval, utils, crayon,
+        dplyr, tibble
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2017-03-14 17:14:27 UTC; david
+Packaged: 2017-04-21 07:50:36 UTC; david
 Repository: CRAN
-Date/Publication: 2017-03-14 19:46:35
+Date/Publication: 2017-04-21 13:52:48 UTC

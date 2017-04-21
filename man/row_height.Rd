@@ -6,7 +6,7 @@
 \alias{set_row_height}
 \alias{row_height.huxtable}
 \alias{row_height<-.huxtable}
-\title{Get or Set Row Heights}
+\title{Row heights}
 \usage{
 row_height(ht)
 row_height(ht) <- value
@@ -17,7 +17,7 @@ set_row_height(ht, row, value)
 
 \item{value}{A vector.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 }
 \value{
 For \code{row_height}, the \code{row_height} attribute.

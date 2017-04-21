@@ -6,20 +6,22 @@
 \alias{set_colspan}
 \alias{colspan.huxtable}
 \alias{colspan<-.huxtable}
-\title{Get or Set Column Span}
+\title{Column span}
 \usage{
 colspan(ht)
 colspan(ht) <- value
-set_colspan(ht, row, col, value)
+set_colspan(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{An integer vector or matrix of integers. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{colspan}, the \code{colspan} attribute.

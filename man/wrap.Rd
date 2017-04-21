@@ -6,30 +6,42 @@
 \alias{set_wrap}
 \alias{wrap.huxtable}
 \alias{wrap<-.huxtable}
-\title{Get or Set Cell Wrapping}
+\title{Text wrapping}
 \usage{
 wrap(ht)
 wrap(ht) <- value
-set_wrap(ht, row, col, value)
+set_wrap(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{A logical vector or matrix. If \code{TRUE}, long cell contents will be wrapped into multiple lines. Set to \code{NA} for the default. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{wrap}, the \code{wrap} attribute.
 For \code{set_wrap}, the \code{ht} object.
 }
 \description{
-Functions to get or set the cell wrapping property of huxtable table cells.
+Functions to get or set the text wrapping property of huxtable table cells.
 }
 \examples{
 ht <- huxtable(a = rep('Some long text', 2))
 wrap(ht)[1,] <- TRUE
 print_html(ht)
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_wrap(ht, TRUE)
+wrap(ht2)
+ht3 <- set_wrap(ht, 1:2, 1, TRUE)
+wrap(ht3)
+ht4 <- set_wrap(ht, 1:2, 1:2, c(TRUE, FALSE), byrow = TRUE)
+wrap(ht4)
+ht5 <- set_wrap(ht, where(ht == 1), TRUE)
+wrap(ht5)
 }

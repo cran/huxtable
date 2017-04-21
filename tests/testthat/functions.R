@@ -1,6 +1,4 @@
 
-# library(testthat)
-
 example_code_for_topic <- function (fname) {
   path <- devtools::find_topic(fname)[1] # sometimes we get multiples!
 
@@ -17,11 +15,11 @@ code_path_for_topic <- function (fname) file.path(test_path(), 'example-rds', pa
 
 # runs example and checks output & values haven't changed; optionally reset files if code has changed
 test_ex_same <- function(fname, reset_on_change = TRUE) {
-  if (! Sys.getenv('R_TESTS') == '') return(invisible())
+  skip_on_R_CMD_check()
   excode <- example_code_for_topic(fname)
   codepath <- code_path_for_topic(fname)
   if (file.exists(codepath)) {
-    comp <- compare(deparse(excode), readRDS(codepath))
+    comp <- testthat::compare(deparse(excode), readRDS(codepath))
     if (! comp$equal) {
       warning('Example code for ', fname, ' changed')
       if (reset_on_change) reset_example_test(fname)
@@ -32,7 +30,6 @@ test_ex_same <- function(fname, reset_on_change = TRUE) {
   }
 
   exenv <- new.env()
-  exres <- list()
   i <- 1
   for (expr in excode) {
     out <- capture.output(res <- eval(expr, envir = exenv))
@@ -41,7 +38,7 @@ test_ex_same <- function(fname, reset_on_change = TRUE) {
     expect_equal_to_reference(res, fp, info =
           paste0('In "', fname, '", expression changed value: ', deparse(expr, nlines = 1)))
     rds_name <- paste0(fname, '-example-output-', i, '.rds')
-    fp <- file.path(testthat::test_path(), 'example-rds',rds_name)
+    fp <- file.path(testthat::test_path(), 'example-rds', rds_name)
     expect_equal_to_reference(out, fp, info =
           paste0('In "', fname, '", expression changed output: ', deparse(expr, nlines = 1)))
 
@@ -56,7 +53,7 @@ reset_example_test <- function (fnames) {
   for (fname in fnames) {
     # get rid of output and code files
     fs <- list.files(file.path(testthat::test_path()))
-    fs <- grep(paste0('^',fname, '-example-.*'), fs, value = TRUE)
+    fs <- grep(paste0('^', fname, '-example-.*'), fs, value = TRUE)
     fs <- file.path(testthat::test_path(), fs)
     sapply(fs, file.remove)
     remake_code_file(fname)
@@ -66,12 +63,21 @@ reset_example_test <- function (fnames) {
   invisible()
 }
 
+
 remake_code_file <- function (fname) {
   excode <- example_code_for_topic(fname)
   codepath <- code_path_for_topic(fname)
   saveRDS(deparse(excode), file = codepath)
 }
 
+
 skip_without_pandoc <- function () {
   if (! rmarkdown::pandoc_available('1.12.3')) skip('Not testing, pandoc >= 1.12.3 is not available')
+}
+
+
+skip_on_R_CMD_check <- function() {
+  if (! Sys.getenv('R_TESTS') == '') skip('Not testing, code doesn\'t play well with R CMD check')
+  if (! Sys.getenv('COVERAGE') == '') skip('Not testing, code doesn\'t play well with R CMD check')
+
 }

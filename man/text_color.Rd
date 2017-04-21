@@ -6,27 +6,29 @@
 \alias{set_text_color}
 \alias{text_color.huxtable}
 \alias{text_color<-.huxtable}
-\title{Get or Set Cell Text Color}
+\title{Text color}
 \usage{
 text_color(ht)
 text_color(ht) <- value
-set_text_color(ht, row, col, value)
+set_text_color(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{A vector or matrix of R colors. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{text_color}, the \code{text_color} attribute.
 For \code{set_text_color}, the \code{ht} object.
 }
 \description{
-Functions to get or set the cell text color property of huxtable table cells.
+Functions to get or set the text color property of huxtable table cells.
 }
 \examples{
 
@@ -34,6 +36,16 @@ ht <- huxtable(a = 1:3, b = 1:3)
 text_color(ht) <-  'navy'
 text_color(ht)
 
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_text_color(ht, 'navy')
+text_color(ht2)
+ht3 <- set_text_color(ht, 1:2, 1, 'navy')
+text_color(ht3)
+ht4 <- set_text_color(ht, 1:2, 1:2, c('navy', 'red'), byrow = TRUE)
+text_color(ht4)
+ht5 <- set_text_color(ht, where(ht == 1), 'navy')
+text_color(ht5)
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

@@ -6,20 +6,22 @@
 \alias{set_number_format}
 \alias{number_format.huxtable}
 \alias{number_format<-.huxtable}
-\title{Get or Set Number Format}
+\title{Number format}
 \usage{
 number_format(ht)
 number_format(ht) <- value
-set_number_format(ht, row, col, value)
+set_number_format(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{A vector or list which may be character, numeric or function. See below. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{number_format}, the \code{number_format} attribute.
@@ -44,6 +46,16 @@ number_format(ht)[3,] <- list(function(x) prettyNum(x, big.mark = ','))
 number_format(ht)[4,] <- list(function(x) if(x>0) '+' else '-')
 ht
 print_screen(ht)
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_number_format(ht, 2)
+number_format(ht2)
+ht3 <- set_number_format(ht, 1:2, 1, 2)
+number_format(ht3)
+ht4 <- set_number_format(ht, 1:2, 1:2, c(2, 3), byrow = TRUE)
+number_format(ht4)
+ht5 <- set_number_format(ht, where(ht == 1), 2)
+number_format(ht5)
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

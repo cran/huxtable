@@ -24,31 +24,33 @@
 \alias{italic<-.huxtable<-.huxtable}
 \alias{set_set_italic}
 \alias{italic}
-\title{Get or Set Bold or Italic Cell Text}
+\title{Cell text style}
 \usage{
 bold(ht)
 bold(ht) <- value
-set_bold(ht, row, col, value)
+set_bold(ht, row, col, value, byrow = FALSE)
 
 italic(ht)
 italic(ht) <- value
-set_italic(ht, row, col, value)
+set_italic(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{A logical vector or matrix Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{bold}, the \code{bold} attribute.
 For \code{set_bold}, the \code{ht} object.
 }
 \description{
-Functions to get or set the bold or italic cell text property of huxtable table cells.
+Functions to get or set the cell text style property of huxtable table cells.
 }
 \examples{
 
@@ -56,6 +58,16 @@ ht <- huxtable(a = 1:3, b = 1:3)
 bold(ht) <-  TRUE
 bold(ht)
 print_screen(ht)
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_bold(ht, TRUE)
+bold(ht2)
+ht3 <- set_bold(ht, 1:2, 1, TRUE)
+bold(ht3)
+ht4 <- set_bold(ht, 1:2, 1:2, c(TRUE, FALSE), byrow = TRUE)
+bold(ht4)
+ht5 <- set_bold(ht, where(ht == 1), TRUE)
+bold(ht5)
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

@@ -6,7 +6,7 @@
 \alias{set_col_width}
 \alias{col_width.huxtable}
 \alias{col_width<-.huxtable}
-\title{Get or Set Column Widths}
+\title{Column widths}
 \usage{
 col_width(ht)
 col_width(ht) <- value
@@ -17,7 +17,7 @@ set_col_width(ht, col, value)
 
 \item{value}{A vector. If numeric, they are treated as proportions of the table width. If character, they must be valid CSS or LaTeX lengths.}
 
-\item{col}{A col specifier.}
+\item{col}{A col specifier. See \code{\link{rowspecs}} for details.}
 }
 \value{
 For \code{col_width}, the \code{col_width} attribute.
@@ -25,6 +25,11 @@ For \code{set_col_width}, the \code{ht} object.
 }
 \description{
 Functions to get or set the column widths property of huxtable cols.
+}
+\details{
+In LaTeX, if you specify a column width, but set `wrap` to `FALSE` and have cells which
+overrun, then you may have problems with table position and with background colours in other cells.
+The workaround is to adjust the width, so that your cells no longer overrun.
 }
 \examples{
 

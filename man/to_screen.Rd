@@ -4,29 +4,34 @@
 \alias{print_screen}
 \alias{to_screen}
 \alias{to_screen.huxtable}
-\title{Print a Huxtable on Screen}
+\title{Print a huxtable on screen}
 \usage{
 print_screen(ht, ...)
 
 to_screen(ht, ...)
 
 \method{to_screen}{huxtable}(ht, borders = c("both", "horizontal", "vertical",
-  "neither"), blank = " ", ...)
+  "neither"), blank = NULL, colnames = TRUE, colnames_color = "blue", ...)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{...}{Passed on to \code{to_screen}.}
 
-\item{borders}{Print horizontal borders, vertical borders, both or neither. May be abbreviated.}
+\item{borders}{Print 'horizontal' borders, 'vertical' borders, 'both' or 'neither'. May be abbreviated.}
 
-\item{blank}{Character to print for cell divisions with no border}
+\item{blank}{Character to print for cell divisions with no border. If \code{NULL}, print a space ' ' but don't print
+empty horizontal borders.}
+
+\item{colnames}{Whether or not to print colum names.}
+
+\item{colnames_color}{Color to print column names. Note: this won't work in RStudio.}
 }
 \value{
 \code{to_screen} returns a string. \code{print_screen} prints the string and returns \code{NULL}.
 }
 \description{
-Print a Huxtable on Screen
+Print a huxtable on screen
 }
 \details{
 Only \code{colspan}, \code{rowspan}, \code{align} and \code{caption} properties are shown.

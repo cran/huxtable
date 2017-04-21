@@ -3,7 +3,7 @@
 \name{cbind.huxtable}
 \alias{cbind.huxtable}
 \alias{rbind.huxtable}
-\title{Add Rows/Columns}
+\title{Combine rows or columns}
 \usage{
 \method{cbind}{huxtable}(..., deparse.level = 1, copy_cell_props = TRUE)
 
@@ -20,15 +20,15 @@
 A huxtable.
 }
 \description{
-Add Rows/Columns
+Combine rows or columns
 }
 \details{
-Table-level properties will be taken from the first argument which is a huxtable. So will
-row heights (for cbind) and column widths (for rbind).
+Table properties will be taken from the first argument which is a huxtable. So will
+row properties (for cbind) and column properties (for rbind).
 
-If some of the inputs are not huxtables, and \code{copy_cell_props} is a character vector,
-then for rbind, cell properties and row heights will be copied to non-huxtables. For cbind,
-cell properties and column widths will be copied. Objects on the left or above get priority
+If some of the inputs are not huxtables, and \code{copy_cell_props} is a character vector of cell properties,
+then for rbind, the named cell properties and row heights will be copied to non-huxtables. For cbind,
+the named cell properties and column widths will be copied. Objects on the left or above get priority
 over those on the right or below.
 
 If \code{copy_cell_props} is \code{TRUE}, the default

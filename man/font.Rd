@@ -6,20 +6,22 @@
 \alias{set_font}
 \alias{font.huxtable}
 \alias{font<-.huxtable}
-\title{Get or Set Font}
+\title{Font}
 \usage{
 font(ht)
 font(ht) <- value
-set_font(ht, row, col, value)
+set_font(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{A character vector of font names. NB that LaTeX and HTML use different font names. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{font}, the \code{font} attribute.
@@ -34,6 +36,16 @@ ht <- huxtable(a = 1:3, b = 1:3)
 font(ht) <-  'times'
 font(ht)
 
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_font(ht, 'times')
+font(ht2)
+ht3 <- set_font(ht, 1:2, 1, 'times')
+font(ht3)
+ht4 <- set_font(ht, 1:2, 1:2, c('times', 'arial'), byrow = TRUE)
+font(ht4)
+ht5 <- set_font(ht, where(ht == 1), 'times')
+font(ht5)
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

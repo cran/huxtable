@@ -3,18 +3,24 @@
 \name{[.huxtable}
 \alias{[.huxtable}
 \alias{[<-.huxtable}
+\alias{$<-.huxtable}
+\alias{[[<-.huxtable}
 \title{Subset a huxtable}
 \usage{
 \method{[}{huxtable}(x, i, j, drop = FALSE)
 
 \method{[}{huxtable}(x, i, j) <- value
+
+\method{$}{huxtable}(x, name) <- value
+
+\method{[[}{huxtable}(x, i, j) <- value
 }
 \arguments{
 \item{x}{A huxtable.}
 
 \item{i}{Rows to select.}
 
-\item{j}{Columns to select.}
+\item{j, name}{Columns to select.}
 
 \item{drop}{Not used.}
 
@@ -30,9 +36,9 @@ Subset a huxtable
 \code{[} always returns a new huxtable object, while \code{$} and \code{[[} simply
 return a vector of data.
 For the replacement function \code{[<-}, if \code{value} is a huxtable, then its cell properties will be
-copied into \code{x}. In addition, if \code{nrow(value) == nrow(x)}, then column properties
-will be copied into \code{x} as appropriate, and if  \code{ncol(value) == ncol(x)}, then
-row properties will be copied.
+copied into \code{x}. In addition, if \code{value} fills up an entire column, then column properties
+will be copied into the replaced columns of \code{x}, and if it fills up an entire row, then
+row properties will be copied into the replaced rows of \code{x}.
 Replacement functions \code{$<-} and \code{[[<-} simply change the data without affecting other properties.
 }
 \examples{

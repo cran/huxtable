@@ -6,27 +6,61 @@
 \alias{set_left_border}
 \alias{left_border.huxtable}
 \alias{left_border<-.huxtable}
-\title{Get or Set Left Border}
+\alias{right_border}
+\alias{top_border}
+\alias{bottom_border}
+\alias{right_border<-}
+\alias{top_border<-}
+\alias{bottom_border<-}
+\alias{right_border.huxtable}
+\alias{top_border.huxtable}
+\alias{bottom_border.huxtable}
+\alias{right_border<-.huxtable}
+\alias{top_border<-.huxtable}
+\alias{bottom_border<-.huxtable}
+\alias{set_right_border}
+\alias{set_top_border}
+\alias{set_bottom_border}
+\alias{right_border}
+\alias{top_border}
+\alias{bottom_border}
+\title{Borders}
 \usage{
 left_border(ht)
 left_border(ht) <- value
-set_left_border(ht, row, col, value)
+set_left_border(ht, row, col, value, byrow = FALSE)
+
+right_border(ht)
+right_border(ht) <- value
+set_right_border(ht, row, col, value, byrow = FALSE)
+
+top_border(ht)
+top_border(ht) <- value
+set_top_border(ht, row, col, value, byrow = FALSE)
+
+bottom_border(ht)
+bottom_border(ht) <- value
+set_bottom_border(ht, row, col, value, byrow = FALSE)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{value}{A numeric vector or matrix giving border widths. Set to 0 for no border. Set to \code{NA} to reset to the default.}
 
-\item{row}{A row specifier.}
+\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
 
-\item{col}{A column specifier.}
+\item{col}{An optional column specifier.}
+
+\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
 \value{
 For \code{left_border}, the \code{left_border} attribute.
 For \code{set_left_border}, the \code{ht} object.
+
+Similarly for the other functions.
 }
 \description{
-Functions to get or set the left border property of huxtable table cells.
+Functions to get or set the borders property of huxtable table cells.
 }
 \examples{
 
@@ -34,8 +68,17 @@ ht <- huxtable(a = 1:3, b = 1:3)
 left_border(ht) <-  1
 left_border(ht)
 print_screen(ht)
+
+ht <- huxtable(a = 1:3, b = 3:1)
+ht2 <- set_left_border(ht, 1)
+left_border(ht2)
+ht3 <- set_left_border(ht, 1:2, 1, 1)
+left_border(ht3)
+ht4 <- set_left_border(ht, 1:2, 1:2, c(1, 2), byrow = TRUE)
+left_border(ht4)
+ht5 <- set_left_border(ht, where(ht == 1), 1)
+left_border(ht5)
 }
 \seealso{
-Other borders: \code{\link{bottom_border}},
-  \code{\link{right_border}}, \code{\link{top_border}}
+\code{\link{set_all_borders}}
 }
