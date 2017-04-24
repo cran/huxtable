@@ -1,3 +1,8 @@
+# huxtable 0.2.1
+
+* Compatibility with dplyr 0.6.0.
+* Use ~ for decimal padding in LaTeX.
+
 # huxtable 0.2.0
 
 * New `huxreg` function to convert a list of models to a huxtable.

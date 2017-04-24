@@ -194,7 +194,7 @@ wrap(ht_wrapped) <- TRUE
 ht_wrapped
 
 ## ------------------------------------------------------------------------
-car_ht[1:4, 1:4]                                   %>% 
+as_hux(mtcars[1:4, 1:4])                           %>% 
       huxtable::add_rownames(colname = 'Car name') %>% 
       huxtable::add_colnames()
 

@@ -51,3 +51,20 @@ test_that('huxreg merges coefficients with same names', {
   ht2 <- huxreg(lm3, lm4, coefs = c('name' = 'a', 'name' = 'b', 'd'))
   expect_equal(sum(ht2[[1]] == 'name'), 1)
 })
+
+
+test_that('huxreg number_format works correctly', {
+  set.seed(27101975)
+  dfr <- data.frame(y = rnorm(100), a = rnorm(100), b = rnorm(100), d = rnorm(100))
+  dfr$y <- dfr$y + dfr$a
+  lm1 <- lm(y ~ a, dfr)
+  lm2 <- lm(y ~ b, dfr)
+  hr <- huxreg(lm1, lm2, number_format = 4)
+  expect_equal(number_format(hr)[4,2], list(4))
+  expect_equal(number_format(hr)[9,2], list(4))
+  expect_match(to_screen(hr), paste0('\\D', round(coef(lm1)[2], 4) ,'\\D'))
+  hr2 <- huxreg(lm1, lm2, number_format = '%5.3f')
+  expect_equal(number_format(hr2)[4,2], list('%5.3f'))
+  expect_equal(number_format(hr2)[9,2], list('%5.3f'))
+  expect_match(to_screen(hr2), paste0('\\D', sprintf('%5.3f', coef(lm1)[2]),'\\D'))
+})

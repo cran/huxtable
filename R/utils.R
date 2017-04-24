@@ -30,6 +30,10 @@ clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', '
   contents
 }
 
+
+format_color <- function (r_color) paste0(as.vector(grDevices::col2rgb(r_color)), collapse = ', ')
+
+
 # compute_real_borders <- function (ht) {
 #   borders <- matrix(0, nrow(ht) + 1, ncol(ht) + 1)
 #   # borders[y, x] gives the border above row y and left of col x
@@ -84,7 +88,7 @@ decimal_pad <- function(col, pad_chars, type) {
   chars_after_. <- nchars - pos
 
   pad_to <- max(chars_after_.) - chars_after_.
-  pad_char <- if (type == 'html') '&nbsp;' else ' '
+  pad_char <- switch(type, 'html' = '&nbsp;', 'latex' = '~', ' ')
   col <- paste0(col, str_rep(pad_char, pad_to))
 
   orig_col[! na_pad] <- col

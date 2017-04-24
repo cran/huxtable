@@ -1,7 +1,7 @@
 Package: huxtable
 Type: Package
 Title: Simply Create LaTeX and HTML Tables
-Version: 0.2.0
+Version: 0.2.1
 Author: David Hugh-Jones
 Maintainer: David Hugh-Jones <davidhughjones@gmail.com>
 Description: Creates HTML and LaTeX tables. Provides similar 
@@ -17,6 +17,6 @@ Imports: knitr, rmarkdown, xtable, htmltools, lazyeval, utils, crayon,
         dplyr, tibble
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2017-04-21 07:50:36 UTC; david
+Packaged: 2017-04-24 10:05:11 UTC; david
 Repository: CRAN
-Date/Publication: 2017-04-21 13:52:48 UTC
+Date/Publication: 2017-04-24 12:19:28 UTC
