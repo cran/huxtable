@@ -1,6 +1,6 @@
 ## ---- echo = FALSE-------------------------------------------------------
 
-library(huxtable)
+suppressPackageStartupMessages(library(huxtable))
 is_latex <- guess_knitr_output_format() == 'latex'
 
 comp <- read.csv('comparison.csv', stringsAsFactors = FALSE, header = FALSE)

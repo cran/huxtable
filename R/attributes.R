@@ -9,7 +9,9 @@ huxtable_cell_attrs <- c('align', 'valign', 'rowspan', 'colspan', 'background_co
 huxtable_col_attrs <- c('col_width')
 huxtable_row_attrs <- c('row_height')
 huxtable_table_attrs <- c('width', 'height', 'position', 'caption', 'caption_pos', 'tabular_environment', 'label')
-huxtable_default_attrs <- list(
+
+huxtable_env <- new.env()
+huxtable_env$huxtable_default_attrs <- list(
         rowspan             = 1,
         colspan             = 1,
         align               = 'left',
@@ -80,7 +82,7 @@ make_getter_setters <- function(attr_name, attr_type = c('cell', 'row', 'col', '
       .(check_dims)
       .(check_values)
       .(extra_code)
-      value[is.na(value)] <- huxtable_default_attrs[[.(attr_name)]]
+      value[is.na(value)] <- huxtable_env$huxtable_default_attrs[[.(attr_name)]]
       attr(ht, .(attr_name))[] <- value
       ht
     }
@@ -154,6 +156,51 @@ make_getter_setters <- function(attr_name, attr_type = c('cell', 'row', 'col', '
   NULL
 }
 
+
+#' Set default huxtable properties
+#'
+#' Defaults are used for new huxtables, and also when a property is set to \code{NA}.
+#'
+#' @param ... Properties specified by name, or a single named list.
+#'
+#' @return A list of the previous property values, invisibly.
+#' @export
+#' @seealso \code{\link{get_default_properties}}
+#' @examples
+#' old <- set_default_properties(left_border = 1)
+#' hux(a = 1:2, b = 1:2)
+#' set_default_properties(old)
+set_default_properties <- function(...) {
+  defaults <- list(...)
+  if (is.list(defaults[[1]]) && is.null(names(defaults))) defaults <- defaults[[1]]
+
+  if (length(unrec <- setdiff(names(defaults), names(huxtable_env$huxtable_default_attrs))) > 0)
+        stop('Unrecognized huxtable property name(s): ', paste(unrec, collapse = ', '),
+          '; to see all names, use get_default_properties()')
+  old <- huxtable_env$huxtable_default_attrs[names(defaults)]
+  huxtable_env$huxtable_default_attrs[names(defaults)] <- defaults
+
+  invisible(old)
+}
+
+#' Get default huxtable properties
+#'
+#' @param names Vector of property names. If \code{NULL}, all properties are returned.
+#'
+#' @return List of default properties.
+#' @export
+#'
+#' @examples
+#' get_default_properties('bold')
+#' get_default_properties()
+#' @seealso \code{\link{set_default_properties}}
+get_default_properties <- function (names = NULL) {
+  if (is.null(names)) names <- names(huxtable_env$huxtable_default_attrs)
+  if (length(unrec <- setdiff(names, names(huxtable_env$huxtable_default_attrs))) > 0) stop(
+      'Unrecognized property name(s): ', paste(unrec, collapse = ', '),
+        '; to see all names, use get_default_properties()')
+  huxtable_env$huxtable_default_attrs[names]
+}
 
 #' Set multiple cell properties
 #'
@@ -340,6 +387,9 @@ make_getter_setters('text_color', 'cell')
 #' @templateVar attr_desc Borders
 #' @templateVar value_param_desc A numeric vector or matrix giving border widths. Set to 0 for no border.
 #' @templateVar morealiases right_border top_border bottom_border
+#' @details
+#' Currently in LaTeX, border widths are ignored: a border can only be present (if \code{value} > 0) or
+#'absent.
 #' @seealso \code{\link{set_all_borders}}
 #' @template getset-example
 #' @templateVar attr_val 1
@@ -765,7 +815,7 @@ make_getter_setters('number_format', 'cell')
 # override the default
 `number_format<-.huxtable` <- function(ht, value) {
   stopifnot(all(sapply(value, function (x) is.numeric(x) || is.character(x) || is.function(x) )))
-  if (is.atomic(value) || is.list(value)) value[is.na(value)] <- huxtable_default_attrs[['number_format']]
+  if (is.atomic(value) || is.list(value)) value[is.na(value)] <- huxtable_env$huxtable_default_attrs[['number_format']]
   attr(ht, 'number_format')[] <- value
   ht
 }
@@ -821,6 +871,9 @@ make_getter_setters('font', 'cell', check_fun = is.character)
 #' @templateVar attr_desc Table position
 #' @templateVar value_param_desc
 #' A length-one character vector which may be 'left', 'center', 'right' or \code{NA}.
+#' @details
+#' If your tables are too far to the right under LaTeX, try setting their \code{\link{width}}
+#' explicitly.
 #' @template getset-example
 #' @templateVar attr_val 'right'
 #' @export position position<- set_position position.huxtable position<-.huxtable
@@ -833,15 +886,19 @@ make_getter_setters('position', 'table', check_values = c('left', 'center', 'rig
 #' @templateVar attr_name caption_pos
 #' @templateVar attr_desc Caption position
 #' @templateVar value_param_desc
-#' A length-one character vector which can be 'top', 'bottom' or \code{NA} for the default.
+#' A length-one character vector, one of 'top', 'bottom', 'topleft', 'topcenter', 'topright', 'bottomleft', 'bottomcenter', 'bottomright', or \code{NA} for the default.
+#' @details
+#' If \code{caption_pos} is 'top' or 'bottom', then the horizontal position ('left', 'center' or 'right')
+#' will be determined by the huxtable's \code{\link{position}}.
 #' @template getset-example
-#' @templateVar attr_val 'top'
+#' @templateVar attr_val 'bottom'
 #' @export caption_pos caption_pos<- set_caption_pos caption_pos.huxtable caption_pos<-.huxtable
 #' @S3method caption_pos huxtable
 #' @S3method caption_pos<- huxtable
 #' @seealso \code{\link{caption}}
 NULL
-make_getter_setters('caption_pos', 'table', check_values = c('top', 'bottom'))
+make_getter_setters('caption_pos', 'table', check_values = c('top', 'bottom', 'topleft', 'topcenter', 'topright',
+      'bottomleft', 'bottomcenter', 'bottomright'))
 
 
 #' @template getset-table

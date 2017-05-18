@@ -4,14 +4,14 @@
 
 <head>
 
-<meta charset="utf-8" />
+<meta charset="utf-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
 
 <meta name="author" content="David Hugh-Jones" />
 
-<meta name="date" content="2017-04-26" />
+<meta name="date" content="2017-05-18" />
 
 <title>Introduction to Huxtable</title>
 
@@ -119,7 +119,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Introduction to Huxtable</h1>
 <h4 class="author"><em>David Hugh-Jones</em></h4>
-<h4 class="date"><em>2017-04-26</em></h4>
+<h4 class="date"><em>2017-05-18</em></h4>
 
 </div>
 
@@ -172,7 +172,7 @@ $(document).ready(function () {
 <h1>Introduction</h1>
 <div id="about-this-document" class="section level2">
 <h2>About this document</h2>
-<p>This is the introductory vignette for the R package ‘huxtable’, version 0.2.2. A current version is available on the web in <a href="https://hughjonesd.github.io/huxtable/huxtable.html">HTML</a> or <a href="https://hughjonesd.github.io/huxtable/huxtable.pdf">PDF</a> format.</p>
+<p>This is the introductory vignette for the R package ‘huxtable’, version 0.3.0. A current version is available on the web in <a href="https://hughjonesd.github.io/huxtable/huxtable.html">HTML</a> or <a href="https://hughjonesd.github.io/huxtable/huxtable.pdf">PDF</a> format.</p>
 </div>
 <div id="huxtable" class="section level2">
 <h2>Huxtable</h2>
@@ -279,7 +279,7 @@ bottom_border(ht)[1,] &lt;- 1</code></pre>
 <pre class="r"><code>caption(ht) &lt;- 'Employee table'
 ht</code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 50%; margin-left: auto; margin-right: auto;">
-<caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: NA;"><col style="width: NA;"><tr>
+<caption style="caption-side:top; text-align:center">Employee table</caption><col style="width: NA;"><col style="width: NA;"><tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
   <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
@@ -300,7 +300,7 @@ ht</code></pre>
 <p>As well as cell properties and table properties, there is also one row property, row heights, and one column property, column widths.</p>
 <p>The table below shows a complete list of properties. Most properties work the same for LaTeX and HTML, though there are some exceptions.</p>
 <table class="huxtable" style="border-collapse: collapse; width: 90%; margin-left: 0%;">
-<caption style="caption-side:top; text-align: center;">Huxtable properties</caption><col style="width: 20%;"><col style="width: 25%;"><col style="width: 15%;"><col style="width: 15%;"><col style="width: 25%;"><tr>
+<caption style="caption-side:top; text-align:left">Huxtable properties</caption><col style="width: 20%;"><col style="width: 25%;"><col style="width: 15%;"><col style="width: 15%;"><col style="width: 25%;"><tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 0px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 4pt 4pt 4pt; "><span style="font-weight: bold; ">Cell Text</span></td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 4pt 4pt 4pt; background-color: rgb(230, 230, 230); "><span style="font-weight: bold; ">Cell</span></td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 4pt 4pt 4pt; "><span style="font-weight: bold; ">Row</span></td>
@@ -440,14 +440,14 @@ hux(
       )                               %&gt;% 
       set_bold(1, 1:2, TRUE)          %&gt;% 
       set_bottom_border(1, 1:2, 1)    %&gt;%
-      set_align(-1, 2, 'right')       %&gt;%
+      set_align(1:4, 2, 'right')      %&gt;%
       set_right_padding(10)           %&gt;%
       set_left_padding(10)            %&gt;% 
       set_caption('Employee table')</code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 50%; margin-left: auto; margin-right: auto;">
-<caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: NA;"><col style="width: NA;"><tr>
+<caption style="caption-side:top; text-align:center">Employee table</caption><col style="width: NA;"><col style="width: NA;"><tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; ">John Smith</td>
@@ -704,7 +704,7 @@ pointy_ht</code></pre>
 col_width(ht) &lt;- c(.7, .3)
 ht</code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 35%; margin-left: auto; margin-right: auto;">
-<caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: 70%;"><col style="width: 30%;"><tr>
+<caption style="caption-side:top; text-align:center">Employee table</caption><col style="width: 70%;"><col style="width: 30%;"><tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
   <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
@@ -727,7 +727,7 @@ ht</code></pre>
 <pre class="r"><code>ht[4, 1] &lt;- 'David Arthur Shrimpton Hugh-Jones'
 ht </code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 35%; margin-left: auto; margin-right: auto;">
-<caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: 70%;"><col style="width: 30%;"><tr>
+<caption style="caption-side:top; text-align:center">Employee table</caption><col style="width: 70%;"><col style="width: 30%;"><tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
   <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
@@ -749,7 +749,7 @@ ht </code></pre>
 wrap(ht_wrapped) &lt;- TRUE
 ht_wrapped</code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 35%; margin-left: auto; margin-right: auto;">
-<caption style="caption-side:top; text-align: center;">Employee table</caption><col style="width: 70%;"><col style="width: 30%;"><tr>
+<caption style="caption-side:top; text-align:center">Employee table</caption><col style="width: 70%;"><col style="width: 30%;"><tr>
   <td  style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Employee</span></td>
   <td  style="vertical-align: top; text-align: right; white-space: normal; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 10pt 4pt 10pt; "><span style="font-weight: bold; ">Salary</span></td>
 </tr>
@@ -834,214 +834,216 @@ cars_mpg &lt;- set_all_padding(cars_mpg, 2)
 cars_mpg &lt;- set_all_borders(cars_mpg, 1)
 valign(cars_mpg)[1,] &lt;- 'top'
 col_width(cars_mpg) &lt;- c(.4 , .3 , .1, .1, .1)
-
+number_format(cars_mpg)[, 4:5] &lt;- 0
+bold(cars_mpg)[1:2, ] &lt;- TRUE
+bold(cars_mpg)[, 1] &lt;- TRUE
 if (is_latex) font_size(cars_mpg) &lt;- 10
 cars_mpg</code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: 40%;"><col style="width: 30%;"><col style="width: 10%;"><col style="width: 10%;"><col style="width: 10%;"><tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "></td>
-  <td  colspan="4" style="vertical-align: top; text-align: center; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">List of cars</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; "></span></td>
+  <td  colspan="4" style="vertical-align: top; text-align: center; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; ">List of cars</span></td>
 </tr>
 <tr>
-  <td  rowspan="12" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Four cylinders</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Car</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">mpg</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">cyl</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">am</td>
+  <td  rowspan="12" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; ">Four cylinders</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; ">Car</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; ">mpg</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; ">cyl</span></td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; ">am</span></td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Datsun 710</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">22.80</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Merc 240D</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">24.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Merc 230</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">22.80</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Fiat 128</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">32.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Honda Civic</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">30.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Toyota Corolla</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">33.90</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Toyota Corona</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">21.50</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Fiat X1-9</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">27.30</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Porsche 914-2</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">26.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Lotus Europa</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">30.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Volvo 142E</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">21.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 4.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">4</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  rowspan="7" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Six cylinders</td>
+  <td  rowspan="7" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; ">Six cylinders</span></td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Mazda RX4</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">21.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Mazda RX4 Wag</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">21.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Hornet 4 Drive</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">21.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Valiant</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">18.10</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Merc 280</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">19.20</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Merc 280C</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">17.80</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Ferrari Dino</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">19.70</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
-  <td  rowspan="14" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Eight cylinders</td>
+  <td  rowspan="14" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "><span style="font-weight: bold; ">Eight cylinders</span></td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Hornet Sportabout</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">18.70</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Duster 360</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">14.30</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Merc 450SE</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">16.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Merc 450SL</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">17.30</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Merc 450SLC</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">15.20</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Cadillac Fleetwood</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">10.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Lincoln Continental</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">10.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Chrysler Imperial</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">14.70</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Dodge Challenger</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">15.50</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">AMC Javelin</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">15.20</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Camaro Z28</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">13.30</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Pontiac Firebird</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">19.20</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Ford Pantera L</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">15.80</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">Maserati Bora</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">15.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 8.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">8</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; ">1</td>
 </tr>
 </table>
 
@@ -1052,47 +1054,47 @@ cars_mpg</code></pre>
 <pre class="r"><code>theme_striped(cars_mpg[14:20,], stripe = 'bisque1', header_col = FALSE, header_row = FALSE)</code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: 40%;"><col style="width: 30%;"><col style="width: 10%;"><col style="width: 10%;"><col style="width: 10%;"><tr>
-  <td  rowspan="7" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Six cylinders</td>
+  <td  rowspan="7" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "><span style="font-weight: bold; ">Six cylinders</span></td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Mazda RX4</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">21.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">Mazda RX4 Wag</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">21.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">1</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Hornet 4 Drive</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">21.40</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">Valiant</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">18.10</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Merc 280</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">19.20</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">Merc 280C</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">17.80</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); "> 0.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 228, 196); ">0</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">Ferrari Dino</td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">19.70</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "> 6.00</td>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); "> 1.00</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">6</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 2pt 2pt 2pt; background-color: rgb(255, 255, 255); ">1</td>
 </tr>
 </table>
 
@@ -1197,7 +1199,7 @@ att_hux &lt;- att_hux                                                      %&gt;
 
 att_hux</code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 80%; margin-left: auto; margin-right: auto;">
-<caption style="caption-side:top; text-align: center;">Correlations in attitudes among 30 departments</caption><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><tr>
+<caption style="caption-side:top; text-align:center">Correlations in attitudes among 30 departments</caption><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; "><span style="font-weight: bold; ">rownames</span></td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; "><span style="font-weight: bold; ">rating</span></td>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:1px 1px 1px 1px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; "><span style="font-weight: bold; ">complaints</span></td>
@@ -1285,7 +1287,20 @@ att_hux</code></pre>
 <li>With two arguments, like <code>set_property(hux_object, value)</code> to set a property everywhere;</li>
 <li>With three arguments, like <code>set_property(hux_object, where(condition), value)</code> to set a property for specific cells.</li>
 </ul>
-<p>The second argument of the three-argument version must return a 2-column matrix. Each row of the matrix gives one cell. <code>where()</code> does this for you: it takes a logical matrix argument and returns the rows and columns where a condition is <code>TRUE</code>.</p>
+<p>The second argument of the three-argument version must return a 2-column matrix. Each row of the matrix gives one cell. <code>where()</code> does this for you: it takes a logical matrix argument and returns the rows and columns where a condition is <code>TRUE</code>. It’s easiest to show this with an example:</p>
+<pre class="r"><code>m &lt;- matrix(c('dog', 'cat', 'dog', 'dog', 'cat', 'cat', 'cat', 'dog'), 4, 2)
+m</code></pre>
+<pre><code>##      [,1]  [,2] 
+## [1,] &quot;dog&quot; &quot;cat&quot;
+## [2,] &quot;cat&quot; &quot;cat&quot;
+## [3,] &quot;dog&quot; &quot;cat&quot;
+## [4,] &quot;dog&quot; &quot;dog&quot;</code></pre>
+<pre class="r"><code>where(m == 'dog') # m is equal to 'dog' in cells (1, 1), (3, 1), (4, 1) and (4, 2):</code></pre>
+<pre><code>##      row col
+## [1,]   1   1
+## [2,]   3   1
+## [3,]   4   1
+## [4,]   4   2</code></pre>
 <p><code>set_*</code> functions have one more optional argument, the <code>byrow</code> argument, which is <code>FALSE</code> by default. Use this when you are setting a pattern of property values for many cells and want to specify a pattern by row:</p>
 <pre class="r"><code>color_demo &lt;- matrix('text', 7, 7)
 rainbow &lt;- c('red', 'orange', 'yellow', 'green', 'blue', 'turquoise', 'violet')
@@ -1375,10 +1390,10 @@ lm3 &lt;- lm(price ~ carat + depth, diamonds)
 huxreg(lm1, lm2, lm3)</code></pre>
 <table class="huxtable" style="border-collapse: collapse; width: 50%; margin-left: auto; margin-right: auto;">
 <col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><col style="width: NA;"><tr>
-  <td  style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; "></td>
-  <td  style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(1)</td>
-  <td  style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(2)</td>
-  <td  style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(3)</td>
+  <td  style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; "></td>
+  <td  style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(1)</td>
+  <td  style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(2)</td>
+  <td  style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(3)</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(Intercept)</td>
@@ -1411,10 +1426,10 @@ huxreg(lm1, lm2, lm3)</code></pre>
   <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">-102.165 ***</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; "></td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(11.990)&nbsp;&nbsp;&nbsp;</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(4.635)&nbsp;&nbsp;&nbsp;</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; "></td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(11.990)&nbsp;&nbsp;&nbsp;</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">(4.635)&nbsp;&nbsp;&nbsp;</td>
 </tr>
 <tr>
   <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">N</td>
@@ -1435,10 +1450,10 @@ huxreg(lm1, lm2, lm3)</code></pre>
   <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">-472488.441&nbsp;&nbsp;&nbsp;&nbsp;</td>
 </tr>
 <tr>
-  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">AIC</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">945466.532&nbsp;&nbsp;&nbsp;&nbsp;</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">1047550.862&nbsp;&nbsp;&nbsp;&nbsp;</td>
-  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">944984.882&nbsp;&nbsp;&nbsp;&nbsp;</td>
+  <td  style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">AIC</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">945466.532&nbsp;&nbsp;&nbsp;&nbsp;</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">1047550.862&nbsp;&nbsp;&nbsp;&nbsp;</td>
+  <td  style="vertical-align: top; text-align: right; white-space: nowrap; border-width:0px 0px 1px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">944984.882&nbsp;&nbsp;&nbsp;&nbsp;</td>
 </tr>
 <tr>
   <td  colspan="4" style="vertical-align: top; text-align: left; white-space: normal; border-width:0px 0px 0px 0px; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 4pt 4pt 4pt 4pt; ">*** p &lt; 0.001; ** p &lt; 0.01; * p &lt; 0.05.</td>

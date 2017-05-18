@@ -119,7 +119,7 @@ hux(
       )                               %>% 
       set_bold(1, 1:2, TRUE)          %>% 
       set_bottom_border(1, 1:2, 1)    %>%
-      set_align(-1, 2, 'right')       %>%
+      set_align(1:4, 2, 'right')      %>%
       set_right_padding(10)           %>%
       set_left_padding(10)            %>% 
       set_caption('Employee table')
@@ -217,7 +217,9 @@ cars_mpg <- set_all_padding(cars_mpg, 2)
 cars_mpg <- set_all_borders(cars_mpg, 1)
 valign(cars_mpg)[1,] <- 'top'
 col_width(cars_mpg) <- c(.4 , .3 , .1, .1, .1)
-
+number_format(cars_mpg)[, 4:5] <- 0
+bold(cars_mpg)[1:2, ] <- TRUE
+bold(cars_mpg)[, 1] <- TRUE
 if (is_latex) font_size(cars_mpg) <- 10
 cars_mpg
 
@@ -254,6 +256,11 @@ att_hux <- att_hux                                                      %>%
 
 att_hux
 
+
+## ------------------------------------------------------------------------
+m <- matrix(c('dog', 'cat', 'dog', 'dog', 'cat', 'cat', 'cat', 'dog'), 4, 2)
+m
+where(m == 'dog') # m is equal to 'dog' in cells (1, 1), (3, 1), (4, 1) and (4, 2):
 
 ## ------------------------------------------------------------------------
 
