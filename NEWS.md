@@ -1,3 +1,8 @@
+# huxtable 0.3.0.9000 (development version on github)
+
+* New convenience functions `insert_row` and `insert_column`.
+* `latex_float` property allows you to change positioning in LaTeX.
+
 # huxtable 0.3.0
 
 * New borders argument for huxreg, gives borders in sensible places.

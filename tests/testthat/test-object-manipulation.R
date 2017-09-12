@@ -114,6 +114,30 @@ test_that('add_footnote works', {
   expect_true(italic(ht_orig)[3, 1])
 })
 
+test_that('insert_column and insert_row work', {
+  ht_orig <- hux(a = 1:2, b = 1:2)
+  ht <- insert_row(ht_orig, 8, 9)
+  expect_equivalent(nrow(ht), 3)
+  expect_equivalent(ht[1, 2], 9)
+
+  ht <- insert_row(ht_orig, 8, 9, after = 1)
+  expect_equivalent(nrow(ht), 3)
+  expect_equivalent(ht[, 2], huxtable(b=c(1,9,2)))
+
+  ht <- insert_column(ht_orig, 8, 9)
+  expect_equivalent(ncol(ht), 3)
+  expect_equivalent(ht[2, 1], 9)
+
+  ht<- insert_column(ht_orig, 8, 9, after = 1)
+  expect_equivalent(ncol(ht), 3)
+  expect_equivalent(ht[1, ], huxtable(a=1, 8, b=1))
+
+  bold(ht_orig) <- TRUE
+  ht <- insert_column(ht_orig, 8, 9, after = 1)
+  expect_true(bold(ht)[1, 2])
+  ht <- insert_column(ht_orig, 8, 9, after = 1, copy_cell_props = FALSE)
+  expect_false(bold(ht)[1, 2])
+})
 
 test_that('Can add a column to a huxtable using standard replacement methods', {
   ht <- hux(a = 1:2, b = 1:2)
