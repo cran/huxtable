@@ -310,13 +310,12 @@ make_getter_setters('row_height', 'row')
 #' @template getset-example
 #' @templateVar subscript [1, 1]
 #' @templateVar attr_val 2
-#' @templateVar extra print_screen(ht, blank = '.')
+#' @templateVar extra print_screen(ht)
 #' @export rowspan rowspan<- set_rowspan rowspan.huxtable rowspan<-.huxtable
 #' @S3method rowspan huxtable
 #' @S3method rowspan<- huxtable
 NULL
-make_getter_setters('rowspan', 'cell', check_fun = is.numeric, extra_code =
-    {
+make_getter_setters('rowspan', 'cell', check_fun = is.numeric, extra_code = {
       if (any(na.omit( row(ht) + value - 1 > nrow(ht) ))) stop('rowspan would extend beyond bottom of table')
       check_span_shadows(ht, 'row', value)
     }
@@ -329,13 +328,12 @@ make_getter_setters('rowspan', 'cell', check_fun = is.numeric, extra_code =
 #' @template getset-example
 #' @templateVar subscript [1, 1]
 #' @templateVar attr_val 2
-#' @templateVar extra print_screen(ht, blank = '.')
+#' @templateVar extra print_screen(ht)
 #' @export colspan colspan<- set_colspan colspan.huxtable colspan<-.huxtable
 #' @S3method colspan huxtable
 #' @S3method colspan<- huxtable
 NULL
-make_getter_setters('colspan', 'cell', check_fun = is.numeric, extra_code =
-    {
+make_getter_setters('colspan', 'cell', check_fun = is.numeric, extra_code = {
       if (any(na.omit( col(ht) + value - 1 > ncol(ht) ))) stop('rowspan would extend beyond bottom of table')
       check_span_shadows(ht, 'col', value)
     }
@@ -387,11 +385,11 @@ make_getter_setters('text_color', 'cell')
 #' @template getset-cell
 #' @templateVar attr_name left_border
 #' @templateVar attr_desc Borders
-#' @templateVar value_param_desc A numeric vector or matrix giving border widths. Set to 0 for no border.
+#' @templateVar value_param_desc A numeric vector or matrix giving border widths in points. Set to 0 for no border.
 #' @templateVar morealiases right_border top_border bottom_border
 #' @details
-#' Currently in LaTeX, border widths are ignored: a border can only be present (if \code{value} > 0) or
-#'absent.
+#' Currently in LaTeX, all non-zero border widths on a given line must be the same, and vertical border widths
+#' can only be present (if \code{value > 0}) or absent.
 #' @seealso \code{\link{set_all_borders}}
 #' @template getset-example
 #' @templateVar attr_val 1
@@ -453,7 +451,7 @@ make_getter_setters('bottom_border', 'cell', check_fun = is.numeric)
 #' @return The modified huxtable.
 #' @export
 #'
-#' @seealso \code{\link{left_border}}
+#' @seealso \code{\link{left_border}}, \code{\link{set_outer_borders}}
 #' @examples
 #' ht <- huxtable(a = 1:3, b = 1:3)
 #' ht <- set_all_borders(ht, 1:3, 1:2, 1)
@@ -464,6 +462,43 @@ set_all_borders <- function(ht, row, col, value, byrow = FALSE) {
     call[[2]] <- quote(ht)
     ht <- eval(call, list(ht = ht), parent.frame())
   }
+
+  ht
+}
+
+
+#' Set outer borders round a rectangle of cells
+#'
+#' This is a convenience function to set a border round the top,
+#' bottom, left and right of a group of cells.
+#'
+#' @param ht A huxtable
+#' @param row A set of rows. See below.
+#' @param col A set of columns.
+#' @param value A numeric value for the border width. Set to 0 for no border.
+#'
+#' @return The modified huxtable.
+#' @details
+#' Only standard R subsetting may be used for \code{row} and \code{col}. That is,
+#' logical, numeric or character indices are allowed, but not the tricks in \code{\link{rowspecs}}.
+#'
+#' @export
+#'
+#' @seealso \code{\link{left_border}}, \code{\link{set_all_borders}}
+#' @examples
+#' ht <- huxtable(a = 1:3, b = 1:3)
+#' ht <- set_outer_borders(ht, 2:3, 1:2, 1)
+#' ht
+set_outer_borders <- function(ht, row, col, value) {
+  if (is.character(row)) row <- rownames(ht) %in% row
+  if (is.logical(row)) row <- which(row)
+  if (is.character(col)) col <- colnames(ht) %in% col
+  if (is.logical(col)) col <- which(col)
+
+  left_border(ht)[row, min(col)]    <- value
+  right_border(ht)[row, max(col)]   <- value
+  top_border(ht)[min(row), col]     <- value
+  bottom_border(ht)[max(row), col]  <- value
 
   ht
 }
@@ -566,13 +601,12 @@ set_all_border_colors <- function(ht, row, col, value, byrow = FALSE) {
 }
 
 
-
-get_all_border_colors <- function(ht, row, col) {
+get_all_border_colors <- function(ht, row, col, drop = TRUE) {
   list(
-    left   = left_border_color(ht)[row, col],
-    right  = right_border_color(ht)[row, col],
-    top    = top_border_color(ht)[row, col],
-    bottom = bottom_border_color(ht)[row, col]
+    left   = left_border_color(ht)[row, col, drop = drop],
+    right  = right_border_color(ht)[row, col, drop = drop],
+    top    = top_border_color(ht)[row, col, drop = drop],
+    bottom = bottom_border_color(ht)[row, col, drop = drop]
   )
 }
 
@@ -792,7 +826,7 @@ make_getter_setters('rotation', 'cell', check_fun = is.numeric)
 #' If \code{value} is numeric, numbers will be rounded to that many decimal places.  If \code{value} is
 #' character, it will be taken as an argument to \code{\link{sprintf}}. If \code{value} is a
 #' function it will be applied to the cell contents.
-#' Number format is applied to any cells that look like numbers (as judged by \code{\link{as.numeric}}), not just to numeric cells. This allows you to do e.g. \code{ht <- huxtable(a = c('Salary', 35000, 32000, 40000))} and still format numbers correctly.
+#' Number format is applied to any cells that look like numbers (as judged by \code{\link{as.numeric}}), not just to numeric cells. This allows you to do e.g. \code{ht <- huxtable(c('Salary', 35000, 32000, 40000))} and still format numbers correctly.
 #' To set number_format to a function, enclose the function in \code{list}.
 #' See the examples.
 #' @family formatting functions
@@ -941,11 +975,11 @@ make_getter_setters('height', 'table')
 #' Captions are not escaped. See the example for a workaround.
 #' @template getset-example
 #' @templateVar attr_val 'An example table'
-#' @templateVar extra print_screen(ht, blank = '.')
+#' @templateVar extra print_screen(ht)
 #' @seealso \code{\link{caption_pos}}
 #' @examples
 #' ht <- hux(a = 1:2, b = 1:2)
-#' caption(ht) <- xtable::sanitize('Make $$$ with us', type = 'latex') # escape caption characters
+#' caption(ht) <- sanitize('Make $$$ with us', type = 'latex') # escape caption characters
 #' @export caption caption<- set_caption caption.huxtable caption<-.huxtable
 #' @S3method caption huxtable
 #' @S3method caption<- huxtable

@@ -32,9 +32,9 @@ Captions are not escaped. See the example for a workaround.
 ht <- huxtable(a = 1:3, b = 1:3)
 caption(ht) <-  'An example table'
 caption(ht)
-print_screen(ht, blank = '.')
+print_screen(ht)
 ht <- hux(a = 1:2, b = 1:2)
-caption(ht) <- xtable::sanitize('Make $$$ with us', type = 'latex') # escape caption characters
+caption(ht) <- sanitize('Make $$$ with us', type = 'latex') # escape caption characters
 }
 \seealso{
 \code{\link{caption_pos}}

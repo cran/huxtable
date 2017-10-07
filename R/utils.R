@@ -19,9 +19,8 @@ clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', '
       contents[row, col] <- cell
     }
     if (type %in% c('latex', 'html')) {
-      # xtable::sanitize.numbers would do very little and is buggy
       to_esc <- escape_contents(ht)[, col]
-      contents[to_esc, col] <-  xtable::sanitize(contents[to_esc, col], type)
+      contents[to_esc, col] <-  sanitize(contents[to_esc, col], type)
     }
     # has to be after sanitization because we add &nbsp; for HTML
     contents[, col] <- decimal_pad(contents[, col], pad_decimal(ht)[, col], type)
@@ -31,8 +30,68 @@ clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', '
 }
 
 
-format_color <- function (r_color) paste0(as.vector(grDevices::col2rgb(r_color)), collapse = ', ')
+format_color <- function (r_color, default = 'white') {
+  if (is.na(r_color)) r_color <- default
+  paste0(as.vector(grDevices::col2rgb(r_color)), collapse = ', ')
+}
 
+
+# returns two rows(+1),cols(+1) arrays of border widths
+collapsed_borders <- function (ht) {
+  lb <- rb <- matrix(0, nrow(ht), ncol(ht))
+  tb <- bb <- matrix(0, nrow(ht), ncol(ht))
+
+  dc <- display_cells(ht, all = TRUE)
+  for (i in seq_len(nrow(ht))) for (j in seq_len(ncol(ht))) {
+    dcell <- dc[dc$row == i & dc$col ==j, ]
+    drow <- dcell$display_row
+    dcol <- dcell$display_col
+    # if we're in top row, set top border; bottom row set bb etc.
+    if (i == drow)          tb[i, j] <- top_border(ht)[drow, dcol]
+    if (i == dcell$end_row) bb[i, j] <- bottom_border(ht)[drow, dcol]
+    if (j == dcol)          lb[i, j] <- left_border(ht)[drow, dcol]
+    if (j == dcell$end_col) rb[i, j] <- right_border(ht)[drow, dcol]
+  }
+  lb <- cbind(lb, 0)
+  rb <- cbind(0, rb)
+  tb <- rbind(tb, 0)
+  bb <- rbind(0, bb)
+  result <- list()
+  result$vert <- pmax(lb, rb)
+  result$horiz <- pmax(tb, bb)
+
+  result
+}
+
+# returns two rows(+1),cols(+1) arrays of border colors. right and top borders have priority.
+# A border of 0 can still have a color.
+collapsed_border_colors <- function (ht) {
+  lb <- rb <- matrix(NA, nrow(ht), ncol(ht))
+  tb <- bb <- matrix(NA, nrow(ht), ncol(ht))
+
+  dc <- display_cells(ht, all = TRUE)
+  for (i in seq_len(nrow(ht))) for (j in seq_len(ncol(ht))) {
+    dcell <- dc[dc$row == i & dc$col ==j, ]
+    drow <- dcell$display_row
+    dcol <- dcell$display_col
+    # if we're in top row, set top border; bottom row set bb etc.
+    if (i == drow)          tb[i, j] <- top_border_color(ht)[drow, dcol]
+    if (i == dcell$end_row) bb[i, j] <- bottom_border_color(ht)[drow, dcol]
+    if (j == dcol)          lb[i, j] <- left_border_color(ht)[drow, dcol]
+    if (j == dcell$end_col) rb[i, j] <- right_border_color(ht)[drow, dcol]
+  }
+  lb <- cbind(lb, NA)
+  rb <- cbind(NA, rb)
+  tb <- rbind(tb, NA)
+  bb <- rbind(NA, bb)
+  result <- list()
+  result$vert <- rb
+  result$vert[is.na(rb)] <- lb[is.na(rb)]
+  result$horiz <- bb
+  result$horiz[is.na(bb)] <- tb[is.na(bb)]
+
+  result
+}
 
 # compute_real_borders <- function (ht) {
 #   borders <- matrix(0, nrow(ht) + 1, ncol(ht) + 1)
@@ -69,6 +128,52 @@ format_number <- function (num, nf) {
   res
 }
 
+
+
+#' Sanitize table elements
+#'
+#' This is copied over from \code{\link[xtable]{sanitize}}.
+#'
+#' @param str A character object.
+#' @param type \code{"latex"} or \code{"html"}.
+#'
+#' @return The sanitized character object.
+#' @export
+#'
+#' @examples
+#' foo <- 'Make $$$ with us'
+#' sanitize(foo, type = 'latex')
+sanitize <- function (str, type = "latex")
+{
+  if (type == "latex") {
+    result <- str
+    result <- gsub("\\\\", "SANITIZE.BACKSLASH", result)
+    result <- gsub("$", "\\$", result, fixed = TRUE)
+    result <- gsub(">", "$>$", result, fixed = TRUE)
+    result <- gsub("<", "$<$", result, fixed = TRUE)
+    result <- gsub("|", "$|$", result, fixed = TRUE)
+    result <- gsub("{", "\\{", result, fixed = TRUE)
+    result <- gsub("}", "\\}", result, fixed = TRUE)
+    result <- gsub("%", "\\%", result, fixed = TRUE)
+    result <- gsub("&", "\\&", result, fixed = TRUE)
+    result <- gsub("_", "\\_", result, fixed = TRUE)
+    result <- gsub("#", "\\#", result, fixed = TRUE)
+    result <- gsub("^", "\\verb|^|", result, fixed = TRUE)
+    result <- gsub("~", "\\~{}", result, fixed = TRUE)
+    result <- gsub("SANITIZE.BACKSLASH", "$\\backslash$",
+      result, fixed = TRUE)
+    return(result)
+  }
+  else {
+    result <- str
+    result <- gsub("&", "&amp;", result, fixed = TRUE)
+    result <- gsub(">", "&gt;", result, fixed = TRUE)
+    result <- gsub("<", "&lt;", result, fixed = TRUE)
+    return(result)
+  }
+}
+
+
 decimal_pad <- function(col, pad_chars, type) {
   # where pad_chars is NA we do not pad
   orig_col  <- col
@@ -94,6 +199,7 @@ decimal_pad <- function(col, pad_chars, type) {
   orig_col[! na_pad] <- col
   orig_col
 }
+
 
 # return data frame mapping real cell positions to cells displayed
 display_cells <- function(ht, all = TRUE, new_rowspan = rowspan(ht), new_colspan = colspan(ht)) {
@@ -149,6 +255,7 @@ knit_print.huxtable <- function (x, options, ...) {
 
 
 options(huxtable.print = print_screen)
+options(huxtable.color_screen = requireNamespace('crayon', quietly = TRUE))
 
 
 #' Default print method for huxtables
@@ -305,19 +412,21 @@ hux_logo <- function(latex = FALSE) {
   logo <- hux(c('h', NA), c('u', 'table'), c('x', NA))
   rowspan(logo)[1, 1] <- 2
   colspan(logo)[2, 2] <- 2
-  logo <- set_all_borders(logo, 1)
-  font_size(logo) <- if (latex) 12 else 20
-  font_size(logo)[1, 2:3] <- if (latex) 16 else 24
-  font_size(logo)[1, 1] <-  if (latex) 28 else 42
+  logo <- set_all_borders(logo, 0.5)
+  font_size(logo) <- if (latex) 11 else 20
+  font_size(logo)[1, 2:3] <- if (latex) 14 else 24
+  font_size(logo)[1, 1] <-  if (latex) 24 else 42
   background_color(logo)[1, 1] <- '#e83abc'
   background_color(logo)[1, 3] <- 'black'
   text_color(logo)[1, 3] <- 'white'
-  width(logo) <- if (latex) 0.2 else '60pt'
-  height(logo) <- if (latex) '40pt' else '60pt'
+  width(logo) <- if (latex) '0.21\\textwidth' else '60pt'
+  height(logo) <- if (latex) '45pt' else '60pt'
   font(logo) <- 'Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif'
   if (latex) font(logo) <- 'ppl'
   top_padding(logo) <- 2
   bottom_padding(logo) <- 2
+  bottom_padding(logo)[2, 2] <- 1
+  align(logo)[2, 2] <- 'center'
   col_width(logo) <- c(.4, .3, .3)
   position(logo) <- 'center'
   logo

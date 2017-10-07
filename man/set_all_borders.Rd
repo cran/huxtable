@@ -13,7 +13,7 @@ set_all_borders(ht, row, col, value, byrow = FALSE)
 
 \item{col}{An optional column specifier.}
 
-\item{value}{A numeric vector or matrix giving border widths. Set to 0 for no border. Set to \code{NA} to reset to the default.}
+\item{value}{A numeric vector or matrix giving border widths in points. Set to 0 for no border. Set to \code{NA} to reset to the default.}
 
 \item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
 }
@@ -29,5 +29,5 @@ ht <- huxtable(a = 1:3, b = 1:3)
 ht <- set_all_borders(ht, 1:3, 1:2, 1)
 }
 \seealso{
-\code{\link{left_border}}
+\code{\link{left_border}}, \code{\link{set_outer_borders}}
 }

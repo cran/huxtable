@@ -10,22 +10,24 @@ print_screen(ht, ...)
 
 to_screen(ht, ...)
 
-\method{to_screen}{huxtable}(ht, borders = c("both", "horizontal", "vertical",
-  "neither"), blank = NULL, colnames = TRUE, colnames_color = "blue", ...)
+\method{to_screen}{huxtable}(ht, min_width = ceiling(getOption("width")/6),
+  max_width = Inf, compact = TRUE, colnames = TRUE,
+  color = getOption("huxtable.color_screen", default = TRUE), ...)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
 \item{...}{Passed on to \code{to_screen}.}
 
-\item{borders}{Print 'horizontal' borders, 'vertical' borders, 'both' or 'neither'. May be abbreviated.}
+\item{min_width}{Minimum width in on-screen characters of the result.}
 
-\item{blank}{Character to print for cell divisions with no border. If \code{NULL}, print a space ' ' but don't print
-empty horizontal borders.}
+\item{max_width}{Maximum width in on-screen characters of the result. Overrides \code{min_width}.}
 
-\item{colnames}{Whether or not to print colum names.}
+\item{compact}{Logical. To save space, don't print lines for empty horizontal borders.}
 
-\item{colnames_color}{Color to print column names. Note: this won't work in RStudio.}
+\item{colnames}{Logical. Whether or not to print colum names.}
+
+\item{color}{Logical. Whether to print the huxtable in color (requires the \code{crayon} package).}
 }
 \value{
 \code{to_screen} returns a string. \code{print_screen} prints the string and returns \code{NULL}.
@@ -34,7 +36,9 @@ empty horizontal borders.}
 Print a huxtable on screen
 }
 \details{
-Only \code{colspan}, \code{rowspan}, \code{align} and \code{caption} properties are shown.
+\code{colspan}, \code{rowspan}, \code{align} and \code{caption} properties are shown. If the \code{crayon}
+package is installed, output will be colorized (and contents bolded or italicized) by default;
+this will work in recent daily builds of RStudio as of October 2017.
 }
 \examples{
 ht <- huxtable(a = 1:5, b = 1:5, add_colnames = TRUE)
@@ -42,8 +46,6 @@ ht <- set_all_borders(ht, 1:6, 1:2, 1)
 right_border(ht)[,1] <- left_border(ht)[,2] <- 0
 align(ht)[1,] <- 'left'
 print_screen(ht)
-print_screen(ht, blank = '.')
-print_screen(ht, borders = 'horiz')
 }
 \seealso{
 Other printing functions: \code{\link{print_html}},

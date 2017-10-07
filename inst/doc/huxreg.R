@@ -34,7 +34,7 @@ diamond_regs[seq(8, 18, 2), 1] <- paste('Color:', LETTERS[5:10])
 diamond_regs
 
 ## ------------------------------------------------------------------------
-library(dplyr)
+suppressPackageStartupMessages(library(dplyr))
 diamond_regs                                                         %>% 
       theme_article                                                  %>% 
       set_background_color(1:nrow(diamond_regs), evens, grey(.95)) %>% 
@@ -59,18 +59,18 @@ huxreg(lm1, lm3, statistics = c('# observations' = 'nobs', 'R squared' = 'r.squa
   'P value' = 'p.value'))
 
 ## ------------------------------------------------------------------------
-huxreg(lm1, lm3, error_style = 'statistic')
-huxreg(lm1, lm3, error_style = 'pvalue')
+huxreg(lm1, lm3, stars = c(`*` = 0.1, `**` = 0.05, `***` = 0.01)) # a little boastful?
+huxreg(lm1, lm3, stars = NULL) 
 
 ## ------------------------------------------------------------------------
-huxreg(lm1, lm3, error_style = 'ci') # default is .95
-huxreg(lm1, lm3, error_style = 'ci', ci_level = .99)
+huxreg(lm1, lm3, error_format = '({statistic})')
+huxreg(lm1, lm3, error_format = '({p.value})')
 
 ## ------------------------------------------------------------------------
-huxreg(lm1, lm3, error_style = c('stderr', 'ci'))
+huxreg(lm1, lm3, ci_level = .99, error_format = '{conf.low} to {conf.high}')
 
 ## ------------------------------------------------------------------------
-huxreg(lm1, lm3, note = 'Linear regressions on diamond price. %stars%.')
+huxreg(lm1, lm3, note = 'Linear regressions on diamond price. {stars}.')
 
 ## ------------------------------------------------------------------------
 huxreg(lm1, lm3, number_format = 2)
