@@ -241,12 +241,10 @@ cars_mpg
 theme_striped(cars_mpg[14:20,], stripe = 'bisque1', header_col = FALSE, header_row = FALSE)
 
 ## ------------------------------------------------------------------------
-car_ht %>% 
-      set_left_border(everywhere, 1, 1)           %>%    # left outer border   - every row, first column
-      set_right_border(everywhere, final(1), 1)   %>%    # right outer border  - every row, last column
-      set_top_border(1, everywhere, 1)            %>%    # top outer border    - first row, every column
-      set_bottom_border(final(1), everywhere, 1)  %>%    # bottom outer border - last row, every column
-      set_background_color(evens, everywhere, 'wheat')   # horizontal stripe   - even rows, all columns
+car_ht                                                 %>% 
+      set_background_color(evens, everywhere, 'wheat') %>% 
+      set_background_color(odds, everywhere, grey(.9)) %>% 
+      set_bold(1, everywhere, TRUE)
 
 ## ------------------------------------------------------------------------
 library(psych)

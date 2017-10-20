@@ -37,7 +37,8 @@ to_screen  <- function (ht, ...) UseMethod('to_screen')
 to_screen.huxtable <- function (ht, min_width = ceiling(getOption('width') / 6), max_width = Inf,
       compact = TRUE, colnames = TRUE, color = getOption('huxtable.color_screen', default = TRUE), ...) {
   if (color && ! requireNamespace('crayon', quietly = TRUE)) {
-    warning('Cannot print huxtable in color as `crayon` package is not installed. Try `install.packages("crayon"`')
+    warning('Cannot print huxtable in color as `crayon` package is not installed. Try `install.packages("crayon")`.
+      To avoid seeing this message in future, set `options(huxtable.color_screen = FALSE)`.')
     color <- FALSE
   }
   charmat_data <- character_matrix(ht, inner_border_h = 3, outer_border_h = 2, inner_border_v = 1, outer_border_v = 1,
@@ -198,9 +199,9 @@ character_matrix <- function (ht, inner_border_h, inner_border_v, outer_border_h
   widths <- min_widths
 
   content_widths <- ncharw(dc$contents)
-  max_word_widths <- sapply(lapply(strsplit(dc$contents, "\\s"), ncharw), function (x) {
-    if (length(x) > 0) max(x) else 0 # return 0 for empty cells
-  })
+  # return 0 for empty cells. We don't use "\\s"; non-breaking spaces, returned by decimal_pad, are excluded
+  # this is risky because we might screw up some locales...
+  max_word_widths <- sapply(lapply(strsplit(dc$contents, "(\t|\n|\r|\v )"), ncharw), function (x)  max(c(0, x)))
   for (r in seq_len(nrow(dc))) {
     width <- if (wrap(ht)[ dc$display_row[r], dc$display_col[r] ]) max_word_widths[r] else content_widths[r]
     cols <- seq(dc$display_col[r], dc$end_col[r])

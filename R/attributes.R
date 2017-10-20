@@ -264,7 +264,8 @@ make_getter_setters('valign', 'cell', check_fun = is.character, check_values = c
 #' @S3method align huxtable
 #' @S3method align<- huxtable
 NULL
-make_getter_setters('align', 'cell', check_fun = is.character, check_values = c('left', 'center', 'right'))
+make_getter_setters('align', 'cell', check_fun = is.character, check_values = c('left', 'center', 'centre', 'right'),
+      extra_code = value[value == 'centre'] <- 'center')
 
 
 #' @template getset-rowcol
@@ -473,26 +474,34 @@ set_all_borders <- function(ht, row, col, value, byrow = FALSE) {
 #' bottom, left and right of a group of cells.
 #'
 #' @param ht A huxtable
-#' @param row A set of rows. See below.
-#' @param col A set of columns.
+#' @param row A row specifier. See \code{\link{rowspecs}} for details.
+#' @param col A column specifier.
 #' @param value A numeric value for the border width. Set to 0 for no border.
 #'
 #' @return The modified huxtable.
-#' @details
-#' Only standard R subsetting may be used for \code{row} and \code{col}. That is,
-#' logical, numeric or character indices are allowed, but not the tricks in \code{\link{rowspecs}}.
-#'
 #' @export
 #'
 #' @seealso \code{\link{left_border}}, \code{\link{set_all_borders}}
 #' @examples
 #' ht <- huxtable(a = 1:3, b = 1:3)
-#' ht <- set_outer_borders(ht, 2:3, 1:2, 1)
-#' ht
+#' set_outer_borders(ht, 1)
+#' set_outer_borders(ht, 2:3, 1:2, 1)
+#'
 set_outer_borders <- function(ht, row, col, value) {
-  if (is.character(row)) row <- rownames(ht) %in% row
+  if (missing(col) && missing(value)) {
+    value <- row
+    row <- seq_len(nrow(ht))
+    col <- seq_len(ncol(ht))
+  } else if (missing(value)) {
+    value <- col
+    if (!is.matrix(row)) stop("No columns specified, but `row` argument did not evaluate to a matrix")
+    # row is a 2-matrix of row, col vectors;
+    col <- seq(min(row[, 2]), max(row[, 2]))
+    row <- seq(min(row[, 1]), max(row[, 1]))
+  }
+  row <- get_rc_spec(ht, row, 1)
+  col <- get_rc_spec(ht, col, 2)
   if (is.logical(row)) row <- which(row)
-  if (is.character(col)) col <- colnames(ht) %in% col
   if (is.logical(col)) col <- which(col)
 
   left_border(ht)[row, min(col)]    <- value
@@ -865,7 +874,7 @@ make_getter_setters('number_format', 'cell')
 #' LaTeX and HTML both have no simple way to align columns on decimal points, especially when cells
 #' may contain non-mathematical content like significance stars. To right-pad cells
 #' in a column to align on the rightmost decimal point, set \code{pad_decimal} to '.' or whatever decimal
-#' you prefer to use.
+#' you prefer to use. Note that this will only work for cells with \code{\link{align}} set to \code{'right'}.
 #' @examples
 #' vals <- c(1.00035, 22, "2.34 *", "(11.5 - 22.3)", "Do not pad this row.")
 #' ht <- hux(NotPadded = vals, Padded = vals)
@@ -916,7 +925,8 @@ make_getter_setters('font', 'cell', check_fun = is.character)
 #' @S3method position huxtable
 #' @S3method position<- huxtable
 NULL
-make_getter_setters('position', 'table', check_values = c('left', 'center', 'right'))
+make_getter_setters('position', 'table', check_values = c('left', 'center', 'centre', 'right'),
+      extra_code = value[value == 'centre'] <- 'center')
 
 #' @template getset-table
 #' @templateVar attr_name caption_pos
@@ -933,8 +943,11 @@ make_getter_setters('position', 'table', check_values = c('left', 'center', 'rig
 #' @S3method caption_pos<- huxtable
 #' @seealso \code{\link{caption}}
 NULL
-make_getter_setters('caption_pos', 'table', check_values = c('top', 'bottom', 'topleft', 'topcenter', 'topright',
-      'bottomleft', 'bottomcenter', 'bottomright'))
+make_getter_setters('caption_pos', 'table', check_values = c('top', 'bottom', 'topleft', 'topcenter', 'topcentre',
+      'topright', 'bottomleft', 'bottomcenter', 'bottomcentre', 'bottomright'), extra_code = {
+        value[value == 'topcentre'] <- 'topcenter'
+        value[value == 'bottomcentre'] <- 'bottomcenter'
+      })
 
 
 #' @template getset-table

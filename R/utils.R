@@ -42,15 +42,17 @@ collapsed_borders <- function (ht) {
   tb <- bb <- matrix(0, nrow(ht), ncol(ht))
 
   dc <- display_cells(ht, all = TRUE)
+  # provides large speedup:
+  dc <- as.matrix(dc[,c('row', 'col', 'display_row', 'display_col', 'end_row', 'end_col')])
   for (i in seq_len(nrow(ht))) for (j in seq_len(ncol(ht))) {
-    dcell <- dc[dc$row == i & dc$col ==j, ]
-    drow <- dcell$display_row
-    dcol <- dcell$display_col
+    dcell <- dc[ dc[,'row'] == i & dc[,'col'] == j, ]
+    drow <- dcell['display_row']
+    dcol <- dcell['display_col']
     # if we're in top row, set top border; bottom row set bb etc.
     if (i == drow)          tb[i, j] <- top_border(ht)[drow, dcol]
-    if (i == dcell$end_row) bb[i, j] <- bottom_border(ht)[drow, dcol]
+    if (i == dcell['end_row']) bb[i, j] <- bottom_border(ht)[drow, dcol]
     if (j == dcol)          lb[i, j] <- left_border(ht)[drow, dcol]
-    if (j == dcell$end_col) rb[i, j] <- right_border(ht)[drow, dcol]
+    if (j == dcell['end_col']) rb[i, j] <- right_border(ht)[drow, dcol]
   }
   lb <- cbind(lb, 0)
   rb <- cbind(0, rb)
@@ -63,6 +65,7 @@ collapsed_borders <- function (ht) {
   result
 }
 
+
 # returns two rows(+1),cols(+1) arrays of border colors. right and top borders have priority.
 # A border of 0 can still have a color.
 collapsed_border_colors <- function (ht) {
@@ -70,15 +73,17 @@ collapsed_border_colors <- function (ht) {
   tb <- bb <- matrix(NA, nrow(ht), ncol(ht))
 
   dc <- display_cells(ht, all = TRUE)
+  # provides large speedup:
+  dc <- as.matrix(dc[,c('row', 'col', 'display_row', 'display_col', 'end_row', 'end_col')])
   for (i in seq_len(nrow(ht))) for (j in seq_len(ncol(ht))) {
-    dcell <- dc[dc$row == i & dc$col ==j, ]
-    drow <- dcell$display_row
-    dcol <- dcell$display_col
+    dcell <- dc[ dc[, 'row'] == i & dc[,'col'] ==j, ]
+    drow <- dcell['display_row']
+    dcol <- dcell['display_col']
     # if we're in top row, set top border; bottom row set bb etc.
     if (i == drow)          tb[i, j] <- top_border_color(ht)[drow, dcol]
-    if (i == dcell$end_row) bb[i, j] <- bottom_border_color(ht)[drow, dcol]
+    if (i == dcell['end_row']) bb[i, j] <- bottom_border_color(ht)[drow, dcol]
     if (j == dcol)          lb[i, j] <- left_border_color(ht)[drow, dcol]
-    if (j == dcell$end_col) rb[i, j] <- right_border_color(ht)[drow, dcol]
+    if (j == dcell['end_col']) rb[i, j] <- right_border_color(ht)[drow, dcol]
   }
   lb <- cbind(lb, NA)
   rb <- cbind(NA, rb)
@@ -92,30 +97,6 @@ collapsed_border_colors <- function (ht) {
 
   result
 }
-
-# compute_real_borders <- function (ht) {
-#   borders <- matrix(0, nrow(ht) + 1, ncol(ht) + 1)
-#   # borders[y, x] gives the border above row y and left of col x
-#   dcells <- display_cells(ht, all = FALSE)
-#   dcells <- dcells[!dcells$shadowed,]
-#   for (i in seq_len(nrow(dcells))) {
-#     dcr <- dcells[i,]
-#     pos <- list(
-#           left   = list(dcr$display_row:dcr$end_row, dcr$display_col),
-#           right  = list(dcr$display_row:dcr$end_row, dcr$end_col + 1),
-#           top    = list(dcr$display_row, dcr$display_col:dcr$end_col),
-#           bottom = list(dcr$end_row + 1, dcr$display_col:dcr$end_col)
-#         )
-#     bords <- get_all_borders(ht, dcr$display_row, dcr$display_col)
-#     bords <- bords[names(pos)] # safety
-#     f <- function(pos, bords) {
-#       borders[ pos[[1]], pos[[2]] ] <- pmax(borders[ pos[[1]], pos[[2]] ], bords)
-#     }
-#     mapply(f, pos, bords)
-#   }
-#
-#   borders
-# }
 
 
 format_number <- function (num, nf) {
@@ -193,7 +174,8 @@ decimal_pad <- function(col, pad_chars, type) {
   chars_after_. <- nchars - pos
 
   pad_to <- max(chars_after_.) - chars_after_.
-  pad_char <- switch(type, 'html' = '&nbsp;', 'latex' = '~', ' ')
+  # use non-breaking space on screen also
+  pad_char <- switch(type, 'html' = '&nbsp;', 'latex' = '~', 'screen' = '\u00a0', ' ')
   col <- paste0(col, str_rep(pad_char, pad_to))
 
   orig_col[! na_pad] <- col
@@ -235,9 +217,7 @@ display_cells <- function(ht, all = TRUE, new_rowspan = rowspan(ht), new_colspan
 #' @importFrom knitr knit_print
 #' @export
 knit_print.huxtable <- function (x, options, ...) {
-  requireNamespace('htmltools', quietly = TRUE)
   of <- guess_knitr_output_format()
-
   call_name <- switch(of, latex = 'to_latex', html = 'to_html', 'to_screen')
   res <- do.call(call_name, list(ht = x))
   if (of == 'latex') {

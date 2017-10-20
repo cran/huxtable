@@ -1,6 +1,16 @@
 
+# huxtable 1.1.0
 
-# huxtable 0.3.1.9000
+* No more ugly autocreated column names.
+* Allow huxtable to have invalid or empty column names in general.
+* LaTeX should now be *much* faster on large tables.
+* `set_outer_borders` now accepts the same row/column arguments as other `set_` functions.
+* Better handling in LaTeX of horizontal borders which don't cross the entire table. (But not varying
+  positive border widths....)
+* Bugfix: flextable didn't like huxreg's syntactically invalid column names.
+* Accept, but silently change, English spelling of 'centre' in `align`, `position` and `caption_pos`.
+
+# huxtable 1.0.0
 
 * LaTeX implements different thicknesses for vertical and horizontal borders (but only one horizontal thickness per row).
 * LaTeX border colors now collapse nicely: set colors override unset ones.
