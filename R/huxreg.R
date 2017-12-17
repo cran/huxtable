@@ -1,4 +1,7 @@
 
+#' @import assertthat
+NULL
+
 #' Create a huxtable to display model output
 #'
 #' @param ... Models, or a single list of models. Names will be used as column headings.
@@ -12,7 +15,8 @@
 #' @param stars Levels for p value stars. Names of \code{stars} are symbols to use. Set to \code{NULL} to not show stars.
 #' @param bold_signif Where p values are below this number, cells will be displayed in bold. Use \code{NULL} to turn off
 #'   this behaviour.
-#' @param borders Thickness of horizontal borders in appropriate places. Set to 0 for no borders.
+#' @param borders Thickness of inner horizontal borders. Set to 0 for no borders.
+#' @param outer_borders Thickness of outer (top and bottom) horizontal borders. Set to 0 for no borders.
 #' @param note Footnote for bottom cell, which spans all columns. \code{{stars}} will be replaced by a note about
 #'   significance stars. Set to \code{NULL} for no footnote.
 #' @param statistics Summary statistics to display. Set to \code{NULL} to show all available statistics.
@@ -61,6 +65,7 @@ huxreg <- function (
         stars           = c('***' = 0.001, '**' = 0.01, '*' = 0.05),
         bold_signif     = NULL,
         borders         = 0.4,
+        outer_borders   = 0.8,
         note            = '{stars}.',
         statistics      = c('N' = 'nobs', 'R2' = 'r.squared', 'logLik', 'AIC'),
         coefs           = NULL,
@@ -68,6 +73,10 @@ huxreg <- function (
       ) {
   if (! requireNamespace('broom', quietly = TRUE)) stop('huxreg requires the "broom" package. To install, type:\n',
         'install.packages("broom")')
+  if (! missing(bold_signif)) assert_that(is.number(bold_signif))
+  if (! missing(ci_level)) assert_that(is.number(ci_level))
+  assert_that(is.null(stars) || is.numeric(stars))
+  assert_that(is.string(pad_decimal))
   models <- list(...)
   if (inherits(models[[1]], 'list')) models <- models[[1]]
   mod_col_headings <- names_or(models, paste0("(", seq_along(models), ")"))
@@ -199,7 +208,9 @@ huxreg <- function (
   if (error_pos == 'right') mod_col_headings <- interleave(mod_col_headings, '')
   mod_col_headings <- c('', mod_col_headings)
   result <- rbind(mod_col_headings, cols, sumstats, copy_cell_props = FALSE)
-  result <- set_bottom_border(result, c(1, 1 + nrow(cols), nrow(result)), everywhere, borders)
+  result <- set_bottom_border(result, final(), everywhere, outer_borders)
+  result <- set_top_border(result, 1, everywhere, outer_borders)
+  result <- set_bottom_border(result, c(1, nrow(cols) + 1), -1, borders)
   colnames(result) <- c('names', names_or(models, paste0("model", seq_along(models))))
   if (error_pos == 'right') result <- set_colspan(result, 1, evens, 2)
   align(result)[1, ]    <- 'center'
@@ -210,11 +221,9 @@ huxreg <- function (
     stars <- if (is.null(stars)) '' else paste0(names(stars), ' p < ', stars, collapse = '; ')
     note <- gsub('%stars%', stars, note)
     note <- glue::glue(note)
-    result <- add_footnote(result, note)
+    result <- add_footnote(result, note, border = 0) # borders handled above
     result <- set_wrap(result, final(), 1, TRUE)
     result <- set_align(result, final(), 1, 'left')
-    result <- set_bottom_border(result, final(), everywhere, 0)
-    result <- set_top_border(result, final(), everywhere, borders)
   }
 
   result

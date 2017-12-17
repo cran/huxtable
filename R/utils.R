@@ -2,6 +2,9 @@
 
 # utility functions-----------------------------------------------------------------------------------------------------
 
+#' @import assertthat
+NULL
+
 # return character matrix of formatted contents, suitably escaped
 clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', 'word'), ...) {
   type <- match.arg(type)
@@ -276,6 +279,13 @@ print.huxtable <- function(x, ...) {
 #' guess_knitr_output_format()
 #' }
 guess_knitr_output_format <- function() {
+  # this is on hold until I'm sure I want 'markdown' to be interpreted as HTML
+  # if (utils::packageVersion('knitr') >= '1.17.8') {
+  #   # delegate to knitr
+  #   if (knitr::is_latex_output()) return('latex')
+  #   if (knitr::is_html_output()) return('html')
+  #   return('')
+  # }
   of <- knitr::opts_knit$get('out.format')
   if (is.null(of) || of == 'markdown') {
     of <- knitr::opts_knit$get('rmarkdown.pandoc.to')
@@ -284,11 +294,14 @@ guess_knitr_output_format <- function() {
       if (is.null(knit_in)) return('')
       of <- rmarkdown::default_output_format(knit_in)
       of <- of$name
-      of <- sub('_.*', '', of)
-      if (of %in% c('ioslides', 'revealjs', 'slidy')) of <- 'html'
     }
   }
-  if (of == 'pdf') of <- 'latex'
+  if (of == 'tufte_handout') of <- 'latex'
+  if (of == 'tufte_html') of <- 'html'
+  of <- sub('_.*', '', of)
+  if (of %in% c('ioslides', 'revealjs', 'slidy')) of <- 'html'
+  if (of %in% c('beamer', 'pdf')) of <- 'latex'
+
   of
 }
 
@@ -311,8 +324,9 @@ guess_knitr_output_format <- function() {
 #' ht <- insert_column(ht, 1, 2, 2.5, 3, 4, 5, after = 3)
 #' ht
 insert_column <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
-  stopifnot(is.numeric(after))
-  stopifnot(after <= ncol(ht) && after >= 0)
+  # is.count would complain about 0
+  assert_that(is.scalar(after), is.number(after), after >= 0, after <= ncol(ht))
+
   ht1 <- NULL
   ht2 <- NULL
   if (after > 0) {
@@ -333,8 +347,9 @@ insert_column <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #'
 #' @export
 insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
-  stopifnot(is.numeric(after))
-  stopifnot(after <= nrow(ht) && after >= 0)
+  # is.count would complain about 0
+  assert_that(is.scalar(after), is.number(after), after >= 0, after <= nrow(ht))
+
   ht1 <- NULL
   ht2 <- NULL
   if (after > 0) {
@@ -353,9 +368,10 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #' Add a row with a footnote
 #'
 #' This adds a single row at the bottom. The first cell contains the footnote; it spans
-#' the entire table and has a border above only.
+#' all table columns and has an optional border above.
 #' @param ht A huxtable.
 #' @param text Text for the footnote.
+#' @param border Width of the footnote's top border. Set to 0 for no border.
 #' @param ... Other properties, passed to \code{\link{set_cell_properties}} for the footnote cell.
 #'
 #' @return The modified huxtable
@@ -365,14 +381,16 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #' ht <- hux(a = 1:5, b = 1:5, d = 1:5)
 #' ht <- add_footnote(ht, '* this is a footnote')
 #' ht
-add_footnote <- function(ht, text, ...) {
+add_footnote <- function(ht, text, border = 0.8, ...) {
   nr <- nrow(ht) + 1
   nc <- ncol(ht)
   ht <- rbind(ht, rep('', nc), copy_cell_props = FALSE)
   ht[nr, 1] <- text
   colspan(ht)[nr, 1] <- nc
-  ht <- set_all_borders(ht, nr, 1, 0)
-  top_border(ht)[nr, 1] <- 1
+  ht <- set_left_border(ht, nr, 1, 0)
+  ht <- set_right_border(ht, nr, 1, 0)
+  ht <- set_bottom_border(ht, nr, 1, 0)
+  ht <- set_top_border(ht, nr, 1, border)
   wrap(ht)[nr, 1] <- TRUE
   if (! missing(...)) ht <- set_cell_properties(ht, nr, 1, ...)
 
@@ -382,13 +400,14 @@ add_footnote <- function(ht, text, ...) {
 #' Huxtable logo
 #'
 #' @param latex Use LaTeX names for fonts.
-#' @return The huxtable logo
+#' @return The huxtable logo.
 #' @export
 #'
 #' @examples
 #' print_screen(hux_logo())
 #'
 hux_logo <- function(latex = FALSE) {
+  assert_that(is.flag(latex))
   logo <- hux(c('h', NA), c('u', 'table'), c('x', NA))
   rowspan(logo)[1, 1] <- 2
   colspan(logo)[2, 2] <- 2
@@ -411,3 +430,7 @@ hux_logo <- function(latex = FALSE) {
   position(logo) <- 'center'
   logo
 }
+
+
+
+
