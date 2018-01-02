@@ -1,4 +1,17 @@
 
+# huxtable 2.0.0
+
+* New `quick_html`, `quick_pdf` and `quick_docx` functions to print table-like objects to a new document.
+* `to_screen` only shows colnames if there are any non-zero-length column names.
+
+## Breaking changes
+
+* `number_format` now applies to any number-like substrings in cells. This means you can include e.g.
+  significance stars in a cell and still use `number_format` to format the content.
+* If `number_format` is NA, numbers are unchanged. 
+* Default value of `number_format` has changed from "%5.2f" to "%5.3g", which plays nicer with integers
+  but may surprise you by using scientific format for large numbers.
+
 # huxtable 1.2.0
 
 * New `outer_borders` argument for `huxreg`. This changes default behaviour slightly.

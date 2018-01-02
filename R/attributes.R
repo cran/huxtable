@@ -50,7 +50,7 @@ huxtable_env$huxtable_default_attrs <- list(
         italic              = FALSE,
         font_size           = NA,
         rotation            = 0,
-        number_format       = list('%5.2f'),
+        number_format       = list('%5.3g'),
         pad_decimal         = NA,
         font                = NA
       )
@@ -834,12 +834,23 @@ make_getter_setters('rotation', 'cell', check_fun = is.numeric)
 #' A vector or list which may be character, numeric or function. See below.
 #'
 #' @details
-#' If \code{value} is numeric, numbers will be rounded to that many decimal places.  If \code{value} is
+#' Number formatting is applied to any parts of cells that look like numbers (defined as an optional minus sign,
+#' followed by
+#' numerals, followed by an optional decimal point and further numerals). If \code{value} is numeric,
+#' numbers will be rounded to that many decimal places.  If \code{value} is
 #' character, it will be taken as an argument to \code{\link{sprintf}}. If \code{value} is a
-#' function it will be applied to the cell contents.
-#' Number format is applied to any cells that look like numbers (as judged by \code{\link{as.numeric}}), not just to numeric cells. This allows you to do e.g. \code{ht <- huxtable(c('Salary', 35000, 32000, 40000))} and still format numbers correctly.
+#' function it will be applied to the numbers and should return a string. If \code{value} is \code{NA}, then numbers
+#' will be unchanged.
+#'
+#' The default value is "%5.3g" which rounds numbers if they have more than 3 significant
+#' digits, and which may use an exponent for large numbers.
+#'
 #' To set number_format to a function, enclose the function in \code{list}.
 #' See the examples.
+#'
+#' Versions of huxtable before 2.0.0 applied \code{number_format} only to cells that looked like
+#' numbers in their entirety. The default value was "%5.2f".
+#'
 #' @family formatting functions
 #'
 #' @examples
@@ -850,6 +861,10 @@ make_getter_setters('rotation', 'cell', check_fun = is.numeric)
 #' number_format(ht)[4,] <- list(function(x) if(x>0) '+' else '-')
 #' ht
 #' print_screen(ht)
+#' ht_bands <- huxtable("10000 Maniacs")
+#' ht_bands # probably not what you want
+#' number_format(ht_bands) <- NA
+#' ht_bands
 #' @template getset-rowspec-example
 #' @templateVar attr_val 2
 #' @templateVar attr_val2 3
@@ -861,8 +876,8 @@ make_getter_setters('number_format', 'cell')
 
 # override the default
 `number_format<-.huxtable` <- function(ht, value) {
-  stopifnot(all(sapply(value, function (x) is.numeric(x) || is.character(x) || is.function(x) )))
-  if (is.atomic(value) || is.list(value)) value[is.na(value)] <- huxtable_env$huxtable_default_attrs[['number_format']]
+  stopifnot(all(sapply(value, function (x) is.numeric(x) || is.character(x) || is.function(x) || is.na(x) )))
+  # if (is.atomic(value) || is.list(value)) value[is.na(value)] <- huxtable_env$huxtable_default_attrs[['number_format']]
   attr(ht, 'number_format')[] <- value
   ht
 }

@@ -13,13 +13,10 @@ clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', '
   for (col in 1:ncol(contents)) {
     for (row in 1:nrow(contents)) {
       cell <- contents[row, col]
-      if (is_a_number(cell)) {
-        cell <- as.numeric(cell)
-        cell <- format_number(cell, number_format(ht)[[row, col]]) # a list element, double brackets needed
-      }
+      num_fmt <- number_format(ht)[[row, col]] # a list element, double brackets
+      if (! is.na(cell)) cell <- format_numbers(cell, num_fmt)
       if (is.na(cell)) cell <- na_string(ht)[row, col]
-
-      contents[row, col] <- cell
+      contents[row, col] <- as.character(cell)
     }
     if (type %in% c('latex', 'html')) {
       to_esc <- escape_contents(ht)[, col]
@@ -101,15 +98,18 @@ collapsed_border_colors <- function (ht) {
   result
 }
 
+# find each numeric substring, and replace it:
+format_numbers <- function (string, num_fmt) {
+  if (! is.function(num_fmt) && is.na(num_fmt)) return(string) # ! is.function avoids a warning if num_fmt is a function
 
-format_number <- function (num, nf) {
-  res <- num
-  if (is.function(nf)) res[] <- nf(num)
-  if (is.character(nf)) res[] <- sprintf(nf, num)
-  if (is.numeric(nf)) res[] <- formatC(round(num, nf), format = 'f', digits = nf)
-  res[is.na(num)] <- NA
-
-  res
+  format_numeral <- if (is.function(num_fmt)) num_fmt else
+        if (is.character(num_fmt)) function (numeral) sprintf(num_fmt, numeral) else
+        if (is.numeric(num_fmt)) function (numeral) formatC(round(numeral, num_fmt), format = 'f',
+          digits = num_fmt) else
+        stop('Unrecognized type of number_format: should be function, character or integer. See ?number_format')
+  # Optional minus, then any number of digits followed by an optional decimal point
+  # which is assumed to be "." (?Sys.setlocale suggests this is a reasonable assumption)
+  stringr::str_replace_all(string, '-?\\d+(\\.\\d+)?', function (x) format_numeral(as.numeric(x)))
 }
 
 
@@ -432,5 +432,104 @@ hux_logo <- function(latex = FALSE) {
 }
 
 
+#' Quickly create a PDF, HTML or Word document showing matrices, data frames, et cetera.
+#'
+#' @param ... One or more huxtables or R objects with an \code{as_huxtable} method.
+#' @param file File path for the output.
+#' @param borders Border width for members of \code{...} that are not huxtables.
+#'
+#' @return Invisible \code{NULL}.
+#'
+#' @details Objects in \code{...} will be converted to huxtables, with borders added.
+#'
+#' @examples
+#' \dontrun{
+#' m <- matrix(1:4, 2, 2)
+#' dfr <- data.frame(a = 1:5, b = 1:5)
+#' quick_pdf(m, dfr)
+#' quick_html(m, dfr)
+#' quick_docx(m, dfr)
+#' }
+#' @name quick-output
+NULL
 
 
+#' @rdname quick-output
+#' @export
+quick_pdf <- function (..., file = "huxtable-output.pdf", borders = 0.4) {
+  hts <- huxtableize(list(...), borders)
+  latex_file <- tempfile(fileext = ".tex")
+  sink(latex_file)
+  tryCatch({
+      cat('\\documentclass{article}\n')
+      report_latex_dependencies()
+      cat('\n\\begin{document}')
+      lapply(hts, function (ht) {
+        cat('\n\n')
+        print_latex(ht)
+        cat('\n\n')
+      })
+      cat('\n\\end{document}')
+    },
+    error = identity,
+    finally = {sink()}
+  )
+  # we do this because using tempfile on its own is fucked up by the double slash.
+  if (! file.copy(latex_file, '.', overwrite = TRUE)) stop('Could not copy tex file to current directory.')
+  latex_file <- basename(latex_file)
+  tools::texi2pdf(latex_file, clean = TRUE)
+  pdf_file <- sub('\\.tex$', '.pdf', latex_file)
+  if (! file.remove(latex_file)) warning('Could not remove intermediate TeX file "', latex_file,
+        '" from current working directory.')
+  if (! file.exists(pdf_file)) stop('Could not find pdf file output from texi2pdf in current working directory.')
+  if (! file.rename(pdf_file, file)) stop('Could not move pdf file to ', file, '. The pdf file remains at "', pdf_file,
+        '" in the current working directory.')
+
+  invisible(NULL)
+}
+
+#' @rdname quick-output
+#' @export
+quick_html <- function (..., file = "huxtable-output.html", borders = 0.4) {
+  hts <- huxtableize(list(...), borders)
+  sink(file)
+  cat('<!DOCTYPE html><html><body>')
+  tryCatch({
+    lapply(hts, function (ht) {
+      cat('<p>&nbsp;</p>')
+      print_html(ht)
+      cat('\n\n')
+    })
+    cat('</body></html>')
+  },
+    error = identity,
+    finally = {sink()}
+  )
+
+  invisible(NULL)
+}
+
+#' @rdname quick-output
+#' @export
+quick_docx <- function (..., file = "huxtable-output.docx", borders = 0.4) {
+  hts <- huxtableize(list(...), borders)
+  my_doc <- officer::read_docx()
+  for (ht in hts) {
+    ft <- as_flextable(ht)
+    my_doc <- flextable::body_add_flextable(my_doc, ft)
+    my_doc <- officer::body_add_par(my_doc, " ")
+  }
+  print(my_doc, target = file)
+
+  invisible(NULL)
+}
+
+huxtableize <- function (obj_list, borders) {
+  lapply(obj_list, function (obj) {
+    if (! inherits(obj, 'huxtable')) {
+      obj <- as_huxtable(obj)
+      obj <- set_all_borders(obj, borders)
+    }
+    obj
+  })
+}

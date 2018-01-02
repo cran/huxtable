@@ -171,16 +171,15 @@ ht <- add_footnote(ht, 'DHJ deserves a pay rise')
 ht
 
 ## ------------------------------------------------------------------------
-number_format(car_ht) <- 0
-car_ht[1:5,]
-
-## ------------------------------------------------------------------------
 pointy_ht <- hux(c('Do not pad this.', 11.003, 300, 12.02, '12.1 **'))
 pointy_ht <- set_all_borders(pointy_ht, 1)
 width(pointy_ht) <- .2
 
 number_format(pointy_ht) <- 3
-pad_decimal(pointy_ht)[2:5] <- '.'
+pointy_ht
+
+## ------------------------------------------------------------------------
+pad_decimal(pointy_ht)[2:5, ] <- '.' # not the first row
 align(pointy_ht) <- 'right'
 pointy_ht
 
@@ -252,8 +251,10 @@ data(attitude)
 att_corr <- corr.test(as.matrix(attitude))
 
 att_hux <- as_hux(att_corr$r)                                           %>% 
-      set_background_color(where(att_corr$p < 0.05), 'yellow')          %>% # selects cells with p < 0.05
-      set_background_color(where(att_corr$p < 0.01), 'orange')          %>% # selects cells with p < 0.01
+      # selects cells with p < 0.05:
+      set_background_color(where(att_corr$p < 0.05), 'yellow')          %>% 
+      # selects cells with p < 0.01:
+      set_background_color(where(att_corr$p < 0.01), 'orange')          %>% 
       set_text_color(where(row(att_corr$r) == col(att_corr$r)), 'grey') 
 
 
@@ -263,8 +264,9 @@ att_hux <- att_hux                                                      %>%
       set_caption('Correlations in attitudes among 30 departments')     %>% 
       set_bold(1, everywhere, TRUE)                                     %>% 
       set_bold(everywhere, 1, TRUE)                                     %>% 
-      set_all_borders(1)                                                %>% 
-      set_width(.8)
+      set_all_borders(1)                                                %>%
+      set_number_format(2)                                              %>% 
+      set_position('left')
 
 att_hux
 
