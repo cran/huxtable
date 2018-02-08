@@ -1,14 +1,14 @@
 Package: huxtable
 Type: Package
 Title: Simply Create LaTeX and HTML Tables
-Version: 2.0.0
+Version: 2.0.2
 Author: David Hugh-Jones [aut, cre]
-Date: 2017-12-17
 Maintainer: David Hugh-Jones <davidhughjones@gmail.com>
 Description: Creates HTML and LaTeX tables. Provides similar 
-  functionality to 'xtable', but does more, with a simpler interface. Includes
-  a 'huxreg' function for quick creation of regression tables. Allows export to
-  Microsoft Word or PowerPoint using the 'officer' package.
+  functionality to 'xtable', but does more, with a simpler interface. Allows export to
+  Microsoft Word or PowerPoint using the 'officer' package. Includes  a 'huxreg' function 
+  for creation of regression tables, and 'quick_*' one-liner commands to print data as Word, 
+  PDF or HTML. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -26,6 +26,6 @@ Authors@R:
            role = c("aut", "cre"),
            email = "davidhughjones@gmail.com")
 NeedsCompilation: no
-Packaged: 2018-01-01 17:38:16 UTC; david
+Packaged: 2018-02-08 21:19:34 UTC; david
 Repository: CRAN
-Date/Publication: 2018-01-03 00:06:02 UTC
+Date/Publication: 2018-02-08 22:36:35
