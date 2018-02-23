@@ -105,7 +105,8 @@ final <- function(n = 1) {
 #'  \item Use \code{\link{evens}} to get only even rows/columns and \code{\link{odds}}
 #'    for only odd ones.
 #'  \item Use \code{\link[=every]{every(n, from = m)}} to get every nth row/column starting at row/column m.
-#'    Use \code{every(1)} or just \code{every()} to get all rows or columns.
+#'  \item Use \code{dplyr} functions like \code{starts_with}, \code{contains} and \code{matches} to
+#'    specify columns (but not rows). See \code{\link[dplyr]{select_helpers}} for a full list.
 #'  \item Use \code{\link[=where]{where(cond)}}, and omit the \code{col} argument, to get cells where \code{cond} is
 #'    \code{TRUE}.
 #'  \item Set \code{byrow = TRUE} to set properties by row rather than by column.
@@ -114,7 +115,8 @@ final <- function(n = 1) {
 #'
 #' @section The gory details:
 #'
-#' Here is how the row and col arguments are parsed:
+#' How the row and col arguments are parsed depends on the number of arguments passed to the \code{set_*}
+#' function.
 #'
 #' \itemize{
 #'   \item If there are two arguments (excluding \code{byrow}) then the second argument is taken as the
@@ -126,7 +128,8 @@ final <- function(n = 1) {
 #'   \item If there are four arguments:
 #'     \itemize{
 #'       \item If \code{row} or \code{col} is numeric, character or logical, it is evaluated just as in standard
-#'         subsetting.
+#'         subsetting. \code{col} will be evaluated in a special context provided by \code{\link[tidyselect]{with_vars}}
+#'         to allow the use of dplyr functions.
 #'       \item If \code{row} or \code{col} is a function,it is called with two arguments: the huxtable,
 #'         and the dimension number being evaluated, i.e. 1 for rows, 2 for columns. It must return a vector
 #'         of column indices. \code{\link{evens}}, \code{\link{odds}}, \code{\link{every}} and \code{\link{final}}
@@ -139,14 +142,15 @@ final <- function(n = 1) {
 #'
 #' @examples
 #' ht <- huxtable(a = 1:5, b = 5:1)
-#' ht <- set_font(ht, 2:4, 1:2, 'times')
-#' font(ht)
-#' ht <- set_font(ht, where(ht == 1), 'palatino')
-#' font(ht)
-#' ht <- set_font(ht, odds, evens, 'dingbats')
-#' font(ht)
-#' ht <- set_align(ht, 2:3, 1:2, c('right', 'center'), byrow = TRUE)
-#' align(ht)
+#'
+#' set_bold(ht, 2:4, 1:2, TRUE)
+#' set_bold(ht, odds, evens, TRUE)
+#' set_bold(ht, everywhere, tidyselect::matches('[aeiou]'), TRUE)
+#'
+#' set_bold(ht, where(ht == 1), TRUE)
+#'
+#' set_text_color(ht, 2:3, 1:2, c('red', 'blue'))
+#' set_text_color(ht, 2:3, 1:2, c('red', 'blue'), byrow = TRUE)
 NULL
 
 #' Return array indices where expression is true
@@ -192,5 +196,12 @@ get_rc_spec <- function (ht, obj, dimno) {
   dim_length <- dim(ht)[dimno]
   if (missing(obj)) return(seq_len(dim_length))
 
-  if (is.function(obj)) return(obj(ht, dimno)) else return(obj)
+  # You can't evaluate obj before running the tidyselect; otherwise functions like starts_with throw an error.
+  result <- if (dimno == 2) {
+    tidyselect::with_vars(colnames(ht), if (is.function(obj)) obj(ht, dimno) else obj)
+  } else {
+    if (is.function(obj)) obj(ht, dimno) else obj
+  }
+
+  result
 }

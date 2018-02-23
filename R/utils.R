@@ -6,7 +6,7 @@
 NULL
 
 # return character matrix of formatted contents, suitably escaped
-clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', 'word'), ...) {
+clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', 'word', 'excel'), ...) {
   type <- match.arg(type)
   contents <- as.matrix(as.data.frame(ht))
 
@@ -43,9 +43,9 @@ collapsed_borders <- function (ht) {
 
   dc <- display_cells(ht, all = TRUE)
   # provides large speedup:
-  dc <- as.matrix(dc[,c('row', 'col', 'display_row', 'display_col', 'end_row', 'end_col')])
+  dc <- as.matrix(dc[, c('row', 'col', 'display_row', 'display_col', 'end_row', 'end_col')])
   for (i in seq_len(nrow(ht))) for (j in seq_len(ncol(ht))) {
-    dcell <- dc[ dc[,'row'] == i & dc[,'col'] == j, ]
+    dcell <- dc[ dc[, 'row'] == i & dc[, 'col'] == j, ]
     drow <- dcell['display_row']
     dcol <- dcell['display_col']
     # if we're in top row, set top border; bottom row set bb etc.
@@ -74,9 +74,9 @@ collapsed_border_colors <- function (ht) {
 
   dc <- display_cells(ht, all = TRUE)
   # provides large speedup:
-  dc <- as.matrix(dc[,c('row', 'col', 'display_row', 'display_col', 'end_row', 'end_col')])
+  dc <- as.matrix(dc[, c('row', 'col', 'display_row', 'display_col', 'end_row', 'end_col')])
   for (i in seq_len(nrow(ht))) for (j in seq_len(ncol(ht))) {
-    dcell <- dc[ dc[, 'row'] == i & dc[,'col'] ==j, ]
+    dcell <- dc[ dc[, 'row'] == i & dc[, 'col'] == j, ]
     drow <- dcell['display_row']
     dcol <- dcell['display_col']
     # if we're in top row, set top border; bottom row set bb etc.
@@ -113,7 +113,7 @@ format_numbers <- function (string, num_fmt) {
   # that we don't have a digit followed by e or E i.e. it should avoid formatting exponents
   # we use 0 or more e/E characters to avoid matching substrings of an exponent e.g.
   # 5e12 must not match the "12" but should also not match the "2"
-  stringr::str_replace_all(string, '(?<!\\d(e|E)?)-?\\d+(\\.\\d+)?', function (x) format_numeral(as.numeric(x)))
+  stringr::str_replace_all(string, '(?<!\\d(e|E)?-?)-?\\d+(\\.\\d+)?', function (x) format_numeral(as.numeric(x)))
 }
 
 
@@ -131,8 +131,7 @@ format_numbers <- function (string, num_fmt) {
 #' @examples
 #' foo <- 'Make $$$ with us'
 #' sanitize(foo, type = 'latex')
-sanitize <- function (str, type = "latex")
-{
+sanitize <- function (str, type = "latex") {
   if (type == "latex") {
     result <- str
     result <- gsub("\\\\", "SANITIZE.BACKSLASH", result)
@@ -190,10 +189,15 @@ decimal_pad <- function(col, pad_chars, type) {
 }
 
 
-# return data frame mapping real cell positions to cells displayed
+# return data frame mapping real cell positions to cells displayed. `all = TRUE` returns all
+# cells, including those shadowed by others.
 display_cells <- function(ht, all = TRUE, new_rowspan = rowspan(ht), new_colspan = colspan(ht)) {
-  dcells <- data.frame(row = rep(1:nrow(ht), ncol(ht)), col = rep(1:ncol(ht), each = nrow(ht)),
-        rowspan = as.vector(new_rowspan), colspan = as.vector(new_colspan))
+  dcells <- data.frame(
+          row     = rep(seq_len(nrow(ht)), ncol(ht)),
+          col     = rep(seq_len(ncol(ht)), each = nrow(ht)),
+          rowspan = as.vector(new_rowspan),
+          colspan = as.vector(new_colspan)
+        )
   dcells$display_row <- dcells$row
   dcells$display_col <- dcells$col
   dcells$shadowed <- FALSE
@@ -218,6 +222,14 @@ display_cells <- function(ht, all = TRUE, new_rowspan = rowspan(ht), new_colspan
   if (! all) dcells <- dcells[! dcells$shadowed, ]
 
   dcells
+}
+
+
+get_caption_hpos <- function (ht) {
+  hpos <- sub('.*(left|center|right)', '\\1', caption_pos(ht))
+  if (! hpos %in% c('left', 'center', 'right')) hpos <- position(ht)
+
+  hpos
 }
 
 
@@ -317,19 +329,25 @@ guess_knitr_output_format <- function() {
 #' @param ... Cell contents.
 #' @param after Insert the row/column after this position. 0 (the default) inserts as the first row/column.
 #' @param copy_cell_props Copy cell properties from the previous row or column (if after > 0). See \code{\link{cbind.huxtable}}.
-#'
+#' @details
+#' In \code{insert_column} only, you can use a column name for \code{after}.
 #' @return The modified huxtable
 #' @export
 #'
 #' @examples
-#' ht <- hux(1:5, 1:5, 1:5)
-#' ht <- insert_row(ht, 2.5, 2.5, 2.5, after = 2)
-#' ht
-#' ht <- insert_column(ht, 1, 2, 2.5, 3, 4, 5, after = 3)
-#' ht
+#' ht <- hux(a = 1:5, b = 1:5, c = 1:5)
+#' insert_row(ht, 2.5, 2.5, 2.5, after = 2)
+#' insert_column(ht, 5:1)
+#' insert_column(ht, 5:1, after = 3)
+#' insert_column(ht, 5:1, after = "b")
 insert_column <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
   # is.count would complain about 0
-  assert_that(is.scalar(after), is.number(after), after >= 0, after <= ncol(ht))
+  assert_that(is.scalar(after), is.number(after) || is.string(after))
+  if (is.number(after)) assert_that(after >= 0, after <= ncol(ht))
+  if (is.string(after)) {
+    assert_that(has_name(ht, after))
+    after <- match(after, colnames(ht))
+  }
 
   ht1 <- NULL
   ht2 <- NULL
@@ -436,7 +454,7 @@ hux_logo <- function(latex = FALSE) {
 }
 
 
-#' Quickly create a PDF, HTML or Word document showing matrices, data frames, et cetera.
+#' Quickly create a PDF, HTML, Word or Excel document showing matrices, data frames, et cetera.
 #'
 #' @param ... One or more huxtables or R objects with an \code{as_huxtable} method.
 #' @param file File path for the output.
@@ -446,6 +464,10 @@ hux_logo <- function(latex = FALSE) {
 #'
 #' @details Objects in \code{...} will be converted to huxtables, with borders added.
 #'
+#' If \sQuote{file} is not specified, the default file path is "huxtable-output.xxx" in
+#' the working directory. If the session is interactive, you'll be asked to confirm any
+#' overwrite; if the session is not interactive, the command will fail.
+#'
 #' @examples
 #' \dontrun{
 #' m <- matrix(1:4, 2, 2)
@@ -453,6 +475,7 @@ hux_logo <- function(latex = FALSE) {
 #' quick_pdf(m, dfr)
 #' quick_html(m, dfr)
 #' quick_docx(m, dfr)
+#' quick_xlsx(m, dfr)
 #' }
 #' @name quick-output
 NULL
@@ -460,12 +483,14 @@ NULL
 
 #' @rdname quick-output
 #' @export
-quick_pdf <- function (..., file = "huxtable-output.pdf", borders = 0.4) {
+quick_pdf <- function (..., file = confirm("huxtable-output.pdf"), borders = 0.4) {
+  assert_that(is.number(borders))
+  force(file) # ensures confirm() is called before any other files are created.
   hts <- huxtableize(list(...), borders)
   # on my Mac, tempdir() gets a double slash in the path, which screws up texi2pdf.
   # You can't use normalizePath with a non-existent file, so the below doesn't work:
   # latex_file <- normalizePath(tempfile(fileext = ".tex"), mustWork = TRUE)
-  clean_tmp_dir <- normalizePath(tempdir())
+  clean_tmp_dir <- normalizePath(tempdir(), mustWork = TRUE)
   latex_file <- tempfile(tmpdir = clean_tmp_dir, fileext = ".tex")
   sink(latex_file)
   tryCatch({
@@ -487,7 +512,9 @@ quick_pdf <- function (..., file = "huxtable-output.pdf", borders = 0.4) {
   pdf_file <- sub('\\.tex$', '.pdf', basename(latex_file))
   if (! file.exists(pdf_file)) stop('Could not find texi2pdf output file "', pdf_file, '"')
   if (! file.remove(latex_file)) warning('Could not remove intermediate TeX file "', latex_file, '"')
-  if (file.copy(pdf_file, file)) {
+  # we overwrite existing files. If no explicit `file` argument was specified, confirm() has
+  # already checked if this is OK, or has failed in non-interactive sessions:
+  if (file.copy(pdf_file, file, overwrite = TRUE)) {
     file.remove(pdf_file)
   } else {
     stop('Could not copy pdf file to ', file, '. The pdf file remains at "', pdf_file, '"')
@@ -496,9 +523,12 @@ quick_pdf <- function (..., file = "huxtable-output.pdf", borders = 0.4) {
   invisible(NULL)
 }
 
+
 #' @rdname quick-output
 #' @export
-quick_html <- function (..., file = "huxtable-output.html", borders = 0.4) {
+quick_html <- function (..., file = confirm("huxtable-output.html"), borders = 0.4) {
+  assert_that(is.number(borders))
+  force(file)
   hts <- huxtableize(list(...), borders)
   sink(file)
   cat('<!DOCTYPE html><html><body>')
@@ -517,9 +547,12 @@ quick_html <- function (..., file = "huxtable-output.html", borders = 0.4) {
   invisible(NULL)
 }
 
+
 #' @rdname quick-output
 #' @export
-quick_docx <- function (..., file = "huxtable-output.docx", borders = 0.4) {
+quick_docx <- function (..., file = confirm("huxtable-output.docx"), borders = 0.4) {
+  assert_that(is.number(borders))
+  force(file)
   hts <- huxtableize(list(...), borders)
   my_doc <- officer::read_docx()
   for (ht in hts) {
@@ -532,6 +565,25 @@ quick_docx <- function (..., file = "huxtable-output.docx", borders = 0.4) {
   invisible(NULL)
 }
 
+
+#' @rdname quick-output
+#' @export
+quick_xlsx <- function (..., file = confirm("huxtable-output.xlsx"), borders = 0.4) {
+  assert_that(is.number(borders))
+  force(file)
+  hts <- huxtableize(list(...), borders)
+  wb <- openxlsx::createWorkbook()
+  ix <- 0
+  for (ht in hts) {
+    ix <- ix + 1
+    wb <- as_Workbook(ht, Workbook = wb, sheet = paste("sheet", ix))
+  }
+  openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
+
+  invisible(NULL)
+}
+
+
 huxtableize <- function (obj_list, borders) {
   lapply(obj_list, function (obj) {
     if (! inherits(obj, 'huxtable')) {
@@ -540,4 +592,14 @@ huxtableize <- function (obj_list, borders) {
     }
     obj
   })
+}
+
+
+confirm <- function (file) {
+  if (! interactive()) stop('Please specify a `file` argument for non-interactive use of quick_xxx functions.')
+  if (file.exists(file)) {
+    answer <- readline(paste0('File "', file, '" already exists. Overwrite? [yN]'))
+    if (! answer %in% c('y', 'Y')) stop('OK, stopping.')
+  }
+  file
 }

@@ -1,9 +1,29 @@
-# huxtable 2.0.2.9000
+
+Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major version
+increments reflect backwards-incompatible API changes, not necessarily big changes.
+
+
+# huxtable 3.0.0
+
+* Output to Excel workbooks using the `openxlsx` package.
+* New `quick_xlsx` function.
+* dplyr select helpers now work inside `set_*` column specifications: e.g. set_bold(ht, 1:3, matches("ab"), TRUE)
+* Column names can now be used for the `after` argument to `insert_column`.
+* `quick_*` functions: when the `file` argument is not explicitly specified, confirm overwrites manually, or fail 
+  if called non-interactively.
+* Add pointless quote marks in Description and Title... I don't make the rules.
+* Don't apply number_format to negative exponents (e.g. 1.12e-3).
+* New `tidy_args` argument to huxreg allows per-model customization of the call to `tidy`.
+
+## Breaking changes
+
+* `quick_xxx` functions without an explicit `file` argument throw an error if called non-interactively,
+  and prompt before overwriting files if called interactively.
 
 # huxtable 2.0.2
 
 * Don't apply `number_format` to exponents in scientific notation.
-* Second attempt to fix `quick_pdf` for CRAN.
+* Turn off some tests on CRAN, as they fail there but not elsewhere.
 
 # huxtable 2.0.1
 

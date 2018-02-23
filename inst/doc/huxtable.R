@@ -55,6 +55,9 @@ right_padding(ht) <- 10
 left_padding(ht)  <- 10
 
 ## ------------------------------------------------------------------------
+number_format(ht) <- 2    # 2 decimal places
+
+## ------------------------------------------------------------------------
 bold(ht)[1,]          <- TRUE
 bottom_border(ht)[1,] <- 1
 
@@ -184,12 +187,12 @@ align(pointy_ht) <- 'right'
 pointy_ht
 
 ## ------------------------------------------------------------------------
-code_ht <- if (is_latex) hux('Here is some maths: $a^b$') else 
-      hux('The code for a copyright symbol is &copy;')
+code_ht <- if (is_latex) hux(c('Some maths', '$a^b$')) else 
+      hux(c('Copyright symbol', '&copy;'))
 code_ht
 
 ## ------------------------------------------------------------------------
-escape_contents(code_ht)[1, 1] <- FALSE
+escape_contents(code_ht)[2, 1] <- FALSE
 code_ht
 
 ## ------------------------------------------------------------------------
@@ -198,11 +201,8 @@ col_width(ht) <- c(.7, .3)
 ht
 
 ## ------------------------------------------------------------------------
-ht[5, 1] <- 'David Arthur Shrimpton Hugh-Jones'
-ht 
-
-## ------------------------------------------------------------------------
 ht_wrapped <- ht
+ht_wrapped[5, 1] <- 'David Arthur Shrimpton Hugh-Jones'
 wrap(ht_wrapped) <- TRUE
 ht_wrapped
 
@@ -246,6 +246,10 @@ car_ht                                                 %>%
       set_bold(1, everywhere, TRUE)
 
 ## ------------------------------------------------------------------------
+car_ht %>% set_background_color(everywhere, starts_with('C'), 'orange')
+car_ht %>% set_italic(everywhere, matches('[aeiou]'), TRUE)
+
+## ------------------------------------------------------------------------
 library(psych)
 data(attitude)
 att_corr <- corr.test(as.matrix(attitude))
@@ -281,8 +285,8 @@ where(m == 'dog') # m is equal to 'dog' in cells (1, 1), (3, 1), (4, 1) and (4, 
 color_demo <- matrix('text', 7, 7)
 rainbow <- c('red', 'orange', 'yellow', 'green', 'blue', 'turquoise', 'violet')
 color_demo <- as_hux(color_demo)                  %>% 
-      set_text_color(rainbow)                     %>% # text rainbow goes down columns
-      set_background_color(rainbow, byrow = TRUE) %>% # background color rainbow goes along rows
+      set_text_color(rainbow)                     %>% # text rainbow down columns
+      set_background_color(rainbow, byrow = TRUE) %>% # background color rainbow along rows
       set_all_borders(1)                          %>% 
       set_all_border_colors('white')
 color_demo
@@ -299,4 +303,8 @@ huxreg(lm1, lm2, lm3)
 
 ## ---- results = 'markup'-------------------------------------------------
 print_screen(ht)
+
+## ---- eval = FALSE-------------------------------------------------------
+#  quick_pdf(mtcars)
+#  quick_pdf(mtcars, file = 'motorcars data.pdf')
 

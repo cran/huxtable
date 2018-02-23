@@ -74,7 +74,6 @@ test_that('Subset assignment of hux into hux preserves attributes', {
 
 
 test_that('Column names are not uglified', {
-  # skip('Can\'t solve this one at the moment.')
   ht <- hux('A long column name' = 1:3, 'Another name' = 1:3, add_colnames = TRUE)
   expect_match(to_screen(ht), 'A long column name', fixed = TRUE, all = FALSE)
   ht <- hux('A long column name' = 1:3, 'Another name' = 1:3, add_colnames = FALSE)
@@ -137,6 +136,13 @@ test_that('insert_column and insert_row work', {
   expect_true(bold(ht)[1, 2])
   ht <- insert_column(ht_orig, 8, 9, after = 1, copy_cell_props = FALSE)
   expect_false(bold(ht)[1, 2])
+})
+
+test_that('insert_column works with column names', {
+  ht_orig <- hux(a = 1:2, b = 1:2)
+  ht <- insert_column(ht_orig, 8, 9, after = "a")
+  expect_equivalent(ncol(ht), 3)
+  expect_equivalent(ht[, 2], huxtable(8:9))
 })
 
 test_that('Can add a column to a huxtable using standard replacement methods', {
