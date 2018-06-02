@@ -1,9 +1,18 @@
 
 
-# utility functions-----------------------------------------------------------------------------------------------------
+# utility functions---------------------------------------------------------------------------------
 
 #' @import assertthat
 NULL
+
+
+ncharw <- function (x) nchar(x, type = 'width')
+
+# pinched from rlang
+`%||%` <- function (x, y) {
+  if (is.null(x)) y else x
+}
+
 
 # return character matrix of formatted contents, suitably escaped
 clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', 'word', 'excel'), ...) {
@@ -22,8 +31,12 @@ clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', '
       to_esc <- escape_contents(ht)[, col]
       contents[to_esc, col] <-  sanitize(contents[to_esc, col], type)
     }
-    # has to be after sanitization because we add &nbsp; for HTML
-    contents[, col] <- decimal_pad(contents[, col], pad_decimal(ht)[, col], type)
+    # has to be after sanitization because we add &nbsp; for HTML (and non-space stuff for LaTeX):
+    # later we can just use align for this:
+    pad_chars <- pad_decimal(ht)[, col]
+    align_pad   <- ncharw(align(ht)[, col]) == 1
+    pad_chars[align_pad] <- align(ht)[align_pad, col]
+    contents[, col] <- decimal_pad(contents[, col], pad_chars, type)
   }
 
   contents
@@ -107,23 +120,25 @@ format_numbers <- function (string, num_fmt) {
         if (is.numeric(num_fmt)) function (numeral) formatC(round(numeral, num_fmt), format = 'f',
           digits = num_fmt) else
         stop('Unrecognized type of number_format: should be function, character or integer. See ?number_format')
-  # Optional minus, then any number of digits followed by an optional decimal point
-  # which is assumed to be "." (?Sys.setlocale suggests this is a reasonable assumption)
-  # the first bracketed expression (?<!\\d(e|E)?) is a negative lookbehind assertion
-  # that we don't have a digit followed by e or E i.e. it should avoid formatting exponents
-  # we use 0 or more e/E characters to avoid matching substrings of an exponent e.g.
-  # 5e12 must not match the "12" but should also not match the "2"
-  stringr::str_replace_all(string, '(?<!\\d(e|E)?-?)-?\\d+(\\.\\d+)?', function (x) format_numeral(as.numeric(x)))
+  # Breakdown:
+  # -?                    optional minus sign
+  # [0-9]*                followed by any number of digits
+  # \\.?                  optionally followed by a decimal
+  # [0-9]+                which may also be followed by any number of digits
+  # ([eE]-?[0-9]+)?       optionally including e or E as in scientific notation
+  #                       along with (optionally) a sign preceding the digits
+  #                       specifying the level of the exponent.
+  stringr::str_replace_all(string,  '-?[0-9]*\\.?[0-9]+([eE][+-]?[0-9]+)?', function (x) format_numeral(as.numeric(x)))
 }
 
 
 
 #' Sanitize table elements
 #'
-#' This is copied over from \code{\link[xtable]{sanitize}}.
+#' This is copied over from `xtable::sanitize()`.
 #'
 #' @param str A character object.
-#' @param type \code{"latex"} or \code{"html"}.
+#' @param type `"latex"` or `"html"`.
 #'
 #' @return The sanitized character object.
 #' @export
@@ -179,10 +194,10 @@ decimal_pad <- function(col, pad_chars, type) {
   pos[pos == -1L] <- nchars[pos == -1L] + 1
   chars_after_. <- nchars - pos
 
-  pad_to <- max(chars_after_.) - chars_after_.
+  pad_n_spaces <- max(chars_after_.) - chars_after_.
   # use non-breaking space on screen also
   pad_char <- switch(type, 'html' = '&nbsp;', 'latex' = '~', 'screen' = '\u00a0', ' ')
-  col <- paste0(col, str_rep(pad_char, pad_to))
+  col <- paste0(col, str_rep(pad_char, pad_n_spaces))
 
   orig_col[! na_pad] <- col
   orig_col
@@ -233,6 +248,26 @@ get_caption_hpos <- function (ht) {
 }
 
 
+real_align <- function(ht) {
+  al <- align(ht)
+  al[! al %in% c('left', 'center', 'right')] <- 'right'
+
+  al
+}
+
+
+#' Print a huxtable within knitr
+#'
+#' @param x A huxtable.
+#' @param options Not used.
+#' @param ... Not used.
+#'
+#' @details
+#' knitr calls [knitr::knit_print()] on objects when they are printed in a knitr (or RMarkdown) document.
+#' The default method for `huxtable` objects guesses the appropriate output format and
+#' prints itself out appropriately.
+#'
+#' @family knit_print
 #' @importFrom knitr knit_print
 #' @export
 knit_print.huxtable <- function (x, options, ...) {
@@ -252,16 +287,68 @@ knit_print.huxtable <- function (x, options, ...) {
   }
 }
 
+# see zzz.R
+#' Print data frames in knitr using huxtable
+#'
+#' @inherit knit_print.huxtable params
+#'
+#' @details
+#' `huxtable` defines a `knit_print` method for `data.frame`s. This converts the data frame
+#' to a huxtable, with `add_colnames = TRUE`, themes it using [theme_plain()] and prints it.
+#' To turn this behaviour off, set `options(huxtable.knit_print_df = FALSE)`. To change the theme, set
+#' `options("huxtable.knit_print_df_theme")` to a one-argument function which should return the huxtable.
+#'
+#' @importFrom knitr knit_print
+#' @export
+#' @family knit_print
+#' @examples
+#' \dontrun{
+#' # in your knitr document
+#' mytheme <- function (ht) {
+#'   ht <- set_all_borders(ht, 0.4)
+#'   ht <- set_all_border_colors(ht, "darkgreen")
+#'   ht <- set_background_color(ht, evens, odds, "salmon")
+#'   ht
+#' }
+#'
+#' options(huxtable.knit_print_df_theme = mytheme)
+#' data.frame(a = 1:5, b = 1:5) # groovy!
+#' }
+knit_print.data.frame <- function(x, options, ...) {
+  if (! isTRUE(getOption('huxtable.knit_print_df', TRUE))) {
+    NextMethod() # probably calls knit_print.default
+  } else {
+    ht <- smart_hux_from_df(x)
+    df_theme <- getOption('huxtable.knit_print_df_theme', theme_plain)
+    assert_that(is.function(df_theme))
+    ht <- df_theme(ht)
+    knit_print(ht) # we are now hopping down the class hierarchy, so do this rather than NextMethod()
+  }
+}
 
-options(huxtable.print = print_screen)
-options(huxtable.color_screen = requireNamespace('crayon', quietly = TRUE))
+
+smart_hux_from_df <- function(dfr) {
+  col_nchars <- sapply(dfr, function (col) max(nchar(as.character(col), type = "width")))
+
+  ht <- as_hux(dfr, add_colnames = TRUE, autoformat = TRUE)
+
+  wrap(ht)[-1, col_nchars > 15] <- TRUE
+  width <- sum(col_nchars) / 90
+  width(ht) <- min(1, max(0.2, width))
+  # this did not seem to improve on LaTeX's own attempts
+  # prop_widths  <- col_nchars/sum(col_nchars)
+  # equal_widths <- rep(1/ncol(ht), ncol(ht))
+  # col_width(ht) <- round((prop_widths * .75 + equal_widths * .25), 2)
+
+  ht
+}
 
 
 #' Default print method for huxtables
 #'
-#' By default huxtables are printed using \code{\link{print_screen}}. In certain cases, for example
+#' By default huxtables are printed using [print_screen()]. In certain cases, for example
 #' in Sweave documents, it may be
-#' useful to change this. You can do so by setting \code{options(huxtable.print)}.
+#' useful to change this. You can do so by setting `options(huxtable.print)`.
 #' @param x A huxtable.
 #' @param ... Options passed to other methods.
 #'
@@ -323,14 +410,14 @@ guess_knitr_output_format <- function() {
 
 #' Insert a row or column
 #'
-#' These convenience functions wrap \code{cbind} or \code{rbind} for huxtables to insert
+#' These convenience functions wrap `cbind` or `rbind` for huxtables to insert
 #' a single row.
 #' @param ht A huxtable.
 #' @param ... Cell contents.
 #' @param after Insert the row/column after this position. 0 (the default) inserts as the first row/column.
-#' @param copy_cell_props Copy cell properties from the previous row or column (if after > 0). See \code{\link{cbind.huxtable}}.
+#' @param copy_cell_props Copy cell properties from the previous row or column (if after > 0). See [cbind.huxtable()].
 #' @details
-#' In \code{insert_column} only, you can use a column name for \code{after}.
+#' In `insert_column` only, you can use a column name for `after`.
 #' @return The modified huxtable
 #' @export
 #'
@@ -394,7 +481,7 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #' @param ht A huxtable.
 #' @param text Text for the footnote.
 #' @param border Width of the footnote's top border. Set to 0 for no border.
-#' @param ... Other properties, passed to \code{\link{set_cell_properties}} for the footnote cell.
+#' @param ... Other properties, passed to [set_cell_properties()] for the footnote cell.
 #'
 #' @return The modified huxtable
 #' @export
@@ -451,155 +538,4 @@ hux_logo <- function(latex = FALSE) {
   col_width(logo) <- c(.4, .3, .3)
   position(logo) <- 'center'
   logo
-}
-
-
-#' Quickly create a PDF, HTML, Word or Excel document showing matrices, data frames, et cetera.
-#'
-#' @param ... One or more huxtables or R objects with an \code{as_huxtable} method.
-#' @param file File path for the output.
-#' @param borders Border width for members of \code{...} that are not huxtables.
-#'
-#' @return Invisible \code{NULL}.
-#'
-#' @details Objects in \code{...} will be converted to huxtables, with borders added.
-#'
-#' If \sQuote{file} is not specified, the default file path is "huxtable-output.xxx" in
-#' the working directory. If the session is interactive, you'll be asked to confirm any
-#' overwrite; if the session is not interactive, the command will fail.
-#'
-#' @examples
-#' \dontrun{
-#' m <- matrix(1:4, 2, 2)
-#' dfr <- data.frame(a = 1:5, b = 1:5)
-#' quick_pdf(m, dfr)
-#' quick_html(m, dfr)
-#' quick_docx(m, dfr)
-#' quick_xlsx(m, dfr)
-#' }
-#' @name quick-output
-NULL
-
-
-#' @rdname quick-output
-#' @export
-quick_pdf <- function (..., file = confirm("huxtable-output.pdf"), borders = 0.4) {
-  assert_that(is.number(borders))
-  force(file) # ensures confirm() is called before any other files are created.
-  hts <- huxtableize(list(...), borders)
-  # on my Mac, tempdir() gets a double slash in the path, which screws up texi2pdf.
-  # You can't use normalizePath with a non-existent file, so the below doesn't work:
-  # latex_file <- normalizePath(tempfile(fileext = ".tex"), mustWork = TRUE)
-  clean_tmp_dir <- normalizePath(tempdir(), mustWork = TRUE)
-  latex_file <- tempfile(tmpdir = clean_tmp_dir, fileext = ".tex")
-  sink(latex_file)
-  tryCatch({
-      cat('\\documentclass{article}\n')
-      report_latex_dependencies()
-      cat('\n\\begin{document}')
-      lapply(hts, function (ht) {
-        cat('\n\n')
-        print_latex(ht)
-        cat('\n\n')
-      })
-      cat('\n\\end{document}')
-    },
-    error = identity,
-    finally = {sink()}
-  )
-
-  tools::texi2pdf(latex_file, clean = TRUE) # outputs to current working directory
-  pdf_file <- sub('\\.tex$', '.pdf', basename(latex_file))
-  if (! file.exists(pdf_file)) stop('Could not find texi2pdf output file "', pdf_file, '"')
-  if (! file.remove(latex_file)) warning('Could not remove intermediate TeX file "', latex_file, '"')
-  # we overwrite existing files. If no explicit `file` argument was specified, confirm() has
-  # already checked if this is OK, or has failed in non-interactive sessions:
-  if (file.copy(pdf_file, file, overwrite = TRUE)) {
-    file.remove(pdf_file)
-  } else {
-    stop('Could not copy pdf file to ', file, '. The pdf file remains at "', pdf_file, '"')
-  }
-
-  invisible(NULL)
-}
-
-
-#' @rdname quick-output
-#' @export
-quick_html <- function (..., file = confirm("huxtable-output.html"), borders = 0.4) {
-  assert_that(is.number(borders))
-  force(file)
-  hts <- huxtableize(list(...), borders)
-  sink(file)
-  cat('<!DOCTYPE html><html><body>')
-  tryCatch({
-    lapply(hts, function (ht) {
-      cat('<p>&nbsp;</p>')
-      print_html(ht)
-      cat('\n\n')
-    })
-    cat('</body></html>')
-  },
-    error = identity,
-    finally = {sink()}
-  )
-
-  invisible(NULL)
-}
-
-
-#' @rdname quick-output
-#' @export
-quick_docx <- function (..., file = confirm("huxtable-output.docx"), borders = 0.4) {
-  assert_that(is.number(borders))
-  force(file)
-  hts <- huxtableize(list(...), borders)
-  my_doc <- officer::read_docx()
-  for (ht in hts) {
-    ft <- as_flextable(ht)
-    my_doc <- flextable::body_add_flextable(my_doc, ft)
-    my_doc <- officer::body_add_par(my_doc, " ")
-  }
-  print(my_doc, target = file)
-
-  invisible(NULL)
-}
-
-
-#' @rdname quick-output
-#' @export
-quick_xlsx <- function (..., file = confirm("huxtable-output.xlsx"), borders = 0.4) {
-  assert_that(is.number(borders))
-  force(file)
-  hts <- huxtableize(list(...), borders)
-  wb <- openxlsx::createWorkbook()
-  ix <- 0
-  for (ht in hts) {
-    ix <- ix + 1
-    wb <- as_Workbook(ht, Workbook = wb, sheet = paste("sheet", ix))
-  }
-  openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
-
-  invisible(NULL)
-}
-
-
-huxtableize <- function (obj_list, borders) {
-  lapply(obj_list, function (obj) {
-    if (! inherits(obj, 'huxtable')) {
-      obj <- as_huxtable(obj)
-      obj <- set_all_borders(obj, borders)
-    }
-    obj
-  })
-}
-
-
-confirm <- function (file) {
-  if (! interactive()) stop('Please specify a `file` argument for non-interactive use of quick_xxx functions.')
-  if (file.exists(file)) {
-    answer <- readline(paste0('File "', file, '" already exists. Overwrite? [yN]'))
-    if (! answer %in% c('y', 'Y')) stop('OK, stopping.')
-  }
-  file
 }

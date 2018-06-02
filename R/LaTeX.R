@@ -21,7 +21,7 @@ print_latex <- function (ht, ...) {
 #' @param tabular_only Return only the LaTeX tabular, not the surrounding float.
 #' @param ... Arguments to pass to methods.
 #'
-#' @return \code{to_latex} returns a string. \code{print_latex} prints the string and returns \code{NULL}.
+#' @return `to_latex` returns a string. `print_latex` prints the string and returns `NULL`.
 #' @export
 #'
 #' @family printing functions
@@ -89,7 +89,7 @@ huxtable_latex_dependencies <- list(
 #' @param quiet Logical: suppress printing.
 #' @param as_string Logical: return dependencies as a string.
 #'
-#' @return If \code{as_string} is \code{TRUE}, a string of "\\usepackage{...}" statements;
+#' @return If `as_string` is `TRUE`, a string of "\\\\usepackage\\{...\\}" statements;
 #'   otherwise a list of rmarkdown::latex_dependency objects, invisibly.
 #' @export
 #'
@@ -154,7 +154,7 @@ build_tabular <- function(ht) {
         padding <- lapply(padding, function(x) if (is_a_number(x)) paste0(x, 'pt') else x)
         tpadding <- if (is.na(padding[3])) '' else paste0('\\rule{0pt}{\\baselineskip+', padding[3], '}')
         bpadding <- if (is.na(padding[4])) '' else paste0('\\rule[-', padding[4], ']{0pt}{', padding[4], '}')
-        align_str <- switch(align(ht)[drow, dcol],
+        align_str <- switch(real_align(ht)[drow, dcol],
           left   = '\\raggedright ',
           right  = '\\raggedleft ',
           center = '\\centering '
@@ -184,7 +184,7 @@ build_tabular <- function(ht) {
       if (! is.na(cell_color <- background_color(ht)[drow, dcol]) && mycol == dcol) {
         cell_color <- format_color(cell_color)
         cell_color <- paste0('\\cellcolor[RGB]{', cell_color, '}')
-        contents <- paste0(cell_color, ' ', contents)
+        contents <- paste0(cell_color, '', contents)
       }
 
       if (bottom_left_multirow) {
@@ -199,7 +199,7 @@ build_tabular <- function(ht) {
           width_spec <- compute_width(ht, mycol, dcell$end_col)
           paste0(pmb, '{', width_spec, '}')
         } else {
-          switch(align(ht)[drow, dcol], left = 'l', center = 'c', right = 'r')
+          switch(real_align(ht)[drow, dcol], left = 'l', center = 'c', right = 'r')
         }
         # only add left borders if we haven't already added a right border!
         lb <- if (! added_right_border) v_border(ht, myrow, mycol, collapsed_borders, cb_colors) else ''

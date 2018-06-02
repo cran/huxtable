@@ -5,31 +5,30 @@ NULL
 
 #' Convert a huxtable for Excel
 #'
-#' If the \code{openxlsx} package is installed, Huxtables can be converted to
-#' \code{\link[openxlsx]{openxlsx}} Worbook objects, for use in Excel documents.
+#' If the `openxlsx` package is installed, Huxtables can be converted to
+#' [openxlsx::openxlsx()] Worbook objects, for use in Excel documents.
 #'
 #' @param ht A huxtable.
-#' @param Workbook An existing \code{Workbook} object. By default, a new workbook will be created.
+#' @param Workbook An existing `Workbook` object. By default, a new workbook will be created.
 #' @param sheet Name for the worksheet where the huxtable will be created.
-#' @param write_caption If \code{TRUE}, print any caption in the row above or below the table.
+#' @param write_caption If `TRUE`, print any caption in the row above or below the table.
 #' @param ... Not used.
 #'
 #' @details
-#' Use \code{\link[openxlsx]{saveWorkbook}} to save the resulting object to an Excel file.
+#' Use [openxlsx::saveWorkbook()] to save the resulting object to an Excel file.
 #'
 #' Properties are supported with the following exceptions:
-#' \itemize{
-#'   \item Non-numeric column widths and row heights, table width and height.
-#'   \item Decimal padding.
-#'   \item Cell padding.
-#'   \item Table position.
-#' }
-#' Huxtable tries to guess appropriate widths and height for rows and columns; numeric \code{\link{width}} and
-#' \code{\link{height}} are treated as scaling factors.
+#' * Non-numeric column widths and row heights, table width and height.
+#' * Decimal padding.
+#' * Cell padding.
+#' * Table position.
 #'
-#' Contents are only stored as numbers if a whole column is numeric as defined by \code{\link{is_a_number}};
+#' Huxtable tries to guess appropriate widths and height for rows and columns; numeric [width()] and
+#' [height()] are treated as scaling factors.
+#'
+#' Contents are only stored as numbers if a whole column is numeric as defined by [is_a_number()];
 #' otherwise they are stored as text.
-#' @return An object of class \code{Workbook}.
+#' @return An object of class `Workbook`.
 #' @export
 #'
 #' @examples
@@ -105,7 +104,7 @@ as_Workbook.huxtable <- function (ht,  Workbook = NULL, sheet = "Sheet 1", write
             borderColour   = border_colors,
             borderStyle    = border_style,
             fgFill         = null_args$bgc, # bgFill is "for conditional formatting only"
-            halign         = align(ht)[drow, dcol],
+            halign         = real_align(ht)[drow, dcol],
             valign         = switch(va, middle = 'center', va),
             textDecoration = c("bold", "italic")[c(bold(ht)[drow, dcol], italic(ht)[drow, dcol])],
             wrapText       = wrap(ht)[drow, dcol],

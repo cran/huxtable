@@ -6,9 +6,9 @@
 \usage{
 huxreg(..., error_format = "({std.error})", error_style = c("stderr", "ci",
   "statistic", "pvalue"), error_pos = c("below", "same", "right"),
-  number_format = "\%.3f", pad_decimal = ".", ci_level = NULL,
-  tidy_args = NULL, stars = c(`***` = 0.001, `**` = 0.01, `*` = 0.05),
-  bold_signif = NULL, borders = 0.4, outer_borders = 0.8,
+  number_format = "\%.3f", align = ".", pad_decimal = ".",
+  ci_level = NULL, tidy_args = NULL, stars = c(`***` = 0.001, `**` = 0.01,
+  `*` = 0.05), bold_signif = NULL, borders = 0.4, outer_borders = 0.8,
   note = "{stars}.", statistics = c(N = "nobs", R2 = "r.squared", "logLik",
   "AIC"), coefs = NULL, omit_coefs = NULL)
 }
@@ -21,14 +21,15 @@ huxreg(..., error_format = "({std.error})", error_style = c("stderr", "ci",
 
 \item{error_pos}{Display uncertainty 'below', to the 'right' of, or in the 'same' cell as estimates.}
 
-\item{number_format}{Format for numbering. See \code{\link{number_format}} for details.}
+\item{number_format}{Format for numbering. See \code{\link[=number_format]{number_format()}} for details.}
 
-\item{pad_decimal}{Character for decimal point; columns will be right-padded to align these.
-Set to \code{NA} to turn off padding. See \code{\link{pad_decimal}} for details.}
+\item{align}{Alignment for table cells. Set to a single character to align on this character.}
+
+\item{pad_decimal}{Deprecated in favour of \code{align}.}
 
 \item{ci_level}{Confidence level for intervals. Set to \code{NULL} to not calculate confidence intervals.}
 
-\item{tidy_args}{List of arguments to pass to \code{\link[broom]{tidy}}. You can also pass a list of lists;
+\item{tidy_args}{List of arguments to pass to \code{\link[broom:tidy]{broom::tidy()}}. You can also pass a list of lists;
 if so, the nth element will be used for the nth column.}
 
 \item{stars}{Levels for p value stars. Names of \code{stars} are symbols to use. Set to \code{NULL} to not show stars.}
@@ -45,7 +46,7 @@ significance stars. Set to \code{NULL} for no footnote.}
 
 \item{statistics}{Summary statistics to display. Set to \code{NULL} to show all available statistics.}
 
-\item{coefs}{Display only these coefficients. Overrules \code{omit_coef}.}
+\item{coefs}{Display only these coefficients. Overrules \code{omit_coefs}.}
 
 \item{omit_coefs}{Omit these coefficients.}
 }
@@ -56,7 +57,7 @@ A huxtable object.
 Create a huxtable to display model output
 }
 \details{
-Models must have a \code{\link[broom]{tidy}} method defined, which should return 'term', 'estimate', 'std.error',
+Models must have a \code{\link[broom:tidy]{broom::tidy()}} method defined, which should return 'term', 'estimate', 'std.error',
 'statistic' and 'p.value'. If the \code{tidy} method does not have a \code{conf.int} option, \code{huxreg} will
 calculate confidence intervals itself, using a normal approximation.
 
@@ -65,11 +66,11 @@ headings will be automatically created. If the \code{coef} and/or \code{statisti
 used for row headings. If different values of \code{coef} have the same name, the corresponding rows will be merged
 in the output.
 
-Each element of \code{statistics} should be a column name from \code{\link[broom]{glance}}. You can also
+Each element of \code{statistics} should be a column name from \code{\link[broom:glance]{broom::glance()}}. You can also
 use 'nobs' for the number of observations. If \code{statistics} is \code{NULL} then all columns from \code{glance}
 will be used. To use no columns, set \code{statistics = character(0)}.
 
-\code{error_format} is a string to be interpreted by \code{\link[glue]{glue}}. Terms in parentheses will be
+\code{error_format} is a string to be interpreted by \code{\link[glue:glue]{glue::glue()}}. Terms in parentheses will be
 replaced by computed values. You can use any columns returned
 by \code{tidy}: typical columns include \code{statistic}, \code{p.value}, \code{std.error}, as well as \code{conf.low}
 and \code{conf.high} if you have set \code{ci_level}. For example, to show confidence intervals, you

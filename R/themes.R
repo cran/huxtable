@@ -4,11 +4,13 @@
 #'
 #' These functions quickly set default styles for a huxtable.
 #'
-#' \code{theme_basic} is a simple theme with a simple line under headers.
+#' `theme_plain` is a simple theme with a bold header, a grey striped background, and an outer border.
 #'
-#' \code{theme_striped} uses different backgrounds for alternate rows, and for headers.
+#' `theme_basic` just adds a border for header rows and/or columns.
 #'
-#' \code{theme_article} is similar to the style of many scientific journals.
+#' `theme_striped` uses different backgrounds for alternate rows, and for headers.
+#'
+#' `theme_article` is similar to the style of many scientific journals.
 #' It sets horizontal lines above and below the table.
 #'
 #' @param ht A huxtable object.
@@ -23,6 +25,19 @@
 #' theme_striped(ht)
 NULL
 
+
+#' @export
+#' @rdname themes
+#' @param position 'left', 'centre' or 'right'
+theme_plain <- function(ht, position = 'left'){
+  ht <- set_outer_borders(ht, 0.4)
+  ht <- set_background_color(ht, evens, everywhere, "#F2F2F2")
+  ht <- set_bold(ht, 1, everywhere, TRUE)
+  ht <- set_bottom_border(ht, 1, everywhere, 0.4)
+  ht <- set_position(ht, position)
+
+  ht
+}
 
 #' @export
 #' @rdname themes

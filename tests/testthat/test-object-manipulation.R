@@ -5,14 +5,6 @@ context("Object manipulation")
 source('functions.R')
 
 
-ht <- huxtable(a = 1:3, b = 1:3)
-
-
-test_that('Object creation examples unchanged', {
-  test_ex_same('huxtable')
-})
-
-
 test_that('Object subsetting and replacement examples unchanged', {
   test_ex_same('extract-methods')
   test_ex_same('add_colnames')
@@ -22,6 +14,7 @@ test_that('Object subsetting and replacement examples unchanged', {
 
 
 test_that('Subsetting preserves rownames', {
+  ht <- huxtable(a = 1:3, b = 1:3)
   rownames(ht) <- letters[1:3]
   expect_equal(rownames(ht[1:2, ]), letters[1:2])
 })
@@ -97,6 +90,7 @@ test_that('Huxtables can be transposed', {
   expect_equivalent(caption(trans), 'A caption')
 })
 
+
 test_that('add_colnames works with as_hux for matrices', {
   mat <- matrix(1:4, 2, 2, dimnames = list(letters[1:2], LETTERS[1:2]))
   ht <- as_hux(mat, add_colnames = TRUE, add_rownames = TRUE)
@@ -105,6 +99,20 @@ test_that('add_colnames works with as_hux for matrices', {
 })
 
 
+test_that('add_colnames does not screw up dates and similar', {
+  date_str <- rep("2015/05/05 12:00", 2)
+  dfr <- data.frame(
+          date    = as.Date(date_str),
+          POSIXct = as.POSIXct(date_str),
+          POSIXlt = as.POSIXlt(date_str)
+        )
+  ht <- as_hux(dfr, add_colnames = TRUE)
+  ht2 <- add_colnames(as_hux(dfr, add_colnames = FALSE))
+  for (h in list(ht, ht2)) for (col in colnames(dfr)) {
+    expect_match(to_screen(h[, col]), "2015-05-05")
+  }
+})
+
 test_that('add_footnote works', {
   ht_orig <- hux(a = 1:2, b = 1:2)
   ht_orig <- add_footnote(ht_orig, 'Some footnote text', italic = TRUE)
@@ -112,6 +120,7 @@ test_that('add_footnote works', {
   expect_equivalent(colspan(ht_orig)[3, 1], ncol(ht_orig))
   expect_true(italic(ht_orig)[3, 1])
 })
+
 
 test_that('insert_column and insert_row work', {
   ht_orig <- hux(a = 1:2, b = 1:2)
@@ -144,6 +153,7 @@ test_that('insert_column works with column names', {
   expect_equivalent(ncol(ht), 3)
   expect_equivalent(ht[, 2], huxtable(8:9))
 })
+
 
 test_that('Can add a column to a huxtable using standard replacement methods', {
   ht <- hux(a = 1:2, b = 1:2)

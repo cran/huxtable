@@ -5,16 +5,18 @@
 #'
 #' @export
 as_FlexTable <- function(x, ...) {
-  warning("as_FlexTable is deprecated; redirecting to as_flextable")
+  .Deprecated('as_flextable')
   as_flextable(x, ...)
 }
 
 
 #' Convert a huxtable for Word/Powerpoint
 #'
-#' Huxtables can be converted to \code{\link[flextable]{flextable}} objects, for use in Word and Powerpoint documents.
+#' Huxtables can be converted to [flextable::flextable()] objects, for use in Word and Powerpoint documents.
 #'
 #' @param x A huxtable.
+#' @param colnames_to_header Use huxtable column names as the header. If \code{FALSE}, the flextable
+#'    will contain only a body and no header.
 #' @param ... Not used.
 #'
 #' @return an object of class flextable.
@@ -22,20 +24,20 @@ as_FlexTable <- function(x, ...) {
 #' @details
 #'
 #' Note: you can't use flextable Word output within rmarkdown. Instead you have to write the Word file
-#' yourself. See \code{\link[officer]{read_docx}}.
+#' yourself. See [officer::read_docx()].
 #'
-#' \code{as_FlexTable} is deprecated and calls \code{as_flextable} with a warning.
+#' `as_FlexTable` is deprecated and calls `as_flextable` with a warning.
 #'
 #' Properties are supported, with the following exceptions:
-#' \itemize{
-#'   \item Rotation of 0, 90 or 270 is supported.
-#'   \item Non-numeric column widths and row heights are not supported.
-#'   \item Table height, wrap, captions and table position are not supported.
-#' }
+
+#' * Rotation of 0, 90 or 270 is supported.
+#' * Non-numeric column widths and row heights are not supported.
+#' * Table height, wrap, captions and table position are not supported.
+#
 #'
 #' @section Challenge:
 #'
-#' Try to say \code{as_flextable.huxtable} ten times without pausing.
+#' Try to say `as_flextable.huxtable` ten times without pausing.
 #'
 #' @examples
 #' ht <- hux(a = 1:3, b = 1:3)
@@ -53,7 +55,7 @@ as_flextable <- function(x, ...) UseMethod('as_flextable')
 
 #' @rdname as_flextable
 #' @export
-as_flextable.huxtable <- function(x, ...) {
+as_flextable.huxtable <- function(x, colnames_to_header = FALSE, ...) {
   if (! requireNamespace('flextable')) stop('as_flextable requires the flextable package. To install, type:\n',
     'install.packages("flextable")')
 
@@ -61,7 +63,7 @@ as_flextable.huxtable <- function(x, ...) {
   cc <- as.data.frame(cc)
   names(cc) <- make.names(names(cc)) # flextable does not like invalid names
   ft <- flextable::flextable(cc)
-
+  if (! colnames_to_header) ft <- flextable::delete_part(ft, 'header')
 
   if (is.numeric(rh <- row_height(x))) ft <- flextable::height(ft, height = rh)
   if (is.numeric(cw <- col_width(x)))  ft <- flextable::width(ft, width = cw)
@@ -80,7 +82,7 @@ as_flextable.huxtable <- function(x, ...) {
     if (! is.na(fs <- font_size(x)[drow, dcol])) ft <- flextable::fontsize(ft, i = drow, j = dcol, size = fs)
     if (! is.na(tc <- text_color(x)[drow, dcol])) ft <- flextable::color(ft, i = drow, j = dcol, color = tc)
     if (! is.na(bgc <- background_color(x)[drow, dcol])) ft <- flextable::bg(ft, i = drow, j = dcol, bg = bgc)
-    ft <- flextable::align(ft, i = drow, j = dcol, align = align(x)[drow, dcol])
+    ft <- flextable::align(ft, i = drow, j = dcol, align = real_align(x)[drow, dcol])
 
     ft <- flextable::padding(ft, i = drow, j = dcol,
             padding.bottom = bottom_padding(x)[drow, dcol],
@@ -101,8 +103,8 @@ as_flextable.huxtable <- function(x, ...) {
     valign <- valign(x)[drow, dcol]
     if (valign == 'middle') valign <- 'center'
     if (! (rot %in% names(rots))) {
-      warning("flextable can only handle rotation of 0, 90 or 270")
-      rot <- 0
+      warning('flextable can only handle rotation of 0, 90 or 270')
+      rot <- '0'
     }
     ft <- flextable::rotate(ft, i = drow, j = dcol, rotation = rots[[rot]], align = valign)
   }

@@ -11,7 +11,7 @@ print_screen(ht, ...)
 to_screen(ht, ...)
 
 \method{to_screen}{huxtable}(ht, min_width = ceiling(getOption("width")/6),
-  max_width = Inf, compact = TRUE, colnames = TRUE,
+  max_width = getOption("width", Inf), compact = TRUE, colnames = TRUE,
   color = getOption("huxtable.color_screen", default = TRUE), ...)
 }
 \arguments{

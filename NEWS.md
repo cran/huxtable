@@ -2,6 +2,44 @@
 Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major version
 increments reflect backwards-incompatible API changes, not necessarily big changes.
 
+# huxtable 4.0.0
+
+* New `theme_plain` theme.
+* The default value for `add_colnames` is going to become `TRUE`. At present it remains `FALSE`. Set 
+  `options("huxtable.add_colnames")` to `TRUE` or `FALSE` to set the default and avoid warnings in
+  future.
+* `quick_*` functions now automatically open documents if used interactively. Use `open = FALSE` to
+  avoid.
+* Tweak top and bottom margins for HTML tables.
+* `pad_decimal` is deprecated in favour of `align(ht) <- "."`.
+* `huxreg` continues with a warning if `statistics` are unavailable for some models.
+
+## Breaking changes 
+
+* huxtable now provides `knit_print.data.frame` methods. This 
+  means that bare data frames will be pretty-printed via huxtable if the package is loaded. 
+  - Set `options("huxtable.knit_print_df")` to `FALSE` if you don't want this.
+  - By default data frames are printed using the `theme_plain` theme. Set
+    options("huxtable.knit_print_df_theme") to a different one-argument function if you want to 
+    use a different theme.
+* The new `autoformat` argument lets [huxtable()] and [as_huxtable()] automatically choose alignment 
+  and number format based on column type. Set `options("huxtable.autoformat")` to `FALSE` to turn 
+  off this feature by default.
+* The default value of `number_format` has changed from "%5.3g" to "%.3g", which no longer space-pads numbers.
+* `as_flextable` now does not print column names in the header. This matches the standard
+  huxtable behaviour whereby headers are "just another row/column". To get the old behaviour, 
+  use `colnames_to_header = TRUE`.
+  
+## Bugfixes
+
+* Bugfix: Date and datetime columns were converted to numbers by `add_colnames`.
+* LaTeX bugfix: background colors were printing an extra space.
+* `huxreg` was never using built-in confidence intervals.
+* Screen bugfixes:
+  - set max_width to screen width (thanks @jacob-long)
+  - misaligned decimal points
+* Various bugfixes for `number_format`, `huxreg`, `as_hux.table`, `as_flextable`.
+  
 
 # huxtable 3.0.0
 

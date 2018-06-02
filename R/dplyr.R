@@ -12,8 +12,8 @@ filter_.huxtable <- function (.data, ..., .dots) {
 #' Pointless documentation
 #'
 #' This pointless piece of documentation exists to satisfy R CMD check, due to
-#' a complicated and boring issue involving \code{stats::filter}, \code{dplyr::filter}
-#' and the mysterious workings of the NAMESPACE file. See \code{\link{mutate.huxtable}}
+#' a complicated and boring issue involving `stats::filter`, `dplyr::filter`
+#' and the mysterious workings of the NAMESPACE file. See [mutate.huxtable()]
 #' for details about using dplyr with huxtable.
 #'
 #' @param .data Data
@@ -35,15 +35,18 @@ mutate_.huxtable <- function (.data, ..., .dots) {
   .data <- as.data.frame(.data)
   copy_cell_props <- TRUE
   if (! is.null(.dots$copy_cell_props)) {
-    if (utils::packageVersion("dplyr") > "0.5.0") {
-      copy_cell_props <- .dots$copy_cell_props
+    copy_cell_props <- if (utils::packageVersion("dplyr") > "0.5.0") {
+      .dots$copy_cell_props
     } else {
-      copy_cell_props <- lazyeval::lazy_eval(.dots$copy_cell_props)
+    if (! requireNamespace('lazyeval', quietly = TRUE)) stop(
+          'Using huxtable with dplyr 0.5.0 or less requires the lazyeval package.\n',
+          'Either type `install.packages("lazyeval")` or update dplyr to a more recent version.')
+      lazyeval::lazy_eval(.dots$copy_cell_props)
     }
   }
   .dots <- .dots[setdiff(names(.dots), 'copy_cell_props')]
   result <- NextMethod()
-  result <- as_hux(result)
+  result <- as_hux(result, autoformat = FALSE)
 
   for (a in c(huxtable_row_attrs, huxtable_table_attrs)) attr(result, a) <- attr(ht, a)
 
@@ -65,18 +68,18 @@ mutate_.huxtable <- function (.data, ..., .dots) {
 
 #' Dplyr verbs for huxtable
 #'
-#' Huxtable can be used with dplyr verbs \code{\link[dplyr]{select}}, \code{\link[dplyr]{rename}},
-#' \code{\link[dplyr]{slice}}, \code{\link[dplyr]{arrange}}, \code{\link[dplyr]{mutate}} and
-#' \code{\link[dplyr]{transmute}}. These will return huxtables. Other verbs like \code{\link[dplyr]{summarize}} will
-#' simply return data frames as normal; \code{\link[dplyr]{pull}} will return a vector. \code{mutate} has an extra
+#' Huxtable can be used with dplyr verbs [dplyr::select()], [dplyr::rename()],
+#' [dplyr::slice()], [dplyr::arrange()], [dplyr::mutate()] and
+#' [dplyr::transmute()]. These will return huxtables. Other verbs like [dplyr::summarize()] will
+#' simply return data frames as normal; [dplyr::pull()] will return a vector. `mutate` has an extra
 #' option, detailed below.
 #'
 #' @param .data A huxtable.
-#' @param ... Arguments passed to \code{\link[dplyr]{mutate}}.
+#' @param ... Arguments passed to [dplyr::mutate()].
 #' @param copy_cell_props Logical: copy cell and column properties from existing columns.
 #'
 #' @details
-#' If \code{mutate} creates new columns, and the argument \code{copy_cell_props} is missing or \code{TRUE}, then cell
+#' If `mutate` creates new columns, and the argument `copy_cell_props` is missing or `TRUE`, then cell
 #' and column properties will be copied from existing columns to their left, if there are any. Otherwise, they will be the
 #' standard defaults. Row and table properties, and properties of cells in existing columns, remain unchanged.
 #'
@@ -101,7 +104,7 @@ mutate.huxtable <- function (.data, ..., copy_cell_props = TRUE) {
   .data <- as.data.frame(.data)
 
   result <- NextMethod()
-  result <- as_hux(result)
+  result <- as_hux(result, autoformat = FALSE)
 
   for (a in c(huxtable_row_attrs, huxtable_table_attrs)) attr(result, a) <- attr(ht, a)
 

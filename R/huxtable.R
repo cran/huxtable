@@ -1,28 +1,5 @@
 
-#' Huxtable: simply create LaTeX and HTML tables
-#'
-#' Huxtable is a package for creating HTML and LaTeX tables. It provides similar
-#' functionality to xtable, with a simpler interface.
-#'
-#' @details
-#'
-#' To create a huxtable object, use \code{\link{huxtable}} or \code{\link{as_huxtable}}.
-#'
-#' For more information, see \href{https://hughjonesd.github.io/huxtable/}{the website} or
-#' read the vignette with \code{vignette('huxtable')}.
-#'
-#' @section Package options:
-#'
-#' \itemize{
-#'   \item \code{options('huxtable.print')} sets the print method for huxtable objects. See \code{\link{print.huxtable}}.
-#'   \item \code{options('huxtable.color_screen')}. If \code{TRUE} and package \code{crayon} is available, huxtables
-#'   will be printed in color on screen.
-#'
-#' }
-#'
-#'
-#' @name huxtable-package
-NULL
+# basic huxtable creation and manipulation-----------------------------------------------------------------------------
 
 
 #' @importFrom stats na.omit setNames
@@ -32,25 +9,58 @@ NULL
 
 #' Create a huxtable
 #'
-#' \code{huxtable}, or \code{hux}, creates a huxtable object.
+#' `huxtable`, or `hux`, creates a huxtable object.
 #'
-#' @param ... Named list of values, as for \code{\link{data.frame}}.
-#' @param add_colnames If \code{TRUE}, add a first row of column names to the huxtable.
-#' @param add_rownames If \code{TRUE}, add a first column of row names, named 'rownames', to the huxtable.
+#' @param ... For `huxtable`, named list of values as in [data.frame()]. For `as_huxtable`,
+#'   extra arguments.
+#' @param add_colnames If `TRUE`, add a first row of column names to the huxtable.
+#' @param add_rownames If `TRUE`, add a first column of row names, named 'rownames', to the huxtable.
+#' @param autoformat If `TRUE`, automatically format columns by type. See below.
 #'
-#' @return An object of class \code{huxtable}.
+#' @return An object of class `huxtable`.
 #' @export
 #' @details
-#' If you use \code{add_colnames} or \code{add_rownames}, be aware that these will shift your rows and columns
+#' If you use `add_colnames` or `add_rownames`, be aware that these will shift your rows and columns
 #' along by one: your old row/column 1 will now be row/column 2, etc.
+#'
+#' `add_colnames` currently defaults to `FALSE`, but this will change in future. You can set
+#' the default globally by setting `options("huxtable.add_colnames")` to `TRUE` or `FALSE`.
+#'
+#' @section Automatic formatting:
+#'
+#' If `autoformat` is `TRUE`, then columns will have [number_format()] and [align()] properties
+#' set automatically, as follows:
+#'
+#' * Integer columns will have `number_format` set to 0.
+#' * Other numeric columns will have `number_format` set to `"%.3g"`.
+#' * All other columns will have `number_format` set to `NA` (no formatting).
+#' * Integer, `Date` and date-time (i.e. `POSIXct` and `POSIXlt`) columns will be right-aligned.
+#' * Other numeric columns will be aligned on `options("OutDec")`, usually `"."`.
+#' * Other columns will be left aligned.
+#'
+#'
+#' You can change these defaults by editing `options("huxtable.autoformat_number_format")` and
+#' `options("huxtable.autoformat_align")`. See [huxtable-package] for more details.
+#'
+#' Automatic alignment also applies to column headers if `add_colnames` is `TRUE`; headers of
+#' columns aligned on a decimal point will be right-aligned. Automatic number formatting does not
+#' apply to column headers.
+#'
 #' @examples
 #' ht <- huxtable(column1 = 1:5, column2 = letters[1:5])
-huxtable <- function (..., add_colnames = FALSE, add_rownames = FALSE) {
-  assert_that(is.flag(add_colnames), is.flag(add_rownames))
+huxtable <- function (
+        ...,
+        add_colnames = getOption("huxtable.add_colnames", FALSE),
+        add_rownames = FALSE,
+        autoformat   = getOption('huxtable.autoformat', TRUE)
+      ) {
+  assert_that(is.flag(add_colnames), is.flag(add_rownames), is.flag(autoformat))
+
   df_args <- list(..., stringsAsFactors = FALSE, check.names = FALSE)
-  if (R.version$major >= 3 & R.version$minor >= 3) df_args$fix.empty.names <- FALSE
+  if (R.version$major >= 3 && R.version$minor >= 3) df_args$fix.empty.names <- FALSE
   ht <- do.call(data.frame, df_args)
-  ht <- as_huxtable(ht, add_colnames = add_colnames, add_rownames = add_rownames)
+  ht <- as_huxtable(ht, add_colnames = add_colnames, add_rownames = add_rownames,
+        autoformat = autoformat)
 
   ht
 }
@@ -65,7 +75,7 @@ hux <- huxtable
 #'
 #' @export
 #' @details
-#' \code{as_huxtable} and \code{as_hux} convert an object to a huxtable.
+#' `as_huxtable` and `as_hux` convert an object to a huxtable.
 #' Conversion methods exist for data frames, tables, ftables, matrices and (most) vectors.
 #' @examples
 #' dfr <- data.frame(a = 1:5, b = letters[1:5], stringsAsFactors = FALSE)
@@ -82,8 +92,14 @@ as_hux <- as_huxtable
 
 #' @export
 #' @rdname huxtable
-as_huxtable.default <- function (x, add_colnames = FALSE, add_rownames = FALSE, ...) {
-  assert_that(is.flag(add_colnames), is.flag(add_rownames))
+as_huxtable.default <- function (
+        x,
+        add_colnames = getOption("huxtable.add_colnames", FALSE),
+        add_rownames = FALSE,
+        autoformat   = getOption("huxtable.autoformat", TRUE),
+        ...
+      ) {
+  assert_that(is.flag(add_colnames), is.flag(add_rownames), is.flag(autoformat))
   x <- as.data.frame(x, stringsAsFactors = FALSE)
   for (a in setdiff(huxtable_cell_attrs, 'number_format')) {
     attr(x, a) <- matrix(NA, nrow(x), ncol(x))
@@ -104,23 +120,51 @@ as_huxtable.default <- function (x, add_colnames = FALSE, add_rownames = FALSE, 
 
   class(x) <- c('huxtable', class(x))
 
+  col_classes <- sapply(x, function (col) class(col)[1])
+  if (autoformat) {
+    dfn <- getOption('huxtable.autoformat_number_format', list())
+    for (cn in seq_len(ncol(x))) {
+      # double [[ matters for getting underlying object; also want only most specific class:
+      cls <- col_classes[cn]
+      number_format(x)[, cn] <- dfn[[cls]] %||% NA
+    }
+  }
+
   # order matters here. We want original rownames, not anything else.
   if (add_rownames) x <- add_rownames(x, preserve_rownames = FALSE)
   if (add_colnames) x <- add_colnames(x)
+  # this bit comes after add_colnames so that column headers also get aligned:
+  if (autoformat) {
+    dfa <- getOption('huxtable.autoformat_align', list())
+    for (cn in seq_len(ncol(x))) {
+      cls <- col_classes[cn]
+      autoal <- dfa[[cls]] %||% NA
+      align(x)[, cn] <- autoal
+      if (add_colnames && ! autoal %in% c("left", "right", "center", "centre", NA)) {
+        align(x)[1, cn] <- "right"
+      }
+    }
+  }
 
   x <- set_attr_dimnames(x)
   x
 }
 
+
 #' @export
 as_huxtable.huxtable <- function (x, ...) x
+
 
 #' @export
 as_huxtable.table <- function (x, add_colnames = TRUE, add_rownames = TRUE, ...) {
   ht <- as_huxtable(unclass(x), add_colnames, add_rownames, ...)
-  number_format(ht) <- 0
+  if (add_rownames) {
+    ht[1, 1] <- ""
+  }
+
   ht
 }
+
 
 #' @export
 as_huxtable.ftable <- function(x, ...) {
@@ -164,13 +208,13 @@ is_hux <- is_huxtable
 #' @export
 #' @rdname extract-methods
 #' @details
-#' \code{[} always returns a new huxtable object, while \code{$} and \code{[[} simply
+#' `[` always returns a new huxtable object, while `$` and `[[` simply
 #' return a vector of data.
-#' For the replacement function \code{[<-}, if \code{value} is a huxtable, then its cell properties will be
-#' copied into \code{x}. In addition, if \code{value} fills up an entire column, then column properties
-#' will be copied into the replaced columns of \code{x}, and if it fills up an entire row, then
-#' row properties will be copied into the replaced rows of \code{x}.
-#' Replacement functions \code{$<-} and \code{[[<-} simply change the data without affecting other properties.
+#' For the replacement function `[<-`, if `value` is a huxtable, then its cell properties will be
+#' copied into `x`. In addition, if `value` fills up an entire column, then column properties
+#' will be copied into the replaced columns of `x`, and if it fills up an entire row, then
+#' row properties will be copied into the replaced rows of `x`.
+#' Replacement functions `$<-` and `[[<-` simply change the data without affecting other properties.
 #' @examples
 #' ht <- huxtable(a = 1:3, b = letters[1:3])
 #' ht[1:2,]
@@ -309,7 +353,7 @@ is_hux <- is_huxtable
 #' Combine rows or columns
 #'
 #' @param ... Vectors, matrices, data frames or huxtables.
-#' @param deparse.level Passed to \code{\link{cbind.data.frame}}.
+#' @param deparse.level Passed to [cbind.data.frame()].
 #' @param copy_cell_props Cell properties to copy from neighbours (see below).
 #'
 #' @return A huxtable.
@@ -318,15 +362,15 @@ is_hux <- is_huxtable
 #' Table properties will be taken from the first argument which is a huxtable. So will
 #' row properties (for cbind) and column properties (for rbind).
 #'
-#' If some of the inputs are not huxtables, and \code{copy_cell_props} is a character vector of cell properties,
+#' If some of the inputs are not huxtables, and `copy_cell_props` is a character vector of cell properties,
 #' then for rbind, the named cell properties and row heights will be copied to non-huxtables. For cbind,
 #' the named cell properties and column widths will be copied. Objects on the left or above get priority
 #' over those on the right or below.
 #'
-#' If \code{copy_cell_props} is \code{TRUE}, the default
-#' set of cell properties (everything but \code{colspan} and \code{rowspan}) will be copied.
+#' If `copy_cell_props` is `TRUE`, the default
+#' set of cell properties (everything but `colspan` and `rowspan`) will be copied.
 #'
-#' If \code{copy_cell_props} is \code{FALSE}, cells from non-huxtable objects will get the
+#' If `copy_cell_props` is `FALSE`, cells from non-huxtable objects will get the
 #' default properties.
 #'
 #' @examples
@@ -391,8 +435,8 @@ bind2_hux <- function (ht, x, type, copy_cell_props) {
   ht_real_hux <- attr(ht, 'from_real_hux')
   x_real_hux  <- attr(x, 'from_real_hux')
 
-  ht <- as_hux(ht)
-  x  <- as_hux(x)
+  ht <- as_hux(ht, autoformat = FALSE, add_colnames = FALSE)
+  x  <- as_hux(x, autoformat = FALSE, add_colnames = FALSE)
   ccp <- intersect(copy_cell_props, huxtable_cell_attrs)
 
   if (is.character(ccp)) {
@@ -414,7 +458,7 @@ bind2_hux <- function (ht, x, type, copy_cell_props) {
     rbind.data.frame(x, setNames(y, names(x)), stringsAsFactors = FALSE)
   })
 
-  res <- as_hux(bind_df(ht, x))
+  res <- as_hux(bind_df(ht, x), autoformat = FALSE, add_colnames = FALSE)
   res <- merge_props(res, ht, x, type = type, copy_cell_props = copy_cell_props)
 
   attr(res, 'from_real_hux') <- x_real_hux || ht_real_hux
@@ -454,7 +498,7 @@ merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_ce
   #  - row  properties copied from last row (rbind)
   #  - col  properties copied from last col (cbind)
   if (! is_huxtable(second)) {
-    second <- as_hux(second)
+    second <- as_hux(second, add_colnames = FALSE, autoformat = FALSE)
     if (is.character(copy_cell_props)) {
       for (a in copy_cell_props) {
         attr(second, a)[] <- if (type == 'cbind') attr(first, a)[, ncol(first)] else
@@ -501,7 +545,7 @@ merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_ce
 #' @return The transposed object.
 #'
 #' @details
-#' Row and column spans of \code{x} will be swapped, as will column widths and row heights,
+#' Row and column spans of `x` will be swapped, as will column widths and row heights,
 #' table width and height, and cell borders (bottom becomes right, etc.).
 #' Other properties - in particular, alignment, vertical alignment and rotation - will be
 #' preserved.
@@ -512,7 +556,7 @@ merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_ce
 #'
 #' @export
 t.huxtable <- function (x) {
-  res <- as_hux(NextMethod())
+  res <- as_hux(NextMethod(), add_colnames = FALSE, autoformat = FALSE)
   for (a in setdiff(huxtable_cell_attrs, c('colspan', 'rowspan', 'height', 'width',
         'bottom_border', 'left_border', 'top_border', 'right_border'))) {
     attr(res, a) <- t(attr(x, a))
@@ -541,10 +585,10 @@ t.huxtable <- function (x) {
 #'
 #' Add a first row of column names, or a first column of row names, to the huxtable.
 #'
-#' Note that \code{add_colnames} will change the mode of all columns to character. Also note that it will
+#' Note that `add_colnames` will change the mode of all columns to character. Also note that it will
 #' move your rows down by one: what was row 1 will now be row 2, and the column names will now be row 1.
 #'
-#' \code{add_colnames} preserves column names. \code{add_rownames} only preserves them if asked to.
+#' `add_colnames` preserves column names. `add_rownames` only preserves them if asked to.
 #'
 #' @param ht A huxtable.
 #' @param colname Column name for the new column of row names.
@@ -569,11 +613,16 @@ add_colnames <- function (ht, ...) UseMethod('add_colnames')
 #' @export
 #' @rdname add_colnames
 add_colnames.huxtable <- function (ht, rowname = NULL, ...) {
-  assert_that(missing(rowname) || is.null(rowname) || is.string(rowname))
+  if (! missing(rowname)) assert_that(is.null(rowname) || is.string(rowname))
   cn <- colnames(ht)
+  dateish_cols <- which(sapply(ht, function (x) class(x)[1] %in% c("Date", "POSIXct", "POSIXlt")))
+  for (col in dateish_cols) ht[[col]] <- as.character(ht[[col]]) # avoids autoconversion by c(),
+                                                                  # which uses as.numeric
   ht <- rbind(cn, ht, copy_cell_props = FALSE)
+  number_format(ht)[1, ] <- NA
   colnames(ht) <- cn
   if (! is.null(rowname)) rownames(ht) <- c(rowname, rownames(ht)[1:(nrow(ht) - 1)])
+
   ht
 }
 
@@ -588,8 +637,10 @@ add_rownames <- function (ht, ...) UseMethod('add_rownames')
 add_rownames.huxtable <- function (ht, colname = 'rownames', preserve_rownames = TRUE, ...) {
   assert_that(is.string(colname))
   ht <- cbind(rownames(ht), ht, copy_cell_props = FALSE)
+  number_format(ht)[, 1] <- NA
   colnames(ht)[1] <- colname
   if (! preserve_rownames) rownames(ht) <- NULL
+
   ht
 }
 
@@ -598,6 +649,7 @@ add_rownames.huxtable <- function (ht, colname = 'rownames', preserve_rownames =
 `dimnames<-.huxtable` <- function (x, value) {
   x <- NextMethod()
   x <- set_attr_dimnames(x)
+
   x
 }
 

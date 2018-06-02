@@ -10,15 +10,19 @@
 \alias{is_hux}
 \title{Create a huxtable}
 \usage{
-huxtable(..., add_colnames = FALSE, add_rownames = FALSE)
+huxtable(..., add_colnames = getOption("huxtable.add_colnames", FALSE),
+  add_rownames = FALSE, autoformat = getOption("huxtable.autoformat", TRUE))
 
-hux(..., add_colnames = FALSE, add_rownames = FALSE)
+hux(..., add_colnames = getOption("huxtable.add_colnames", FALSE),
+  add_rownames = FALSE, autoformat = getOption("huxtable.autoformat", TRUE))
 
 as_huxtable(x, ...)
 
 as_hux(x, ...)
 
-\method{as_huxtable}{default}(x, add_colnames = FALSE, add_rownames = FALSE,
+\method{as_huxtable}{default}(x,
+  add_colnames = getOption("huxtable.add_colnames", FALSE),
+  add_rownames = FALSE, autoformat = getOption("huxtable.autoformat", TRUE),
   ...)
 
 is_huxtable(x)
@@ -26,11 +30,14 @@ is_huxtable(x)
 is_hux(x)
 }
 \arguments{
-\item{...}{Named list of values, as for \code{\link{data.frame}}.}
+\item{...}{For \code{huxtable}, named list of values as in \code{\link[=data.frame]{data.frame()}}. For \code{as_huxtable},
+extra arguments.}
 
 \item{add_colnames}{If \code{TRUE}, add a first row of column names to the huxtable.}
 
 \item{add_rownames}{If \code{TRUE}, add a first column of row names, named 'rownames', to the huxtable.}
+
+\item{autoformat}{If \code{TRUE}, automatically format columns by type. See below.}
 
 \item{x}{An object to convert to a huxtable.}
 }
@@ -43,6 +50,9 @@ An object of class \code{huxtable}.
 \details{
 If you use \code{add_colnames} or \code{add_rownames}, be aware that these will shift your rows and columns
 along by one: your old row/column 1 will now be row/column 2, etc.
+
+\code{add_colnames} currently defaults to \code{FALSE}, but this will change in future. You can set
+the default globally by setting \code{options("huxtable.add_colnames")} to \code{TRUE} or \code{FALSE}.
 
 \code{as_huxtable} and \code{as_hux} convert an object to a huxtable.
 Conversion methods exist for data frames, tables, ftables, matrices and (most) vectors.

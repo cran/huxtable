@@ -38,11 +38,11 @@ scientific notation; huxtable attempts to detect and ignore these.
 
 If \code{value} is numeric,
 numbers will be rounded to that many decimal places.  If \code{value} is
-character, it will be taken as an argument to \code{\link{sprintf}}. If \code{value} is a
+character, it will be taken as an argument to \code{\link[=sprintf]{sprintf()}}. If \code{value} is a
 function it will be applied to the numbers and should return a string. If \code{value} is \code{NA}, then numbers
-will be unchanged.
+will be unchanged. Note that setting \code{value} to \code{NA} does not reset to the default.
 
-The default value is "\%5.3g" which rounds numbers if they have more than 3 significant
+The default value is "\%.3g" which rounds numbers if they have more than 3 significant
 digits, and which may use an exponent for large numbers.
 
 To set number_format to a function, enclose the function in \code{list}.

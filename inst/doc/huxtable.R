@@ -3,6 +3,7 @@
 library(knitr)
 library(dplyr)
 library(huxtable)
+options(huxtable.knit_print_df = FALSE)
 
 is_latex <- guess_knitr_output_format() == 'latex'
 # is_latex <- TRUE
@@ -45,7 +46,7 @@ data(mtcars)
 car_ht <- as_hux(mtcars)
 
 ## ---- results = 'markup'-------------------------------------------------
-print_screen(ht)
+print_screen(ht)     # on the R command line, you can just type "ht"
 
 ## ------------------------------------------------------------------------
 ht
@@ -58,14 +59,8 @@ left_padding(ht)  <- 10
 number_format(ht) <- 2    # 2 decimal places
 
 ## ------------------------------------------------------------------------
-bold(ht)[1,]          <- TRUE
-bottom_border(ht)[1,] <- 1
-
-## ------------------------------------------------------------------------
-align(ht)[,2] <- 'right'
-
-## ------------------------------------------------------------------------
-align(ht)[,'Salary'] <- 'right'
+bold(ht)[1, ]          <- TRUE
+bottom_border(ht)[1, ] <- 1
 
 ## ------------------------------------------------------------------------
 ht
@@ -79,7 +74,7 @@ ht
 ## ---- echo = FALSE-------------------------------------------------------
 sides <- c('left_', 'right_', 'top_', 'bottom_')
 props <- list()
-props[['Cell_Text']] <- sort(c('font', 'text_color', 'wrap', 'bold', 'italic', 'font', 'font_size', 'na_string', 'pad_decimal', 'escape_contents', 'number_format', 'rotation'))
+props[['Cell_Text']] <- sort(c('font', 'text_color', 'wrap', 'bold', 'italic', 'font', 'font_size', 'na_string', 'escape_contents', 'number_format', 'rotation'))
 
 props[['Cell']] <- sort(c('align', 'valign', 'rowspan', 'colspan', 'background_color', paste0(sides, 'border'),
       paste0(sides, 'border_color'), paste0(sides, 'padding')))
@@ -90,7 +85,7 @@ props[['Table']]  <- sort(c('width', 'height', 'position', 'caption', 'caption_p
 maxl <- max(sapply(props, length))
 props <- lapply(props, function(x) c(x, rep('', maxl - length(x))))
 
-ss_font <- if (guess_knitr_output_format() == 'latex') 'cmhv' else 'arial'
+ss_font <- if (guess_knitr_output_format() == 'latex') 'cmtt' else 'courier'
 
 prop_hux <- hux(as.data.frame(props))                     %>% 
       add_colnames                                        %>% 
@@ -174,17 +169,25 @@ ht <- add_footnote(ht, 'DHJ deserves a pay rise')
 ht
 
 ## ------------------------------------------------------------------------
-pointy_ht <- hux(c('Do not pad this.', 11.003, 300, 12.02, '12.1 **'))
-pointy_ht <- set_all_borders(pointy_ht, 1)
-width(pointy_ht) <- .2
+pointy_ht <- hux(c('Do not pad this.', 11.003, 300, 12.02, '12.1 **')) %>% set_all_borders(1)
 
 number_format(pointy_ht) <- 3
 pointy_ht
 
 ## ------------------------------------------------------------------------
-pad_decimal(pointy_ht)[2:5, ] <- '.' # not the first row
-align(pointy_ht) <- 'right'
+align(pointy_ht)[2:5, ] <- '.' # not the first row
 pointy_ht
+
+## ------------------------------------------------------------------------
+
+my_data <- data.frame(
+        Employee           = c('John Smith', 'Jane Doe', 'David Hugh-Jones'), 
+        Salary             = c(50000L, 50000L, 40000L),
+        Performance_rating = c(8.9, 9.2, 7.8)  
+      )
+as_huxtable(my_data, add_colnames = TRUE) # with automatic formatting
+
+as_huxtable(my_data, add_colnames = TRUE, autoformat = FALSE) # no automatic formatting
 
 ## ------------------------------------------------------------------------
 code_ht <- if (is_latex) hux(c('Some maths', '$a^b$')) else 
@@ -300,6 +303,17 @@ lm2 <- lm(price ~ depth, diamonds)
 lm3 <- lm(price ~ carat + depth, diamonds)
 
 huxreg(lm1, lm2, lm3)
+
+## ---- echo = FALSE-------------------------------------------------------
+options(huxtable.knit_print_df = TRUE)
+
+## ------------------------------------------------------------------------
+head(mtcars)
+
+## ------------------------------------------------------------------------
+options(huxtable.knit_print_df = FALSE)
+
+head(mtcars) # back to normal
 
 ## ---- results = 'markup'-------------------------------------------------
 print_screen(ht)

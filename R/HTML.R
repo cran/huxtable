@@ -14,7 +14,7 @@ print_html <- function(ht, ...) cat(to_html(ht, ...))
 #' @param ht A huxtable.
 #' @param ... Arguments to pass to methods. Not currently used.
 #'
-#' @return \code{to_html} returns an HTML string. \code{print_html} prints the string and returns \code{NULL}.
+#' @return `to_html` returns an HTML string. `print_html` prints the string and returns `NULL`.
 #' @export
 #'
 #' @family printing functions
@@ -29,7 +29,7 @@ to_html <- function (ht, ...) UseMethod('to_html')
 #'
 #' @rdname to_html
 #'
-#' @return \code{print_notebook} prints HTML output suitable for use in an
+#' @return `print_notebook` prints HTML output suitable for use in an
 #' RStudio interactive notebook.
 print_notebook <- function(ht, ...) print(rmarkdown::html_notebook_output_html(to_html(ht)))
 
@@ -52,8 +52,8 @@ to_html.huxtable <- function(ht, ...) {
   }
   idstring <- ''
   if (! is.na(label <- label(ht))) idstring <- paste0(' id="', label, '"')
-  res <- paste0('<table class="huxtable" style="border-collapse: collapse; width: ', width, '; ', mstring,
-        heightstring, '"', idstring, '>\n')
+  res <- paste0('<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: ',
+        width, '; ', mstring, heightstring, '"', idstring, '>\n')
   if (! is.na(cap <- caption(ht))) {
     vpos <- if (grepl('top', caption_pos(ht))) 'top' else 'bottom'
     hpos <- sub('.*(left|center|right)', '\\1', caption_pos(ht))
@@ -113,7 +113,7 @@ cell_html <- function (ht, rn, cn, contents) {
   res <- paste0(res, ' style="')
   val <- valign(ht)[rn, cn]
   res <- paste0(res, 'vertical-align: ', val, '; ')
-  al  <- align(ht)[rn, cn]
+  al  <- real_align(ht)[rn, cn]
   res <- paste0(res, 'text-align: ', al, '; ')
   wrap <- wrap(ht)[rn, cn]
   res <- paste0(res, 'white-space: ', if (wrap) 'normal' else 'nowrap', '; ')

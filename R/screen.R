@@ -11,17 +11,17 @@ print_screen <- function(ht, ...) cat(to_screen(ht, ...))
 #' Print a huxtable on screen
 #'
 #' @param ht A huxtable.
-#' @param ... Passed on to \code{to_screen}.
+#' @param ... Passed on to `to_screen`.
 #' @param min_width Minimum width in on-screen characters of the result.
-#' @param max_width Maximum width in on-screen characters of the result. Overrides \code{min_width}.
+#' @param max_width Maximum width in on-screen characters of the result. Overrides `min_width`.
 #' @param compact Logical. To save space, don't print lines for empty horizontal borders.
 #' @param colnames Logical. Whether or not to print colum names.
-#' @param color Logical. Whether to print the huxtable in color (requires the \code{crayon} package).
+#' @param color Logical. Whether to print the huxtable in color (requires the `crayon` package).
 #'
-#' @return \code{to_screen} returns a string. \code{print_screen} prints the string and returns \code{NULL}.
+#' @return `to_screen` returns a string. `print_screen` prints the string and returns `NULL`.
 #'
 #' @details
-#' \code{colspan}, \code{rowspan}, \code{align} and \code{caption} properties are shown. If the \code{crayon}
+#' `colspan`, `rowspan`, `align` and `caption` properties are shown. If the `crayon`
 #' package is installed, output will be colorized (and contents bolded or italicized) by default;
 #' this will work in recent daily builds of RStudio as of October 2017.
 #'
@@ -41,7 +41,7 @@ to_screen  <- function (ht, ...) UseMethod('to_screen')
 to_screen.huxtable <- function (
         ht,
         min_width = ceiling(getOption('width') / 6),
-        max_width = Inf,
+        max_width = getOption('width', Inf),
         compact   = TRUE,
         colnames  = TRUE,
         color     = getOption('huxtable.color_screen', default = TRUE),
@@ -150,16 +150,16 @@ print_md <- function(ht, ...) cat(to_md(ht, ...))
 #' @param ht        A huxtable.
 #' @param header    Logical. Print the first row as a header?
 #' @param min_width Minimum width in on-screen characters of the result.
-#' @param max_width Maximum width in on-screen characters of the result. Overrides \code{min_width}.
+#' @param max_width Maximum width in on-screen characters of the result. Overrides `min_width`.
 #' @param ...       Arguments passed to methods.
 #'
-#' @return \code{to_md} returns a string. \code{print_md} prints the string and returns
-#' \code{NULL}.
+#' @return `to_md` returns a string. `print_md` prints the string and returns
+#' `NULL`.
 #' @export
 #'
 #' @details
-#' Only \code{align} and \code{caption} properties are used. The markdown format is
-#' \code{multiline_tables}, see the \href{http://rmarkdown.rstudio.com/authoring_pandoc_markdown.html#tables}{rmarkdown documentation}.
+#' Only `align` and `caption` properties are used. The markdown format is
+#' `multiline_tables`, see the \href{http://rmarkdown.rstudio.com/authoring_pandoc_markdown.html#tables}{rmarkdown documentation}.
 #'
 #' @family printing functions
 #'
@@ -174,7 +174,7 @@ to_md <- function(ht, ...) UseMethod('to_md')
 to_md.huxtable <- function(ht, header = TRUE, min_width = getOption('width') / 4, max_width = 80, ...) {
   assert_that(is.flag(header), is.number(min_width), is.number(max_width))
   if (any(colspan(ht) > 1 | rowspan(ht) > 1)) warning("Markdown cannot handle cells with colspan/rowspan > 1")
-  align <- align(ht)
+  align <- real_align(ht)
   if (any(apply(align, 2, function(x) length(unique(x)) > 1)))
     warning("Can't vary column alignment in markdown; using first row")
   ht <- set_align(ht, align[1, ], byrow = TRUE)
@@ -238,6 +238,9 @@ character_matrix <- function (ht, inner_border_h, inner_border_v, outer_border_h
     col <- dcell$display_col
     end_col <- dcell$end_col
     width <- sum(widths[col:end_col])
+    # strwrap treats non-breaking spaces differently than breaking spaces; this can fuck things up
+    # with decimal padding. So all END spaces become non-breaking.
+    while (! identical(new <- gsub('( |\u00a0)$', '\u00a0', dcell$contents), dcell$contents)) dcell$contents <- new
     strings <- strwrap(dcell$contents, width = width + 1) # for the + 1 see ?strwrap
     # some strings may still be longer than width,
     strings <- unlist(lapply(strings, function (x) {
@@ -249,7 +252,7 @@ character_matrix <- function (ht, inner_border_h, inner_border_v, outer_border_h
       }
       x
     }))
-    strings <- str_pad(strings, align(ht)[ dcell$display_row, dcell$display_col ], width)
+    strings <- str_pad(strings, real_align(ht)[ dcell$display_row, dcell$display_col ], width)
     dc$strings[[r]] <- strings
   }
   dc$text_height <- sapply(dc$strings, length)
@@ -309,9 +312,6 @@ make_cell_style <- function (ht, row, col) {
 
   style
 }
-
-
-ncharw <- function (x) nchar(x, type = 'width')
 
 
 str_pad <- function (strings, align, strlen) {

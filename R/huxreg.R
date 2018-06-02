@@ -8,41 +8,41 @@ NULL
 #' @param error_format How to display uncertainty in estimates. See below.
 #' @param error_style Deprecated. One or more of 'stderr', 'ci' (confidence interval), 'statistic' or 'pvalue'.
 #' @param error_pos Display uncertainty 'below', to the 'right' of, or in the 'same' cell as estimates.
-#' @param number_format Format for numbering. See \code{\link{number_format}} for details.
-#' @param pad_decimal Character for decimal point; columns will be right-padded to align these.
-#'   Set to \code{NA} to turn off padding. See \code{\link{pad_decimal}} for details.
-#' @param ci_level Confidence level for intervals. Set to \code{NULL} to not calculate confidence intervals.
-#' @param tidy_args List of arguments to pass to \code{\link[broom]{tidy}}. You can also pass a list of lists;
+#' @param number_format Format for numbering. See [number_format()] for details.
+#' @param align Alignment for table cells. Set to a single character to align on this character.
+#' @param pad_decimal Deprecated in favour of `align`.
+#' @param ci_level Confidence level for intervals. Set to `NULL` to not calculate confidence intervals.
+#' @param tidy_args List of arguments to pass to [broom::tidy()]. You can also pass a list of lists;
 #'   if so, the nth element will be used for the nth column.
-#' @param stars Levels for p value stars. Names of \code{stars} are symbols to use. Set to \code{NULL} to not show stars.
-#' @param bold_signif Where p values are below this number, cells will be displayed in bold. Use \code{NULL} to turn off
+#' @param stars Levels for p value stars. Names of `stars` are symbols to use. Set to `NULL` to not show stars.
+#' @param bold_signif Where p values are below this number, cells will be displayed in bold. Use `NULL` to turn off
 #'   this behaviour.
 #' @param borders Thickness of inner horizontal borders. Set to 0 for no borders.
 #' @param outer_borders Thickness of outer (top and bottom) horizontal borders. Set to 0 for no borders.
 #' @param note Footnote for bottom cell, which spans all columns. \code{{stars}} will be replaced by a note about
-#'   significance stars. Set to \code{NULL} for no footnote.
-#' @param statistics Summary statistics to display. Set to \code{NULL} to show all available statistics.
-#' @param coefs Display only these coefficients. Overrules \code{omit_coef}.
+#'   significance stars. Set to `NULL` for no footnote.
+#' @param statistics Summary statistics to display. Set to `NULL` to show all available statistics.
+#' @param coefs Display only these coefficients. Overrules `omit_coefs`.
 #' @param omit_coefs Omit these coefficients.
 #'
 #' @details
-#' Models must have a \code{\link[broom]{tidy}} method defined, which should return 'term', 'estimate', 'std.error',
-#' 'statistic' and 'p.value'. If the \code{tidy} method does not have a \code{conf.int} option, \code{huxreg} will
+#' Models must have a [broom::tidy()] method defined, which should return 'term', 'estimate', 'std.error',
+#' 'statistic' and 'p.value'. If the `tidy` method does not have a `conf.int` option, `huxreg` will
 #' calculate confidence intervals itself, using a normal approximation.
 #'
-#' If \code{...} has names or contains a single named list, the names will be used for column headings. Otherwise column
-#' headings will be automatically created. If the \code{coef} and/or \code{statistics} vectors have names, these will be
-#' used for row headings. If different values of \code{coef} have the same name, the corresponding rows will be merged
+#' If `...` has names or contains a single named list, the names will be used for column headings. Otherwise column
+#' headings will be automatically created. If the `coef` and/or `statistics` vectors have names, these will be
+#' used for row headings. If different values of `coef` have the same name, the corresponding rows will be merged
 #' in the output.
 #'
-#' Each element of \code{statistics} should be a column name from \code{\link[broom]{glance}}. You can also
-#' use 'nobs' for the number of observations. If \code{statistics} is \code{NULL} then all columns from \code{glance}
-#' will be used. To use no columns, set \code{statistics = character(0)}.
+#' Each element of `statistics` should be a column name from [broom::glance()]. You can also
+#' use 'nobs' for the number of observations. If `statistics` is `NULL` then all columns from `glance`
+#' will be used. To use no columns, set `statistics = character(0)`.
 #'
-#' \code{error_format} is a string to be interpreted by \code{\link[glue]{glue}}. Terms in parentheses will be
+#' `error_format` is a string to be interpreted by [glue::glue()]. Terms in parentheses will be
 #' replaced by computed values. You can use any columns returned
-#' by \code{tidy}: typical columns include \code{statistic}, \code{p.value}, \code{std.error}, as well as \code{conf.low}
-#' and \code{conf.high} if you have set \code{ci_level}. For example, to show confidence intervals, you
+#' by `tidy`: typical columns include `statistic`, `p.value`, `std.error`, as well as `conf.low`
+#' and `conf.high` if you have set `ci_level`. For example, to show confidence intervals, you
 #' could do \code{error_format = "{conf.low} to {conf.high}"}
 #'
 #' @return A huxtable object.
@@ -62,6 +62,7 @@ huxreg <- function (
         error_style     = c('stderr', 'ci', 'statistic', 'pvalue'),
         error_pos       = c('below', 'same', 'right'),
         number_format   = '%.3f',
+        align           = '.',
         pad_decimal     = '.',
         ci_level        = NULL,
         tidy_args       = NULL,
@@ -74,6 +75,7 @@ huxreg <- function (
         coefs           = NULL,
         omit_coefs      = NULL
       ) {
+  # prepare parameters
   if (! requireNamespace('broom', quietly = TRUE)) stop('huxreg requires the "broom" package. To install, type:\n',
         'install.packages("broom")')
   if (! missing(bold_signif)) assert_that(is.number(bold_signif))
@@ -87,6 +89,7 @@ huxreg <- function (
   if (! missing(error_style)) error_style <- sapply(error_style, match.arg, choices = eval(formals(huxreg)$error_style))
   if (! is.null(tidy_args) && ! is.list(tidy_args[[1]])) tidy_args <- rep(list(tidy_args), length(models))
 
+  # create list of tidy data frames, possibly with confidence intervals
   my_tidy <- function (n, ci_level = NULL) {
     args <- if (! is.null(tidy_args)) tidy_args[[n]] else list()
     args$x <- models[[n]]
@@ -103,6 +106,7 @@ huxreg <- function (
   }
   tidied <- lapply(seq_along(models), if (is.null(ci_level)) my_tidy else tidy_with_ci)
 
+  # select coefficients
   my_coefs <- unique(unlist(lapply(tidied, function (x) x$term)))
   if (! missing(omit_coefs)) my_coefs <- setdiff(my_coefs, omit_coefs)
   if (! missing(coefs)) {
@@ -112,6 +116,7 @@ huxreg <- function (
   }
   coef_names <- names_or(my_coefs, my_coefs)
 
+  # select appropriate rows
   tidied <- lapply(tidied, merge, x = data.frame(term = my_coefs, stringsAsFactors = FALSE), all.x = TRUE, by = 'term',
         sort = FALSE)
   tidied <- lapply(tidied, function (x) {
@@ -120,20 +125,27 @@ huxreg <- function (
   })
   coef_names <- unique(coef_names)
 
+  # add stars to estimates
   if (! is.null(stars)) {
+    names(stars) <- paste0(' ', names(stars))
+    stars <- sort(stars)
+    cutpoints <- c(0, stars, 1)
+    symbols   <- c(names(stars), '')
     tidied <- lapply(tidied, function (x) {
-      stars_arg <- c(0, sort(stars), ' ' = 1)
       if (is.null(x$p.value)) {
         warning("tidy() does not return p values for models of class ", class(x)[1],
               "; significance stars not printed.")
         return (x)
       }
-      x$estimate[ !is.na(x$estimate) ] <- with (x[! is.na(x$estimate), ], paste(estimate, symnum(as.numeric(p.value),
-            cutpoints = stars_arg, symbols = names(stars_arg)[-1], na = ' ')))
+      x$estimate[ !is.na(x$estimate) ] <- with (x[! is.na(x$estimate), ],
+              paste0(estimate,
+              symnum(as.numeric(p.value), cutpoints = cutpoints, symbols = symbols, na = ''))
+            )
       x
     })
   }
 
+  # create error cells
   if (! missing(error_style)) {
     formats <- list(stderr = '{std.error}', ci = '{conf.low} -- {conf.high}', statistic = '{statistic}',
           pvalue = '{p.value}')
@@ -151,7 +163,7 @@ huxreg <- function (
     x
   })
 
-  # now we cbind the models
+  # cbind tidy data into a single data frame
   coef_col <- switch(error_pos,
     same  = paste,
     below = interleave,
@@ -159,8 +171,10 @@ huxreg <- function (
   )
   cols <- lapply(tidied, function (mod) coef_col(mod$estimate, mod$error_cell))
   cols <- Reduce(cbind, cols)
-  cols <- hux(cols)
-  number_format(cols) <- number_format
+
+  # make the data frame a huxtable
+  coef_hux <- hux(cols)
+  number_format(coef_hux) <- number_format
   if (! is.null(bold_signif)) {
     bold_cols <- lapply(tidied, function (mod) mod$p.value <= bold_signif)
     bold_cols <- switch(error_pos,
@@ -169,29 +183,31 @@ huxreg <- function (
       right = lapply(bold_cols, function (x) cbind(x, x))
     )
     bold_cols <- Reduce(cbind, bold_cols)
-    bold(cols) <- bold_cols
+    bold(coef_hux) <- bold_cols
   }
 
+  # create list of summary statistics
   all_sumstats <- lapply(models, function(m) {
     bg <- try(broom::glance(m), silent = TRUE)
     bg <- if (class(bg) == 'try-error') {
       warning('No `glance` method for model of class ', class(m)[1])
       NULL
     } else t(bg)
-    nobs <- nobs(m, use.fallback = TRUE)
-    x <- as.data.frame(rbind(nobs = nobs, bg))
+    nobs <- tryCatch(nobs(m, use.fallback = TRUE), error = function (e) NA)
+    x <- as.data.frame(rbind(nobs = nobs, bg), stringsAsFactors = FALSE)
     colnames(x) <- 'value' # some glance objects have a rowname
     x$stat  <- rownames(x)
     x$class <- c(class(nobs), sapply(bg, class))
     x
   })
 
+  # select summary statistics and cbind into a single data frame
   stat_names <- unique(unlist(lapply(all_sumstats, function (x) x$stat)))
   if (! is.null(statistics)) {
-    if (! all(statistics %in% stat_names)) stop('Unrecognized statistics: ',
+    if (! all(statistics %in% stat_names)) warning('Unrecognized statistics: ',
           paste(setdiff(statistics, stat_names), collapse = ', '),
           '\nTry setting "statistics" explicitly in the call to huxreg()')
-    stat_names <- statistics
+    stat_names <- statistics[statistics %in% stat_names] # intersect would remove names
   }
   sumstats <- lapply(all_sumstats, merge, x = data.frame(stat = stat_names), by = 'stat', all.x = TRUE, sort = FALSE)
   sumstats <- lapply(sumstats, function (x) x[match(stat_names, x$stat), ])
@@ -200,6 +216,7 @@ huxreg <- function (
   sumstats <- Reduce(cbind, sumstats)
   ss_classes <- Reduce(cbind, ss_classes)
 
+  # create huxtable of summary statistics
   sumstats <- hux(sumstats)
   number_format(sumstats) <- number_format
   number_format(sumstats)[ss_classes == 'integer'] <- 0
@@ -211,22 +228,27 @@ huxreg <- function (
     }
     sumstats <- sumstats2
   }
-  cols <- cbind(if (error_pos == 'below') interleave(coef_names, '') else coef_names, cols,
+  coef_hux <- cbind(if (error_pos == 'below') interleave(coef_names, '') else coef_names, coef_hux,
         copy_cell_props = FALSE)
   sumstats <- cbind(names_or(stat_names, stat_names), sumstats, copy_cell_props = FALSE)
 
+  # create single huxtable from coefficients and summary statistics
   if (error_pos == 'right') mod_col_headings <- interleave(mod_col_headings, '')
   mod_col_headings <- c('', mod_col_headings)
-  result <- rbind(mod_col_headings, cols, sumstats, copy_cell_props = FALSE)
+  result <- rbind(mod_col_headings, coef_hux, sumstats, copy_cell_props = FALSE)
   result <- set_bottom_border(result, final(), everywhere, outer_borders)
   result <- set_top_border(result, 1, everywhere, outer_borders)
-  result <- set_bottom_border(result, c(1, nrow(cols) + 1), -1, borders)
+  result <- set_bottom_border(result, c(1, nrow(coef_hux) + 1), -1, borders)
   colnames(result) <- c('names', names_or(models, paste0("model", seq_along(models))))
   if (error_pos == 'right') result <- set_colspan(result, 1, evens, 2)
   align(result)[1, ]    <- 'center'
-  align(result)[-1, -1] <- 'right'
-  pad_decimal(result)[-1, -1] <- pad_decimal
+  align(result)[-1, -1] <- align
+  # automatically gives deprecation warning
+  if (! missing(pad_decimal)) pad_decimal(result)[-1, -1] <- pad_decimal
+  number_format(result)[, 1]  <- NA
+  number_format(result)[1, ]  <- NA
 
+  # add a table note
   if (! is.null(note)) {
     stars <- if (is.null(stars)) '' else paste0(names(stars), ' p < ', stars, collapse = '; ')
     note <- gsub('%stars%', stars, note)
@@ -236,7 +258,7 @@ huxreg <- function (
     result <- set_align(result, final(), 1, 'left')
   }
 
-  result
+  return(result)
 }
 
 
@@ -260,7 +282,10 @@ make_ci <- function(tidied, ci_level) {
 
 
 has_builtin_ci <- function (x) {
-  objs <- sapply(class(x), function (y) try(utils::getS3method('tidy', y), silent = TRUE))
+  objs <- sapply(class(x), function (y) {
+    try(utils::getS3method('tidy', y,
+        envir = getNamespace('broom')), silent = TRUE)
+  })
   obj <- Find(function(x) class(x) == 'function', objs)
   if (is.null(obj)) return(FALSE)
   argnames <- names(formals(obj))

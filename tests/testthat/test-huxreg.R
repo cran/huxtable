@@ -7,6 +7,16 @@ test_that('huxreg examples unchanged', {
 })
 
 
+test_that('has_builtin_ci works', {
+  lm1 <- lm(Sepal.Width ~ Sepal.Length, iris)
+  expect_true(huxtable:::has_builtin_ci(lm1))
+  library(nlme)
+  data(Orthodont, package = 'nlme')
+  fm1 <- nlme::lme(distance ~ age + Sex, data = Orthodont, random = ~ 1, method = 'ML')
+  expect_false(huxtable:::has_builtin_ci(fm1))
+})
+
+
 test_that('huxreg copes with different models', {
   set.seed(27101975)
   dfr <- data.frame(a = rnorm(100), b = rnorm(100))
@@ -31,6 +41,26 @@ test_that('huxreg confidence intervals work', {
         ci_level = 0.95))
 })
 
+test_that('huxreg confidence intervals work when tidy c.i.s not available', {
+  set.seed(27101975)
+  library(nlme)
+  data(Orthodont, package = 'nlme')
+  # method ML avoids a warning in broom::glance
+  fm1 <- nlme::lme(distance ~ age + Sex, data = Orthodont, random = ~ 1, method = 'ML')
+  expect_silent(huxreg(fm1, tidy_args = list(effects = 'fixed'), statistics = 'nobs', ci_level = 0.95,
+        error_format = '({conf.low}-{conf.high})'))
+
+})
+
+
+test_that('huxreg error_style usage', {
+  lm1 <- lm(Sepal.Width ~ Sepal.Length, iris)
+  expect_warning(hr <- huxreg(lm1, error_style = 'stderr'), '`error_style` is deprecated')
+  hr2 <- huxreg(lm1, error_format = '({std.error})')
+  expect_identical(hr, hr2)
+})
+
+
 test_that('huxreg works with single coefficient', {
   set.seed(27101975)
   dfr <- data.frame(a = rnorm(100), b = rnorm(100))
@@ -39,6 +69,7 @@ test_that('huxreg works with single coefficient', {
   lm2 <- lm(y ~ a + b, dfr)
   expect_error(huxreg(lm1, lm2, coefs = 'a'), regexp = NA)
 })
+
 
 test_that('huxreg merges coefficients with same names', {
   set.seed(27101975)
@@ -51,6 +82,21 @@ test_that('huxreg merges coefficients with same names', {
   lm4 <- lm(y ~ b + d, dfr)
   ht2 <- huxreg(lm3, lm4, coefs = c('name' = 'a', 'name' = 'b', 'd'))
   expect_equal(sum(ht2[[1]] == 'name'), 1)
+})
+
+
+test_that('huxreg bold_signif works', {
+  lm1 <- lm(Petal.Length ~ Sepal.Length, iris)
+  expect_silent(hr1 <- huxreg(lm1, bold_signif = 0.05))
+  expect_identical(unname(bold(hr1)), matrix(c(rep(FALSE, 11), rep(TRUE, 4), rep(FALSE, 5)), 10, 2))
+})
+
+
+test_that('huxreg error_pos works', {
+  lm1 <- lm(Petal.Length ~ Sepal.Length, iris)
+  lm2 <- lm(Sepal.Width ~ Sepal.Length, iris)
+  expect_silent(hr1 <- huxreg(lm1, lm2, error_pos = 'right'))
+  expect_equal(ncol(hr1), 5)
 })
 
 
@@ -86,6 +132,12 @@ test_that('huxreg borders argument works', {
 })
 
 
+test_that('huxreg statistics names shown in output', {
+  m <- lm(Sepal.Width ~ Sepal.Length, data = iris)
+  expect_match(to_screen(huxreg(m, statistics = c(foo = 'nobs'))), 'foo')
+})
+
+
 test_that('huxreg stars printed correctly', {
   set.seed(27101975)
   dfr <- data.frame(y = rnorm(20), a = rnorm(20))
@@ -103,8 +155,15 @@ test_that('huxreg stars printed correctly', {
 
 
 test_that('huxreg works for models without tidy p values', {
-  expect_warning(huxreg(lme4::lmer(Sepal.Width ~ Sepal.Length + (1 | Species), data = iris), statistics = 'nobs'),
-        'p values')
+  expect_warning(huxreg(lme4::lmer(Sepal.Width ~ Sepal.Length + (1 | Species), data = iris),
+        statistics = 'nobs'), 'p values')
+})
+
+
+test_that('huxreg works when nobs not available', {
+  m <- lm(Sepal.Width ~ Sepal.Length, data = iris)
+  ct <- lmtest::coeftest(m)
+  expect_warning(huxreg(ct, statistics = NULL), 'No `glance` method')
 })
 
 
