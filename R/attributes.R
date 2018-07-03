@@ -1,5 +1,6 @@
 
 #' @import assertthat
+#' @importFrom stats na.omit
 NULL
 
 huxtable_cell_attrs <- c('align', 'valign', 'rowspan', 'colspan', 'background_color', 'text_color',
@@ -155,7 +156,7 @@ make_getter_setters <- function(attr_name, attr_type = c('cell', 'row', 'col', '
   ) # end switch
 
   lapply(names(funs), function (x) {
-    assign(x, funs[[x]], envir = parent.frame(3)) # 3: 1 for function(x), 2 for lapply, 3 for the caller!
+    assign(x, funs[[x]], envir = getNamespace('huxtable'))
   })
 
   NULL
@@ -200,7 +201,7 @@ set_default_properties <- function(...) {
 #' get_default_properties()
 #' @seealso [set_default_properties()]
 get_default_properties <- function (names = NULL) {
-  if (is.null(names)) names <- names(huxtable_env$huxtable_default_attrs)
+  names <- names %||% names(huxtable_env$huxtable_default_attrs)
   if (length(unrec <- setdiff(names, names(huxtable_env$huxtable_default_attrs))) > 0) stop(
       'Unrecognized property name(s): ', paste(unrec, collapse = ', '),
         '; to see all names, use get_default_properties()')
@@ -308,7 +309,7 @@ make_getter_setters('col_width', 'col')
 #' @family row/column heights
 #' @details
 #' If character, `value` must contain valid CSS or LaTeX lengths. If numeric, in HTML, values are scaled to 1 and treated as proportions of the table height. In LaTeX, they are
-#' treated as proportions of the text height (\\\\textheight).
+#' treated as proportions of the text height (`\\textheight`).
 #' @template getset-example
 #' @templateVar attr_val c(.2, .1, .1)
 #' @export row_height row_height<- set_row_height row_height.huxtable row_height<-.huxtable
@@ -478,8 +479,10 @@ make_getter_setters('bottom_border', 'cell', check_fun = is.numeric)
 #' set_all_borders(ht, 1:3, 1:2, 1)
 set_all_borders <- function(ht, row, col, value, byrow = FALSE) {
   call <- sys.call()
-  for (set_b in paste0('set_', c('top', 'bottom', 'left', 'right'), '_border')) {
-    call[[1]] <- as.symbol(set_b)
+  border_calls <- list(quote(huxtable::set_top_border), quote(huxtable::set_bottom_border),
+        quote(huxtable::set_left_border), quote(huxtable::set_right_border))
+  for (bc in border_calls) {
+    call[[1]] <- bc
     call[[2]] <- quote(ht)
     ht <- eval(call, list(ht = ht), parent.frame())
   }
@@ -620,8 +623,10 @@ make_getter_setters('bottom_border_color', 'cell')
 #' ht <- set_all_border_colors(ht, 'red')
 set_all_border_colors <- function(ht, row, col, value, byrow = FALSE) {
   call <- sys.call()
-  for (set_b in paste0('set_', c('top', 'bottom', 'left', 'right'), '_border_color')) {
-    call[[1]] <- as.symbol(set_b)
+  border_color_calls <- list(quote(huxtable::set_top_border_color), quote(huxtable::set_bottom_border_color),
+    quote(huxtable::set_left_border_color), quote(huxtable::set_right_border_color))
+  for (bcc in border_color_calls) {
+    call[[1]] <- bcc
     call[[2]] <- quote(ht)
     ht <- eval(call, list(ht = ht), parent.frame())
   }
@@ -711,8 +716,10 @@ NULL
 #' @export
 set_all_padding <- function(ht, row, col, value, byrow = FALSE) {
   call <- sys.call()
-  for (set_p in paste0('set_', c('top', 'bottom', 'left', 'right'), '_padding')) {
-    call[[1]] <- as.symbol(set_p)
+  padding_calls <- list(quote(huxtable::set_top_padding), quote(huxtable::set_bottom_padding),
+    quote(huxtable::set_left_padding), quote(huxtable::set_right_padding))
+  for (pc in padding_calls) {
+    call[[1]] <- pc
     call[[2]] <- quote(ht)
     ht <- eval(call, list(ht = ht), parent.frame())
   }
@@ -992,7 +999,7 @@ make_getter_setters('width', 'table')
 #' @templateVar attr_name height
 #' @templateVar attr_desc Table height
 #' @templateVar value_param_desc
-#' A length-one vector. If numeric, it is treated as a proportion of the containing block height for HTML, or of text height (\\\\textheight) for LaTeX. If character, it must be a valid CSS or LaTeX width. Set to `NA` for the default, which is to leave height unset.
+#' A length-one vector. If numeric, it is treated as a proportion of the containing block height for HTML, or of text height (`\\textheight`) for LaTeX. If character, it must be a valid CSS or LaTeX width. Set to `NA` for the default, which is to leave height unset.
 #' @template getset-example
 #' @templateVar attr_val 0.4
 #' @family table measurements

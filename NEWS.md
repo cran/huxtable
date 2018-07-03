@@ -2,6 +2,18 @@
 Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major version
 increments reflect backwards-incompatible API changes, not necessarily big changes.
 
+# huxtable 4.0.1
+
+* Improved formatting in Excel output.
+* New `format` method which returns the result of `to_html`, `to_latex` etc. as appropriate.
+* Bugfix: `to_html` printing e.g. "left-border: NA;" in cell CSS.
+* Bugfix: `set_all_*` not working when huxtable is not attached.
+* Bugfix: `as_Workbook` failing with non-numeric `width`.
+* Bugfix: `hux_logo` was using multiple fonts, fails with Excel output.
+* Bugfix: `as_flextable` borders not working in cells with colspan > 1.
+* Documentation bugfixes.
+* Compatibility with broom 5.0.0 - thanks @alexpghayes
+
 # huxtable 4.0.0
 
 * New `theme_plain` theme.
@@ -22,7 +34,7 @@ increments reflect backwards-incompatible API changes, not necessarily big chang
   - By default data frames are printed using the `theme_plain` theme. Set
     options("huxtable.knit_print_df_theme") to a different one-argument function if you want to 
     use a different theme.
-* The new `autoformat` argument lets [huxtable()] and [as_huxtable()] automatically choose alignment 
+* The new `autoformat` argument lets `huxtable()` and `as_huxtable()` automatically choose alignment 
   and number format based on column type. Set `options("huxtable.autoformat")` to `FALSE` to turn 
   off this feature by default.
 * The default value of `number_format` has changed from "%5.3g" to "%.3g", which no longer space-pads numbers.
