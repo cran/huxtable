@@ -4,19 +4,19 @@
 <col style="width: 30%;">
 <col style="width: 30%;">
 <tr>
-<td rowspan="2" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0.5pt 0.5pt 0.5pt 0.5pt; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 4pt 2pt 4pt; background-color: rgb(232, 58, 188); ">
-<span style="font-size:42pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">h</span>
+<td rowspan="2" style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0.5pt 0.5pt 0.5pt 0.5pt; border-style: solid; padding: 2pt 4pt 2pt 4pt; background-color: rgb(232, 58, 188); ">
+<span style="font-size:42pt; font-family: Palatino; ">h</span>
 </td>
-<td style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0.5pt 0.5pt 0.5pt 0.5pt; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 4pt 2pt 4pt; ">
-<span style="font-size:24pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">u</span>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0.5pt 0.5pt 0.5pt 0.5pt; border-style: solid; padding: 2pt 4pt 2pt 4pt; ">
+<span style="font-size:24pt; font-family: Palatino; ">u</span>
 </td>
-<td style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0.5pt 0.5pt 0.5pt 0.5pt; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 4pt 2pt 4pt; background-color: rgb(0, 0, 0); ">
-<span style="color: rgb(255, 255, 255); font-size:24pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">x</span>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; border-width:0.5pt 0.5pt 0.5pt 0.5pt; border-style: solid; padding: 2pt 4pt 2pt 4pt; background-color: rgb(0, 0, 0); ">
+<span style="color: rgb(255, 255, 255); font-size:24pt; font-family: Palatino; ">x</span>
 </td>
 </tr>
 <tr>
-<td colspan="2" style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0.5pt 0.5pt 0.5pt 0.5pt; border-style: solid; border-top-color: NA;  border-right-color: NA;  border-bottom-color: NA;  border-left-color: NA; padding: 2pt 4pt 1pt 4pt; ">
-<span style="font-size:20pt; font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif; ">table</span>
+<td colspan="2" style="vertical-align: top; text-align: center; white-space: nowrap; border-width:0.5pt 0.5pt 0.5pt 0.5pt; border-style: solid; padding: 2pt 4pt 1pt 4pt; ">
+<span style="font-size:20pt; font-family: Palatino; ">table</span>
 </td>
 </tr>
 </table>

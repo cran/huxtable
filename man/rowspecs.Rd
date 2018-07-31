@@ -2,7 +2,7 @@
 % Please edit documentation in R/row-col-fns.R
 \name{rowspecs}
 \alias{rowspecs}
-\title{Row and column specifications}
+\title{Different ways to select rows and columns}
 \description{
 This help page describes how to use the \code{row} and \code{col} arguments in \code{set_*} functions.
 }
@@ -28,8 +28,6 @@ specify columns (but not rows). See \code{\link[tidyselect]{select_helpers}} for
 \item Use \code{\link[=where]{where(condition)}}, and omit the \code{col} argument, to get cells where \code{condition} is \code{TRUE}.
 \item Set \code{byrow = TRUE} to set properties by row rather than by column.
 }
-
-[=[.data.frame]: R:=[.data.frame
 }
 
 \section{The gory details}{

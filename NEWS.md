@@ -1,6 +1,36 @@
 
+
 Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major version
 increments reflect backwards-incompatible API changes, not necessarily big changes.
+
+# huxtable 4.1.0
+
+* dplyr, knitr, rmarkdown and some other packages have moved to "Suggests:", lowering the dependency
+  load considerably. All the functionality is still present. huxtable gives an informative warning 
+  if a needed package is not installed.
+* Code rewrites for better performance and maintainability: HTML is up to 10x faster,
+  LaTeX is up to 4x faster.
+* Documentation improvements.
+* New `tribble_hux` function wrapping `tibble::tribble()` for readable data input.
+* New `add_rows` and `add_columns` functions to insert one or more rows into the middle of a
+  huxtable.
+* New option "huxtable.knitr_output_format" to override the default output format in knitr documents.
+* Numeric row heights and column widths are rescaled to 1 when huxtables are cbinded/rbinded.
+* LaTeX: at points where borders cross, priority is given to the horizontal border color.
+* Bugfix: property accessors had the wrong environment. Thanks to Iñaki Úcar.
+* Bugfix: row heights and column widths weren't being copied with cbind/rbind.
+* Bugfixes for 0-row or 0-column huxtables:
+  - Output works, usually with a warning.
+  - cbind and rbind work.
+* Bugfix: HTML cols were printed with 'width: NA'.
+* Bugfix: width, col_width etc. can be reset to a number after setting them to a string.
+  - The (undocumented) ability to mix numeric and non-numeric values for padding and/border widths 
+    has been removed. If you want a number, set a number and not a string.
+* Bugfix: HTML tables with position "right" weren't right-aligned.
+* Nicer error messages when rbinding objects with different numbers of rows.
+* Vignette improvements.
+* `is_a_number` is deprecated.
+* ... and a cool new randomized `hux_logo()` ;-)
 
 # huxtable 4.0.1
 

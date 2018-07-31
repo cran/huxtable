@@ -38,143 +38,143 @@ print_notebook <- function(ht, ...) print(rmarkdown::html_notebook_output_html(t
 #' @export
 #' @rdname to_html
 to_html.huxtable <- function(ht, ...) {
+  check_positive_dims(ht)
+
+  ## TABLE START ----------
   width <- width(ht)
   if (is.numeric(width)) width <- paste0(width * 100, '%')
   mstring <- switch(position(ht),
-          left   = 'margin-left: 0%;',
-          right  = 'margin-right: 0%;',
+          left   = 'margin-left: 0%; margin-right: auto;',
+          right  = 'margin-left: auto; margin-right: 0%;',
           center = 'margin-left: auto; margin-right: auto;'
         )
-  heightstring <- ''
-  if (! is.na(height <- height(ht))) {
+
+  height <- height(ht)
+  heightstring <- blank_where({
     if (is.numeric(height)) height <- paste0(height * 100, '%')
-    heightstring <- paste0('height: ', height, ';')
-  }
-  idstring <- ''
-  if (! is.na(label <- label(ht))) idstring <- paste0(' id="', label, '"')
-  res <- paste0('<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: ',
-        width, '; ', mstring, heightstring, '"', idstring, '>\n')
+    sprintf('height: %s;', height)
+  }, is.na(height))
+  idstring <- blank_where(sprintf(' id="%s"', label(ht)), is.na(label(ht)))
+  table_start <- sprintf(
+        '<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: %s; %s %s"%s>\n',
+        width, mstring, heightstring, idstring)
   if (! is.na(cap <- caption(ht))) {
     vpos <- if (grepl('top', caption_pos(ht))) 'top' else 'bottom'
-    hpos <- sub('.*(left|center|right)', '\\1', caption_pos(ht))
-    if (! hpos %in% c('left', 'center', 'right')) hpos <- position(ht)
-    cap <- paste0('<caption style="caption-side:', vpos, '; text-align:', hpos, '">', cap, '</caption>')
-    res <- paste0(res, cap)
+    hpos <- get_caption_hpos(ht)
+    cap <- sprintf('<caption style="caption-side: %s; text-align: %s;">%s</caption>', vpos, hpos,
+          cap)
+    table_start <- paste0(table_start, cap)
   }
-  cols_html <- sapply(1:ncol(ht), col_html, ht = ht)
+
+  # COLUMN TAGS -----------
+  col_widths <- col_width(ht)
+  # NAs become empty strings
+  empty_cw <- is.na(col_widths)
+  if (is.numeric(col_widths)) col_widths <- paste0(col_widths * 100, '%')
+  cols_html <- sprintf(' style="width: %s"', col_widths)
+  cols_html <- blank_where(cols_html, empty_cw)
+  cols_html <- sprintf('<col%s>', cols_html)
   cols_html <- paste0(cols_html, collapse = '')
-  res <- paste0(res, cols_html)
+
+  ## CELLS ----------------
+  display_cells <- display_cells(ht)
+
+  rowspan <- rowspan(ht)
+  rowspan <- blank_where(sprintf(' rowspan="%s"', rowspan), rowspan == 1)
+  colspan <- colspan(ht)
+  colspan <- blank_where(sprintf(' colspan="%s"', colspan), colspan == 1)
+
+  valign  <- sprintf('vertical-align: %s;', valign(ht))
+  align   <- sprintf(' text-align: %s;', real_align(ht))
+  wrap    <- sprintf(' white-space: %s;', ifelse(wrap(ht), 'normal', 'nowrap'))
+
+  # collapsed_borders() are in "real cell" position. But we just want to grab the original data
+  # and apply it?
+  # cb <- collapsed_borders(ht)
+  top_border    <- top_border(ht)
+  bottom_border <- bottom_border(ht)
+  left_border   <- left_border(ht)
+  right_border  <- right_border(ht)
+  border_width <- sprintf(' border-style: solid; border-width: %.4gpt %.4gpt %.4gpt %.4gpt;',
+        top_border, right_border, bottom_border, left_border)
+  no_borders <- top_border == 0 & right_border == 0 & bottom_border == 0 & left_border == 0
+  border_width <- blank_where(border_width, no_borders)
+
+  format_bc <- function (pos, col) {
+    x <- sprintf(' border-%s-color: rgb(%s);', pos, format_color(col))
+    blank_where(x, is.na(col))
+  }
+  # cbc <- collapsed_border_colors(ht)
+  top_bc    <- top_border_color(ht)
+  bottom_bc <- bottom_border_color(ht)
+  left_bc   <- left_border_color(ht)
+  right_bc  <- right_border_color(ht)
+  border_color <- paste0(
+          format_bc('top', top_bc),
+          format_bc('right', right_bc),
+          format_bc('bottom', bottom_bc),
+          format_bc('left', left_bc)
+        )
+
+  add_pts <- function (x) if (is.numeric(x)) sprintf('%.4gpt', x) else x
+  padding <- sprintf(' padding: %s %s %s %s;',
+          add_pts(top_padding(ht)),
+          add_pts(right_padding(ht)),
+          add_pts(bottom_padding(ht)),
+          add_pts(left_padding(ht))
+        )
+
+  bg_color <- background_color(ht)
+  bg_color <- format_color(bg_color) # NA becomes white, as it happens
+  bg_color <- sprintf(' background-color: rgb(%s);', bg_color)
+  bg_color <- blank_where(bg_color, is.na(background_color(ht)))
+
+  bold <- ifelse(bold(ht), ' font-weight: bold;', '')
+  italic <- ifelse(italic(ht), ' font-style: italic;', '')
+
+  font <- sprintf(' font-family: %s;', font(ht))
+  font <- blank_where(font, is.na(font(ht)))
+  font_size <- sprintf(' font-size: %.4gpt;', font_size(ht))
+  font_size <- blank_where(font_size, is.na(font_size(ht)))
+
+  style   <- paste0('style="', valign, align, wrap, border_width, border_color,
+        padding, bg_color, bold, italic, font, font_size, '"')
+  td <- sprintf("<td%s%s %s>", rowspan, colspan, style)
+
   contents <- clean_contents(ht, type = 'html')
-  rows_html <- sapply(1:nrow(ht), row_html, ht = ht, contents)
-  rows_html <- paste0(rows_html, collapse = '')
-  res <- paste0(res, rows_html)
-  res <- paste0(res, '</table>\n')
-  res
-}
 
+  rot <- rotation(ht)
+  rot <- (rot %% 360) * -1 # HTML goes anticlockwise
+  rot_div <- sprintf('<div style="transform: rotate(%.4gdeg); white-space: nowrap;">', rot)
+  rot_div <- blank_where(rot_div, rot == 0)
+  rot_div_end <- rep('</div>', length(rot_div))
+  rot_div_end <- blank_where(rot_div_end, rot == 0)
 
-col_html <- function (ht, cn) {
-  col_width <- col_width(ht)[cn]
-  if (is.numeric(col_width)) col_width <- paste0(col_width * 100, '%')
-  res <- paste0('<col style="width: ', col_width, ';">')
-  # print out <col>, <colgroup>, that kinda stuff
-  res
-}
+  color <- text_color(ht)
+  color <- format_color(color)
+  color_span <- sprintf('<span style="color: rgb(%s);">', color)
+  color_span <- blank_where(color_span, is.na(text_color(ht)))
+  color_span_end <- rep('</span>', length(color))
+  color_span_end <- blank_where(color_span_end, is.na(text_color(ht)))
 
+  cells_html <- paste0(td, rot_div, color_span, contents, color_span_end, rot_div_end,
+        rep('</td>\n', length(td)))
+  cells_html <- blank_where(cells_html, display_cells$shadowed)
 
-row_html <- function (ht, rn, contents) {
-  # print out <tr>, <td> or maybe <th> etc., then </tr>
-  style <- ''
-  if (! is.na(height <- row_height(ht)[rn])) {
-    if (is.numeric(height)) {
-      height <- height / sum(row_height(ht), na.omit = TRUE)
-      height <- paste0(round(height * 100, 1), '%')
-    }
-    style <- paste0(' style="height: ', height, ';"')
+  # add in row tags
+  dim(cells_html) <- dim(ht)
+  cells_html <- apply(cells_html, 1, paste0, collapse = '')
+  row_heights <- row_height(ht)
+  if (is.numeric(row_heights)) {
+    row_heights <- 100 * row_heights / sum(row_heights)
+    row_heights <- sprintf('%.3g%%', row_heights) # %3g prints max 1 decimal place
   }
-  res <- paste0('<tr', style, '>\n')
-  cols_to_show <- 1:ncol(ht)
-  dcells <- display_cells(ht, all = TRUE) # speedup: make this call just once in parent
-  cols_to_show <- setdiff(cols_to_show, dcells$col[dcells$row == rn & dcells$shadowed])
-  cells_html <- sapply(cols_to_show, cell_html, ht = ht, rn = rn, contents)
+  row_heights <- sprintf(' style="height: %s;"', row_heights)
+  row_heights <- blank_where(row_heights, is.na(row_height(ht)))
+  tr <- sprintf('<tr%s>\n', row_heights)
+  cells_html <- paste0(tr, cells_html, rep('</tr>\n', length(tr)))
   cells_html <- paste0(cells_html, collapse = '')
-  res <- paste0(res, cells_html)
-  res <- paste0(res, '</tr>\n')
-  res
-}
 
-cell_html <- function (ht, rn, cn, contents) {
-  res <- '  <td '
-  rs <- rowspan(ht)[rn, cn]
-  cs <- colspan(ht)[rn, cn]
-  if (isTRUE(rs > 1)) res <- paste0(res, ' rowspan="', rs, '"')
-  if (isTRUE(cs > 1)) res <- paste0(res, ' colspan="', cs, '"')
-
-  res <- paste0(res, ' style="')
-  val <- valign(ht)[rn, cn]
-  res <- paste0(res, 'vertical-align: ', val, '; ')
-  al  <- real_align(ht)[rn, cn]
-  res <- paste0(res, 'text-align: ', al, '; ')
-  wrap <- wrap(ht)[rn, cn]
-  res <- paste0(res, 'white-space: ', if (wrap) 'normal' else 'nowrap', '; ')
-
-  borders <- get_all_borders(ht, rn, cn)
-  borders <- borders[c('top', 'right', 'bottom', 'left')]
-  borders <- paste(borders, 'pt', sep = '', collapse = ' ')
-  res <- paste0(res, 'border-width:', borders, '; ')
-  res <- paste0(res, 'border-style: solid; ')
-
-  bcols <- get_all_border_colors(ht, rn, cn)
-  bcols <- bcols[c('top', 'right', 'bottom', 'left')]
-  bcols <- bcols[ ! is.na(bcols) ]
-  bcols <- if (length(bcols)) paste0('border-', names(bcols), '-color: ', bcols, '; ', collapse = ' ') else ''
-  res <- paste0(res, bcols)
-
-  padding <- list(top_padding(ht)[rn, cn], right_padding(ht)[rn, cn], bottom_padding(ht)[rn, cn],
-    left_padding(ht)[rn, cn])
-  if (any( ! is.na(padding))) {
-    padding <- sapply(padding, function(x) if (is_a_number(x)) paste0(x, "pt") else x)
-    padding <- paste(padding, collapse = ' ')
-    res <- paste0(res, 'padding: ', padding, '; ')
-  }
-
-  if (! is.na(bgcolor <- background_color(ht)[rn, cn])) {
-    bgcolor <- format_color(bgcolor)
-    res <- paste0(res, 'background-color: rgb(', bgcolor, '); ')
-  }
-
-  res <- paste0(res, '">')
-
-  cell_contents <- contents[rn, cn]
-
-  span_css <- ''
-  if (! is.na(text_color <- text_color(ht)[rn, cn])) {
-    text_color <- format_color(text_color)
-    # use span not td style because color affects borders
-    span_css <- paste0(span_css, 'color: rgb(', text_color, '); ')
-  }
-  if (! is.na(font_size <- font_size(ht)[rn, cn])) {
-    if (is.numeric(font_size)) font_size <- paste0(font_size, 'pt')
-    span_css <- paste0(span_css, 'font-size:', font_size, '; ')
-  }
-  if (bold(ht)[rn, cn]) {
-    span_css <- paste0(span_css, 'font-weight: bold; ')
-  }
-  if (italic(ht)[rn, cn]) {
-    span_css <- paste0(span_css, 'font-style: italic; ')
-  }
-  if (! is.na(font <- font(ht)[rn, cn])) {
-    span_css <- paste0(span_css, 'font-family: ', font, '; ')
-  }
-
-  if (! (span_css == '')) cell_contents <- paste0('<span style="', span_css, '">', cell_contents, '</span>')
-
-  if ( (rt <- rotation(ht)[rn, cn]) != 0) {
-    # note the minus sign
-    cell_contents <- paste0('<div style="transform: rotate(-', rt, 'deg); white-space:nowrap;">', cell_contents,
-          '</div>')
-  }
-  res <- paste0(res, cell_contents)
-  res <- paste0(res, '</td>\n')
-  res
+  res <- paste0(table_start, cols_html, cells_html, '</table>\n')
+  return(res)
 }

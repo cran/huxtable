@@ -2,14 +2,11 @@
 context("Attributes")
 
 
-source('functions.R')
-
-
 ht <- huxtable(a = 1:5, b = letters[1:5], d = 1:5)
 
 
-
 for (attr in huxtable_cell_attrs) {
+  if (attr == 'pad_decimal') next
   test_that(paste("Cell property attr", attr, "examples unchanged"), {
     test_ex_same(attr)
   })
@@ -46,7 +43,20 @@ test_that('Assignment to attributes preserves colnames', {
   expect_equal(cn, colnames(align(ht)))
 })
 
-
+test_that('Can assign numeric to width, col_width etc. after assigning character', {
+  ht <- huxtable(letters[1:3])
+  width(ht) <- '300pt'
+  width(ht) <- 0.5
+  expect_type(width(ht), 'double')
+  row_height(ht) <- paste0(1:3, 'em')
+  row_height(ht) <- rep(1/3, 3)
+  expect_type(row_height(ht), 'double')
+  number_format(ht) <- '%.3f'
+  number_format(ht) <- 2L
+  nf <- number_format(ht)
+  expect_type(nf[1, 1][[1]], 'integer')
+  expect_equivalent(dim(nf), dim(ht))
+})
 
 test_that('Can combine numbers and characters in number_format', {
   ht <- huxtable(a = c(1.11111, 1.11111, 1.11111), autoformat = FALSE)
@@ -111,14 +121,6 @@ test_that('number_format works with various interesting cases', {
   expect_equivalent(huxtable:::format_numbers('-1.1e-3', '%.1g'), "-0.001")
   expect_equivalent(huxtable:::format_numbers('-1.1e-3', 1), "-0.0")
 
-})
-
-test_that('Can combine numbers and strings in padding', {
-  ht <- huxtable(a = 1, b = 1)
-  left_padding(ht)[1, 1] <- '10pt'
-  left_padding(ht)[1, 2] <- 17
-  expect_match(to_html(ht), '17pt', fixed = TRUE)
-  expect_match(to_latex(ht), '17pt', fixed = TRUE)
 })
 
 

@@ -2,9 +2,6 @@
 context("Output")
 
 
-source('functions.R')
-
-
 validate_markdown <- function(md_string, output_format = 'html_document') {
   force(output_format)
   on.exit({
@@ -47,6 +44,18 @@ test_that('to_md produces valid markdown', {
   ht <- set_all_borders(ht, 1)
   md <- to_md(ht)
   validate_markdown(md)
+  ht <- set_caption(ht, "Some caption")
+  md <- to_md(ht)
+  validate_markdown(md)
+  expect_match(md, "Some caption", fixed = TRUE)
+})
+
+
+test_that('to_screen gives warning with colour if crayon not installed', {
+  ht <- hux(a = 1:2)
+  with_mock(requireNamespace = function (...) FALSE, {
+    expect_warning(to_screen(ht, color = TRUE), "crayon")
+  })
 })
 
 
@@ -65,7 +74,7 @@ test_that('to_md and to_screen keep to max_width', {
   output <- to_screen(ht, max_width = 15)
   lines <- strsplit(output, '\n', fixed = TRUE)[[1]]
   expect_true(all(nchar(lines, type = 'width') <= 15))
-  # we don't test to_md for captions for to_md because I don't think markdown can handle multiline captions
+  # we don't test captions for to_md because I don't think markdown can handle multiline captions
 })
 
 
@@ -82,8 +91,23 @@ test_that('to_md and to_screen keep to min_width', {
   }
 })
 
+
+test_that('to_md warns on unimplemented features', {
+  ht <- hux(a = 1:2, b = 1:2)
+  colspan(ht)[1, 1] <- 2
+  expect_warning(to_md(ht), "colspan")
+  colspan(ht)[1, 1] <- 1
+  rowspan(ht)[1, 1] <- 2
+  expect_warning(to_md(ht), "rowspan")
+  rowspan(ht)[1, 1] <- 1
+  align(ht)[1, ] <- c("left", "right")
+  expect_warning(to_md(ht), "align")
+})
+
+
 test_that('hux_logo works', {
-  expect_silent(hux_logo())
+  # there's randomization, so:
+  for (i in 1:20) expect_silent(hux_logo())
   expect_silent(hux_logo(latex = TRUE))
 })
 
@@ -100,6 +124,21 @@ test_that('to_screen does not cut off multicols', {
   ht[2, 1] <- 'some very long long text'
   colspan(ht)[2, 1] <- 2
   expect_match(to_screen(ht), 'some very long long text', fixed = TRUE)
+})
+
+
+test_that('output works with zero-dimension huxtables', {
+  h_nrow0 <- hux(a = character(0), b = character(0), add_colnames = FALSE)
+  expect_silent(to_screen(h_nrow0))
+  expect_warning(to_md(h_nrow0), "row")
+  expect_warning(to_html(h_nrow0), "row")
+  expect_warning(to_latex(h_nrow0), "row")
+
+  h_ncol0 <- hux(a = 1:2)[, FALSE]
+  expect_silent(to_screen(h_ncol0))
+  expect_warning(to_md(h_ncol0), "col")
+  expect_warning(to_html(h_ncol0), "col")
+  expect_warning(to_latex(h_ncol0), "col")
 })
 
 
@@ -124,54 +163,6 @@ test_that('guess_knitr_output_format() gets it right', {
 })
 
 
-expect_outputs_unchanged <- function (hx, idx) {
-  info <- paste0("Index i = ", idx)
-  file <- file.path(test_path(), "example-rds", paste0("various-outputs-", idx))
-  expect_known_value(to_screen(hx), file = paste0(file, "-screen.rds"), info = info)
-  expect_known_value(to_md(hx),     file = paste0(file, "-md.rds"),     info = info)
-  expect_known_value(to_html(hx),   file = paste0(file, "-html.rds"),   info = info)
-  expect_known_value(to_latex(hx),  file = paste0(file, "-latex.rds"),  info = info)
-}
-
-
-test_that('various outputs unchanged', {
-  skip_on_R_CMD_check()
-  hx <- hux(
-          int  = 1:3,
-          real = 1:3 + 0.005,
-          char = letters[1:3],
-          date = as.Date(1:3, origin = "1970-01-01"),
-          fact = factor(letters[4:6])
-        )
-  variations <- expand.grid(
-          align             = c('left', 'right', 'centre', '.'),
-          background_color  = c('red', grey(.6), NA),
-          bold              = c(TRUE, FALSE),
-          escape_contents   = c(TRUE, FALSE),
-          font_size         = c(8, 10),
-          italic            = c(TRUE, FALSE),
-          left_border       = c(0, 1, 2),
-          left_border_color = c('red', grey(.6)),
-          left_padding      = c(0, 4),
-          number_format     = c("%3.1g", NA),
-          rotation          = c(0, 90),
-          text_color        = c('red', grey(.6)),
-          valign            = c('top', 'middle', 'bottom'),
-          wrap              = c(TRUE, FALSE),
-          stringsAsFactors  = FALSE,
-          KEEP.OUT.ATTRS   = FALSE
-        )
-  RNGversion("3.3.0")
-  set.seed(271075L) # expect_unchanged is useless if we always pick new variations
-  for (i in sample(nrow(variations), 300)) {
-    props <- as.list(variations[i,])
-    props$ht <- hx
-    hx_set <- do.call("set_cell_properties", props)
-    expect_outputs_unchanged(hx_set, i)
-  }
-})
-
-
 test_that('set_print_method() works', {
   ht <- hux(a = 1:2, b = 1:2)
   oo <- options(huxtable.print = print_html)
@@ -182,4 +173,3 @@ test_that('set_print_method() works', {
   expect_match(capture.output(print(ht)), '<table', fixed = TRUE, all = FALSE)
   options(oo)
 })
-

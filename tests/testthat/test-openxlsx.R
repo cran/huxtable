@@ -1,8 +1,7 @@
 
+
 context('openxlsx conversion')
-
-
-source('functions.R')
+skip_if_not_installed('openxlsx')
 
 
 test_that('Simple conversion works', {
@@ -84,6 +83,15 @@ test_that('Works for single-column huxtables with and without row names', {
   hx <- huxtable(a = 1, b = 2, c = 3)
   wb <- openxlsx::createWorkbook()
   expect_silent(wb <- as_Workbook(hx, Workbook = wb))
+})
+
+
+test_that('Works for zero-dimension huxtables', {
+  h_nrow0 <- hux(a = character(0), b = character(0), add_colnames = FALSE)
+  h_ncol0 <- hux(a = 1:2)[, FALSE]
+
+  expect_silent(as_Workbook(h_nrow0))
+  expect_silent(as_Workbook(h_ncol0))
 })
 
 

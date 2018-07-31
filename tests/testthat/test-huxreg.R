@@ -1,9 +1,7 @@
 
 
 context('huxreg')
-
-
-source('functions.R')
+skip_if_not_installed('broom')
 
 
 test_that('huxreg examples unchanged', {
@@ -12,6 +10,8 @@ test_that('huxreg examples unchanged', {
 
 
 test_that('has_builtin_ci works', {
+  skip_if_not_installed('nlme')
+
   lm1 <- lm(Sepal.Width ~ Sepal.Length, iris)
   expect_true(huxtable:::has_builtin_ci(lm1))
   library(nlme)
@@ -33,6 +33,8 @@ test_that('huxreg copes with different models', {
 
 
 test_that('huxreg confidence intervals work', {
+  skip_if_not_installed('nnet')
+
   set.seed(27101975)
   dfr <- data.frame(a = rnorm(100), b = rnorm(100))
   dfr$y <- dfr$a + rnorm(100)
@@ -41,18 +43,23 @@ test_that('huxreg confidence intervals work', {
   glm1 <- glm(I(y > 0) ~ a, dfr, family = binomial)
   library(nnet)
   mn <- nnet::multinom(I(y > 0) ~ a, dfr, trace = FALSE)
-  expect_silent(huxreg(lm1, lm2, glm1, mn, error_format = "{conf.low}-{conf.high}", statistics = c('r.squared'),
-        ci_level = 0.95))
+  expect_silent(huxreg(lm1, lm2, glm1, mn, error_format = "{conf.low}-{conf.high}",
+        statistics = c('r.squared'), ci_level = 0.95))
 })
 
 test_that('huxreg confidence intervals work when tidy c.i.s not available', {
+  skip_if_not_installed('nlme')
+  if (packageVersion('broom') >= '0.7.0') skip_if_not_installed('broom.mixed')
+
   set.seed(27101975)
   library(nlme)
   data(Orthodont, package = 'nlme')
   # method ML avoids a warning in broom::glance
   fm1 <- nlme::lme(distance ~ age + Sex, data = Orthodont, random = ~ 1, method = 'ML')
-  expect_silent(huxreg(fm1, tidy_args = list(effects = 'fixed'), statistics = 'nobs', ci_level = 0.95,
-        error_format = '({conf.low}-{conf.high})'))
+  expect_silent(
+          huxreg(fm1, tidy_args = list(effects = 'fixed'), statistics = 'nobs', ci_level = 0.95,
+          error_format = '({conf.low}-{conf.high})')
+        )
 
 })
 
@@ -159,12 +166,16 @@ test_that('huxreg stars printed correctly', {
 
 
 test_that('huxreg works for models without tidy p values', {
+  skip_if_not_installed('lme4')
+
   expect_warning(huxreg(lme4::lmer(Sepal.Width ~ Sepal.Length + (1 | Species), data = iris),
         statistics = 'nobs'), 'p values')
 })
 
 
 test_that('huxreg works when nobs not available', {
+  skip_if_not_installed('lmtest')
+
   m <- lm(Sepal.Width ~ Sepal.Length, data = iris)
   ct <- lmtest::coeftest(m)
   expect_warning(huxreg(ct, statistics = NULL), 'No `glance` method')

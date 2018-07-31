@@ -35,51 +35,52 @@ to_latex <- function (ht, ...) UseMethod('to_latex')
 #' @rdname to_latex
 to_latex.huxtable <- function (ht, tabular_only = FALSE, ...){
   assert_that(is.flag(tabular_only))
-  res <- build_tabular(ht)
-  if (tabular_only) return(res)
-
-  if (! is.na(height <- height(ht))) {
-    if (is.numeric(height)) height <- paste0(height, '\\textheight')
-    res <- paste0('\\resizebox*{!}{', height, '}{\n', res, '\n}')
-  }
-
-  cap <- if (! is.na(cap <- caption(ht))) {
-    hpos <- get_caption_hpos(ht)
-    cap_setup <- switch(hpos,
-            left   = 'raggedright',
-            center = 'centering',
-            right  = 'raggedleft'
-          )
-    paste0('\\captionsetup{justification=', cap_setup, ',singlelinecheck=off}\n\\caption{', cap, '}\n')
-  } else ''
-  lab <- if (is.na(lab <- label(ht))) '' else paste0('\\label{', lab, '}\n')
-  if (nzchar(lab) && ! nzchar(cap)) warning('No caption set: LaTeX table labels may not work as expected.')
-  res <- if (grepl('top', caption_pos(ht))) paste0(cap, lab, res) else paste0(res, cap, lab)
+  tabular <- build_tabular(ht)
+  if (tabular_only) return(tabular)
 
   # table position
   pos_text <- switch(position(ht),
-    left   = c('\\begin{raggedright}', '\\par\\end{raggedright}'),
-    center = c('\\centering',   ''),
-    right  = c('\\begin{raggedleft}',  '\\par\\end{raggedleft}')
+    left   = c('\\begin{raggedright}', '\\par\\end{raggedright}\n'),
+    center = c('\\centering',   '\n'),
+    right  = c('\\begin{raggedleft}',  '\\par\\end{raggedleft}\n')
   )
-  res <- paste0(pos_text[1], res, pos_text[2], '\n')
 
-  res <- paste0('\\begin{table}[', latex_float(ht), ']\n', res, '\\end{table}\n')
+  resize_box <- if (is.na(height <- height(ht))) c('', '') else {
+    if (is.numeric(height)) height <- sprintf('%.3g\\textheight', height)
+    c(sprintf('\\resizebox*{!}{%s}{', height), '}')
+  }
+
+  cap <- if (is.na(cap <- caption(ht))) '' else {
+    hpos <- get_caption_hpos(ht)
+    cap_setup <- switch(hpos,
+      left   = 'raggedright',
+      center = 'centering',
+      right  = 'raggedleft'
+    )
+    sprintf('\\captionsetup{justification=%s,singlelinecheck=off}\n\\caption{%s}\n', cap_setup, cap)
+  }
+  lab <- if (is.na(lab <- label(ht))) '' else sprintf('\\label{%s}\n', lab)
+  if (nzchar(lab) && ! nzchar(cap)) warning('No caption set: LaTeX table labels may not work as expected.')
+  res <- if (grepl('top', caption_pos(ht))) paste0(cap, lab, tabular) else paste0(tabular, cap, lab)
+
+  begin_table <- sprintf('\\begin{table}[%s]\n', latex_float(ht))
+  res <- paste0(begin_table, pos_text[1], resize_box[1], res,
+        resize_box[2], pos_text[2], '\\end{table}\n')
 
   return(res)
 }
 
 
 huxtable_latex_dependencies <- list(
-  rmarkdown::latex_dependency('array'),
-  rmarkdown::latex_dependency('caption'),
-  rmarkdown::latex_dependency('graphicx'),
-  rmarkdown::latex_dependency('siunitx'),
-  rmarkdown::latex_dependency('xcolor', options = 'table'),
-  rmarkdown::latex_dependency('multirow'),
-  rmarkdown::latex_dependency('hhline'),
-  rmarkdown::latex_dependency('calc'),
-  rmarkdown::latex_dependency('tabularx')
+  list(name = 'array'),
+  list(name = 'caption'),
+  list(name = 'graphicx'),
+  list(name = 'siunitx'),
+  list(name = 'xcolor', options = 'table'),
+  list(name = 'multirow'),
+  list(name = 'hhline'),
+  list(name = 'calc'),
+  list(name = 'tabularx')
 )
 
 #' Report LaTeX dependencies
@@ -113,130 +114,326 @@ report_latex_dependencies <- function(quiet = FALSE, as_string = FALSE) {
     cat('% Other packages may be required if you use non-standard tabulars (e.g. tabulary)')
   }
 
-  if (as_string) paste0(report, collapse = '') else invisible(huxtable_latex_dependencies)
+  if (as_string) {
+    return(paste0(report, collapse = ''))
+  } else {
+    assert_package('report_latex_dependencies', 'rmarkdown')
+    huxtable_latex_dependencies <- lapply(huxtable_latex_dependencies, function (x) {
+      rmarkdown::latex_dependency(x$name, options = x$options)
+    })
+    return(invisible(huxtable_latex_dependencies))
+  }
 }
 
 
 build_tabular <- function(ht) {
-  colspec <- sapply(seq_len(ncol(ht)), function (mycol) paste0('p{', compute_width(ht, mycol, mycol), '}'))
-  colspec <- paste0(colspec, collapse = ' ')
-  res <- paste0('{', colspec, '}\n')
+  if (! check_positive_dims(ht)) return('')
 
-  display_cells     <- display_cells(ht, all = TRUE)
-  all_contents      <- clean_contents(ht, type = 'latex')
-  collapsed_borders <- collapsed_borders(ht)
-  cb_colors         <- collapsed_border_colors(ht)
-  res <- paste0(res, build_clines_for_row(ht, row = 0, collapsed_borders, cb_colors))
+  ## PREPARE EMPTY PARTS -------
+  multirow <- multicol <- bg_color <- inner_cell <- contents <- matrix('', nrow(ht), ncol(ht))
 
-  for (myrow in 1:nrow(ht)) {
-    row_contents <- character(0)
-    added_right_border <- FALSE
+  # Precalculate align, collapsed borders, and width.
+  real_align <- real_align(ht)
+  display_cells <- display_cells(ht, all = TRUE)
+  # Could speed this up by doing it only for display cells.
+  start_end_cols <- as.matrix(display_cells[, c('display_col', 'end_col')])
+  width_spec <- apply(start_end_cols, 1, function (x) compute_width(ht, x[1], x[2]))
+  cb <- collapsed_borders(ht)
+  cbc <- collapsed_border_colors(ht)
 
-    for (mycol in 1:ncol(ht)) {
-      dcell <- display_cells[display_cells$row == myrow & display_cells$col == mycol, ]
-      drow <- dcell$display_row
-      dcol <- dcell$display_col
+  ## PREPARE INDICES -----------
+  dc_pos_matrix <- as.matrix(display_cells[, c('display_row', 'display_col')])
+  dc_map <- matrix(1:length(contents), nrow(ht), ncol(ht))
+  # dc_map gives the display cells corresponding to real cells, in as.vector(cell_contents) space
+  dc_map <- c(dc_map[dc_pos_matrix])
+  dc_idx       <- ! display_cells$shadowed
+  left_idx     <- display_cells$col == display_cells$display_col
+  right_idx    <- display_cells$col == display_cells$end_col
+  bottom_idx   <- display_cells$row == display_cells$end_row
+  multirow_idx <- display_cells$rowspan > 1
+  bl_idx       <-  bottom_idx & left_idx
+  blm_idx      <- bl_idx & multirow_idx
+  # lh_dc (bl_dc) gives the display cells corresponding to (bottom) left cells
+  bl_dc <- dc_map[bl_idx]
+  lh_dc <- dc_map[left_idx]
 
-      contents <- ''
-      rs <- dcell$rowspan
-      end_row <- dcell$end_row
-      bottom_left_multirow <- dcell$shadowed && myrow == end_row && mycol == dcol
-      # STRATEGY:
-      # - if not a shadowed cell, or if bottom left of a shadowed multirow,
-      #    - print content, including struts for padding and row height
-      #    - multirow goes upwards not downwards, to avoid content being overwritten by cell background
-      # - if a left hand cell (shadowed or not), print cell color and borders
-      if ( (! dcell$shadowed && rs == 1) || bottom_left_multirow) {
-        contents <- build_cell_contents(ht, drow, dcol, all_contents[drow, dcol])
+  ## CALCULATE HHLINES ---------
+  #  Done for n+1 rows including "row 0" at the top
+  horiz_b <- cb$horiz
+  hb_maxes <- apply(horiz_b, 1, max)
+  if (any(horiz_b > 0 & horiz_b < hb_maxes[row(horiz_b)])) warning(
+        'Multiple horizontal border widths in a single row; using the maximum.')
+  # even if a cell's own border is 0, it still needs a "border" the right width,
+  # matching its background color.
+  # decide now if border will be printed in foreground or background color:
+  has_own_border <- horiz_b > 0
+  # set border widths to the row maximum:
+  horiz_b[] <- hb_maxes[row(horiz_b)]
+  hb_colors <- format_color(cbc$horiz, default = 'black')
 
-        padding <- list(left_padding(ht)[drow, dcol], right_padding(ht)[drow, dcol], top_padding(ht)[drow, dcol],
-              bottom_padding(ht)[drow, dcol])
-        padding <- lapply(padding, function(x) if (is_a_number(x)) paste0(x, 'pt') else x)
-        tpadding <- if (is.na(padding[3])) '' else paste0('\\rule{0pt}{\\baselineskip+', padding[3], '}')
-        bpadding <- if (is.na(padding[4])) '' else paste0('\\rule[-', padding[4], ']{0pt}{', padding[4], '}')
-        align_str <- switch(real_align(ht)[drow, dcol],
-          left   = '\\raggedright ',
-          right  = '\\raggedleft ',
-          center = '\\centering '
+
+  # background colors come from shadowing cells
+  bg_colors <- background_color(ht)[dc_map]
+  dim(bg_colors) <- dim(ht)
+  # add a top row for the first hhline
+  bg_colors <- rbind(rep(NA, ncol(horiz_b)), bg_colors) # or, should color be taken from cells below?
+  bg_colors <- format_color(bg_colors, default = 'white')
+  hhline_colors <- ifelse(has_own_border, hb_colors ,bg_colors)
+  hhline_colors_tex <- sprintf('\\arrayrulecolor[RGB]{%s}', hhline_colors)
+  # if we do this, color bleeds from previous vertical borders (via the v_border of the hhline)
+  # has_hb_color <- ! is.na(cbc$horiz)
+  # hhline_colors_tex[horiz_b > 0 & ! has_hb_color] <- ''
+  hhlines_horiz <- sprintf('>{%s\\global\\arrayrulewidth=%.4gpt}-', hhline_colors_tex, horiz_b)
+  dim(hhlines_horiz) <- dim(horiz_b)
+  no_hborder_in_row <- hb_maxes[row(hhlines_horiz)] == 0
+  hhlines_horiz[no_hborder_in_row] <- ''
+
+  # vertical borders in hhlines are an n+1 x n+1 matrix of "corner dots"
+  vert_b <- cb$vert # nrow X ncol + 1
+  # we add an extra row to match the nrow+1 hhlines
+  vert_b <- rbind(vert_b[1,], vert_b) # we checked positive dims; row 1 exists
+  # vertical dots should have colour from, in order of preference:
+  # (a) left horiz border; (b) right horiz border; (c) lower vert border; (d) upper vert border
+  # We use lower borders first on the theory that the "top of a square" matters more
+  # even if a colour is undefined, we treat it as black so long as there is a positive-length border
+  vert_bc <- cbind(NA, cbc$horiz) # horiz border color on left
+  no_left_hb <- cbind(0, cb$horiz) == 0
+  no_lr_hb <- no_left_hb & cbind(cb$horiz, 0) == 0
+  no_lrb_b <- no_lr_hb & rbind(cb$vert, 0) == 0
+  vert_bc[no_left_hb] <- cbind(cbc$horiz, NA)[no_left_hb]  # horiz border color on right
+  vert_bc[no_lr_hb] <- rbind(cbc$vert, NA)[no_lr_hb] # vert border color below
+  vert_bc[no_lrb_b] <- rbind(NA, cbc$vert)[no_lrb_b] # vert border color above
+  # if it's still NA, no border on any side had a defined colour
+  # At the moment we reset to black. Otherwise maybe we "bleed" along the row from much earlier.
+  vert_bc <- format_color(vert_bc, default = 'black')
+  vert_bc_tex <- rep('', length(vert_bc))
+  vert_bc_tex <- sprintf('\\arrayrulecolor[RGB]{%s}', vert_bc)
+
+  hhlines_vert <- rep('', length(vert_b))
+  has_vert_b <- vert_b > 0
+  hhlines_vert[has_vert_b] <- sprintf('>{%s\\global\\arrayrulewidth=%spt}|',
+        vert_bc_tex[has_vert_b],
+        vert_b[has_vert_b])
+  dim(hhlines_vert) <- c(nrow(horiz_b), ncol(horiz_b) + 1)
+
+  # interleave vertical and horizontal lines like: |-|-|-|
+  hhlines <- matrix('', nrow(hhlines_horiz), ncol(hhlines_horiz) + ncol(hhlines_vert))
+  hhlines[, seq(2, ncol(hhlines), 2)] <- hhlines_horiz
+  hhlines[, seq(1, ncol(hhlines), 2)] <- hhlines_vert
+
+  hhlines <- apply(hhlines, 1, paste0, collapse = '')
+  hhlines <- sprintf('\n\n\\hhline{%s}\n\\arrayrulecolor{black}\n', hhlines)
+
+  ## CELL CONTENTS -------------
+  ## inner_cell is empty except for the *bottom* left of a 'display area' (including 1x1)
+  ## this avoids a problem with later cells overpainting borders etc.
+  ## - inner_cell has padding, alignment, wrap and row_height TeX added
+  ## inner_cell data comes from the 'display cell' at the top left of the display area
+
+  inner_cell_bldc <- clean_contents(ht, type = 'latex')[bl_dc]
+  fs_bldc <- font_size(ht)[bl_dc]
+  line_space_bldc <- round(fs_bldc * 1.2, 2)
+  has_fs_bldc <- ! is.na(fs_bldc)
+  inner_cell_bldc[has_fs_bldc] <- sprintf('{\\fontsize{%.4gpt}{%.4gpt}\\selectfont %s}' ,
+        fs_bldc[has_fs_bldc], line_space_bldc[has_fs_bldc], inner_cell_bldc[has_fs_bldc])
+
+  tc_bldc <- text_color(ht)[bl_dc]
+  tcf_bldc <- format_color(tc_bldc)
+  has_tc_bldc <- ! is.na(tc_bldc)
+  inner_cell_bldc[has_tc_bldc] <- sprintf('\\textcolor[RGB]{%s}{%s}', tcf_bldc[has_tc_bldc],
+        inner_cell_bldc[has_tc_bldc])
+
+  bold_bldc <- bold(ht)[bl_dc]
+  italic_bldc <- italic(ht)[bl_dc]
+  inner_cell_bldc[bold_bldc]   <- sprintf('\\textbf{%s}', inner_cell_bldc[bold_bldc])
+  inner_cell_bldc[italic_bldc] <- sprintf('\\textit{%s}', inner_cell_bldc[italic_bldc])
+
+  font_bldc <- font(ht)[bl_dc]
+  has_font_bldc <- ! is.na(font_bldc)
+  inner_cell_bldc[has_font_bldc] <- sprintf('{\\fontfamily{%s}\\selectfont %s}',
+        font_bldc[has_font_bldc],
+        inner_cell_bldc[has_font_bldc])
+
+  rt_bldc <- rotation(ht)[bl_dc]
+  has_rt_bldc <- rt_bldc != 0
+  inner_cell_bldc[has_rt_bldc] <- sprintf('\\rotatebox{%.4g}{%s}', rt_bldc[has_rt_bldc],
+        inner_cell_bldc[has_rt_bldc])
+
+  pad_bldc <- list()
+  pad_bldc$left   <- left_padding(ht)[bl_dc]
+  pad_bldc$right  <- right_padding(ht)[bl_dc]
+  pad_bldc$top    <- top_padding(ht)[bl_dc]
+  pad_bldc$bottom <- bottom_padding(ht)[bl_dc]
+  align_bldc      <- real_align[bl_dc]
+  valign_bldc     <- valign(ht)[bl_dc]
+  wrap_bldc       <- wrap(ht)[bl_dc]
+
+  has_pad_bldc <- lapply(pad_bldc, Negate(is.na))
+  pad_bldc <- lapply(pad_bldc, function (x) if (is.numeric(x)) sprintf('%.4gpt', x) else x)
+  tpad_tex_bldc <- rep('', length(pad_bldc$top))
+  tpad_tex_bldc[has_pad_bldc$top] <- sprintf('\\rule{0pt}{\\baselineskip+%s}',
+        pad_bldc$top[has_pad_bldc$top])
+  bpad_tex_bldc <- rep('', length(pad_bldc$bottom))
+  bpad_vals_bldc <- pad_bldc$bottom[has_pad_bldc$bottom]
+  bpad_tex_bldc[has_pad_bldc$bottom] <- sprintf('\\rule[-%s]{0pt}{%s}', bpad_vals_bldc, bpad_vals_bldc)
+  align_tex_key <- c('left' = '\\raggedright ', 'right' = '\\raggedleft ', 'center' = '\\centering ')
+  align_tex_bldc <- align_tex_key[align_bldc]
+  inner_cell_bldc <- paste0(tpad_tex_bldc, align_tex_bldc, inner_cell_bldc, bpad_tex_bldc)
+
+  if (any(wrap_bldc)) {
+    # reverse of what you think. 'b' aligns the *bottom* of the text with the baseline
+    # ... this doesn't really work for short text!
+    valign_tex_key <- c('top' = 'b', 'middle' = 'c', 'bottom' = 't')
+    valign_bldc <- valign_tex_key[valign_bldc]
+    # XXX should be a way to speed up by only doing dc_idx cells. but we run again at some point...
+    width_spec_bldc <- width_spec[bl_dc]
+    hpad_loss_left_bldc  <- ifelse(has_pad_bldc$left,  paste0('-', pad_bldc$left),  '')
+    hpad_loss_right_bldc <- ifelse(has_pad_bldc$right, paste0('-', pad_bldc$right), '')
+    inner_cell_bldc[wrap_bldc] <- sprintf('\\parbox[%s]{%s%s%s}{%s}',
+            valign_bldc[wrap_bldc],
+            width_spec_bldc[wrap_bldc],
+            hpad_loss_left_bldc[wrap_bldc],
+            hpad_loss_right_bldc[wrap_bldc],
+            inner_cell_bldc[wrap_bldc]
+          )
+  }
+
+  ## ROW HEIGHT--------
+
+  row_height <- row_height(ht)
+  # for each display_cell, we "sum" row_heights for each row it covers
+  row_height_tex_bldc <- if (all(is.na(row_height))) {
+    rep('', sum(dc_idx))
+  } else {
+    # bl_to_dc for matrices:
+    start_end_rows_bldc <- display_cells[dc_map, c('display_row', 'end_row')][bl_idx,]
+    row_seqs_bldc <- apply(start_end_rows_bldc, 1, function (x) seq(x[1], x[2]))
+    rh_bldc <- sapply(row_seqs_bldc, function (x) {
+      rh <- row_height[x]
+      # use the LaTeX calc package to sum non-numeric row heights within LaTeX:
+      if (is.numeric(rh)) sprintf('%.4g\\textheight', sum(rh)) else paste(rh, collapse = '+')
+    })
+    sprintf('\\rule{0pt}{%s}', rh_bldc)
+  }
+  inner_cell_bldc <- paste0(inner_cell_bldc, row_height_tex_bldc)
+  # assign all this to bottom left cells:
+  inner_cell[bl_idx] <- inner_cell_bldc
+
+  ## CELL BACKGROUND COLORS -------
+  ## cell background colors are added to left hand row of a 'display area'; these come
+  ## from the colors of the 'display cell'.
+
+  bg_color_lhdc <- background_color(ht)[lh_dc]
+  has_bg_color_lhdc <- ! is.na(bg_color_lhdc)
+  bg_color_lhdc <- format_color(bg_color_lhdc)
+  bg_color_lhdc <- sprintf('\\cellcolor[RGB]{%s}', bg_color_lhdc)
+  bg_color[left_idx] <- bg_color_lhdc
+
+
+  ## VERTICAL BORDERS AND COLSPEC -------
+  ## like cell colors, these are provided for all left hand cells, from display cells
+  ## if display cell wrap, is TRUE, set colspec to p/m/b with widthspec
+  ## otherwise, set colspec to l/c/r
+  ## left borders are blank, except for the first row; we collapse borders into right border position
+
+  colspan_lhdc    <- colspan(ht)[lh_dc]
+  wrap_lhdc       <- wrap(ht)[lh_dc]
+  valign_lhdc     <- valign(ht)[lh_dc]
+  real_align_lhdc <- real_align[lh_dc]
+  colspec_tex_key <- c('left' = 'l', 'center' = 'c', 'right' = 'r')
+  real_align_lhdc <- colspec_tex_key[real_align_lhdc]
+  colspec_lhdc <- real_align_lhdc # only for non-wrapped cells though
+  # as this is calculated for the whole display area, it doesn't matter whether
+  # you map to display cells or not:
+  width_spec_lhdc <- width_spec[lh_dc]
+  colspec_lhdc[wrap_lhdc]   <- {
+    pmb <- valign_lhdc[wrap_lhdc]
+    pmb_tex_key <- c('top'   = 'p', 'bottom'  = 'b', 'middle' = 'm')
+    pmb <- pmb_tex_key[pmb]
+    sprintf('%s{%s}', pmb, width_spec_lhdc[wrap_lhdc])
+  }
+
+  # do left and right borders...
+  # these are nrow x ncol + 1
+  bord <- cb$vert
+  bcol <- cbc$vert
+  has_bord <- ! is.na(bord)
+  has_bcol <- ! is.na(bcol) # if *defined* as black, then we print it. Otherwise not.
+  bcol <- format_color(bcol, default = 'black')
+  bord_tex <- rep('', length(bord))
+  bcol_tex <- rep('', length(bcol))
+  bcol_tex[has_bcol] <- sprintf('\\color[RGB]{%s}', bcol[has_bcol])
+  bord_tex[has_bord] <- sprintf('!{%s\\vrule width %.4gpt}', bcol_tex[has_bord], bord[has_bord])
+  dim(bord_tex) <- dim(cb$vert)
+  # the first column is the left border of the left-most cell.
+  # subsequent columns become the right border of all cells.
+  lborders <- matrix('', nrow(contents), ncol(contents))
+  lborders[, 1] <- bord_tex[, 1]
+  rborders <- bord_tex[, - 1]
+  # lborders and rborders are already in 'correct' positions, as calculated by collapsed_borders
+  # we need to have only the rborders that correspond to a display area's right hand border;
+  # these should go in the left hand cell position with the other stuff!
+
+  # all left hand cells have borders
+  multicol[left_idx] <- sprintf('\\multicolumn{%d}{%s%s%s}{',
+          colspan_lhdc,
+          lborders[left_idx],
+          colspec_lhdc,
+          rborders[right_idx]
         )
-        contents <- paste0(tpadding, align_str, contents, bpadding)
-        if (wrap(ht)[drow, dcol]) {
-          width_spec <- compute_width(ht, mycol, dcell$end_col)
-          hpad_loss  <- lapply(padding[1:2], function (x) if (! is.na(x)) paste0('-', x) else '')
-          # reverse of what you think. 'b' aligns the *bottom* of the text with the baseline
-          # this doesn't really work for short text!
-          ctb <- switch(valign(ht)[drow, dcol], top = 'b', middle = 'c', bottom = 't')
-          contents   <- paste0('\\parbox[', ctb, ']{', width_spec, hpad_loss[1], hpad_loss[2], '}{', contents, '}')
-        }
-        hpadding <- lapply(padding[1:2], function (x) if (is.na(x)) '' else paste0('\\hspace*{', x, '}'))
-        contents <- paste0(hpadding[1], contents, hpadding[2])
 
-        # to create row height, we add invisible \rule{0pt}. So, these heights are minimums.
-        # not sure how this should interact with cell padding...
-        if (! is.na(row_height <- row_height(ht)[drow])) {
-          if (is.numeric(row_height)) row_height <- paste0(row_height, '\\textheight')
-          contents <- paste0(contents, '\\rule{0pt}{', row_height, '}')
-        }
-      }
+  ## MULTIROW ---------------------
+  rowspan_blm <- rowspan(ht)[dc_map][blm_idx]
+  vert_adj_blm <- sprintf('%dex', 0) # start printing on the top row
+  # * is 'standard width', could be more specific?
+  multirow_blm_tex <- sprintf('\\multirow{-%s}{*}[%s]{', rowspan_blm, vert_adj_blm)
+  multirow[blm_idx] <- multirow_blm_tex
 
-      # print out cell_color and borders from display cell rather than actual cell
-      # but only for left hand cells (which will be multicolumn{colspan} )
-      if (! is.na(cell_color <- background_color(ht)[drow, dcol]) && mycol == dcol) {
-        cell_color <- format_color(cell_color)
-        cell_color <- paste0('\\cellcolor[RGB]{', cell_color, '}')
-        contents <- paste0(cell_color, '', contents)
-      }
+  closer <- function (x) ifelse(nchar(x) > 0, '}', '')
 
-      if (bottom_left_multirow) {
-        # * is 'standard width', could be more specific:
-        contents <- paste0('\\multirow{-', rs, '}{*}{', contents, '}')
-      }
+  contents <- paste0(
+          multicol,
+          multirow,
+          bg_color,
+          inner_cell,
+          closer(multirow),
+          closer(multicol)
+        )
+  dim(contents) <- dim(ht)
 
-      if (mycol == dcol) { # first column of cell
-        cs <- dcell$colspan
-        colspec <- if (wrap(ht)[drow, dcol]) {
-          pmb <- switch(valign(ht)[drow, dcol], top   = 'p', bottom  = 'b', middle = 'm')
-          width_spec <- compute_width(ht, mycol, dcell$end_col)
-          paste0(pmb, '{', width_spec, '}')
-        } else {
-          switch(real_align(ht)[drow, dcol], left = 'l', center = 'c', right = 'r')
-        }
-        # only add left borders if we haven't already added a right border!
-        lb <- if (! added_right_border) v_border(ht, myrow, mycol, collapsed_borders, cb_colors) else ''
-        rb <- v_border(ht, myrow, dcell$end_col + 1, collapsed_borders, cb_colors) # we need to put the end column here
-        added_right_border <- rb != ''
-        contents <- paste0('\\multicolumn{', cs, '}{', lb, colspec, rb, '}{', contents, '}')
-      }
+  content_rows <- apply(contents, 1, function (x) {
+    x <- x[nchar(x) > 0]
+    row <- paste(x, collapse = ' &\n')
+    paste(row, '\\tabularnewline[-0.5pt]')
+  })
 
-      row_contents[mycol] <- contents
-
-    } # next cell
-    row_contents <- row_contents[nzchar(row_contents)] # if we've printed nothing, don't print an & for it
-    row_contents <- paste(row_contents, collapse = ' & \n')
-    # should reduce nasty pale lines through colored multirow cells:
-    res <- paste0(res, row_contents, '\\tabularnewline[-0.5pt]\n')
-
-    # add top/bottom borders
-    res <- paste0(res, build_clines_for_row(ht, myrow, collapsed_borders, cb_colors))
-  } # next row
+  table_body <- paste(content_rows, hhlines[-1], sep = '\n', collapse = '\n')
+  table_body <- paste(hhlines[1], table_body, sep = '\n')
 
   tenv <- tabular_environment(ht)
+  tenv_tex <- paste0(c('\\begin{', '\\end{'), tenv, '}')
   width_spec <- if (tenv %in% c('tabularx', 'tabular*', 'tabulary')) {
     tw <- width(ht)
-    if (is_a_number(tw)) tw <- paste0(tw, default_table_width_unit)
+    if (is.numeric(tw)) tw <- paste0(tw, default_table_width_unit)
     paste0('{', tw, '}')
   } else {
     ''
   }
-  res <- paste0('\\begin{',  tenv, '}', width_spec, res, '\\end{', tenv, '}\n')
 
+  colspec_top <- sapply(seq_len(ncol(ht)), function (mycol) {
+          sprintf('p{%s}', compute_width(ht, mycol, mycol))
+        })
+  colspec_top <- paste0(colspec_top, collapse = ' ')
+  colspec_top <- sprintf('{%s}\n', colspec_top)
+
+  res <- paste0(tenv_tex[1], width_spec, colspec_top, table_body, tenv_tex[2])
   return(res)
 }
 
 
 compute_width <- function (ht, start_col, end_col) {
   table_width <- width(ht) # always defined, default is 0.5 (of \\textwidth)
-  if (is_a_number(table_width)) {
+  if (is.numeric(table_width)) {
     table_unit  <- default_table_width_unit
     table_width <- as.numeric(table_width)
   } else {
@@ -246,15 +443,12 @@ compute_width <- function (ht, start_col, end_col) {
 
   cw <- col_width(ht)[start_col:end_col]
   cw[is.na(cw)] <- 1 / ncol(ht)
-  if (! all(nums <- is_a_number(cw))) {
-    # use calc for multiple character widths
-    # won't work if you mix in numerics
-    cw[nums] <- paste0(as.numeric(cw[nums]) * table_width, table_unit)
-    cw <- paste(cw, collapse = '+')
+  cw <- if (! is.numeric(cw)) {
+    paste(cw, collapse = '+')
   } else {
     cw <- sum(as.numeric(cw))
     cw <- cw * table_width
-    cw <- paste0(cw, table_unit)
+    paste0(cw, table_unit)
   }
 
   if (end_col > start_col) {
@@ -264,88 +458,4 @@ compute_width <- function (ht, start_col, end_col) {
   }
 
   cw
-}
-
-build_cell_contents <- function(ht, row, col, contents) {
-  if (! is.na(font_size <- font_size(ht)[row, col])) {
-    line_space <- round(font_size * 1.2, 2)
-    contents <- paste0('{\\fontsize{', font_size, 'pt}{', line_space, 'pt}\\selectfont ', contents, '}')
-  }
-  if (! is.na(text_color <- text_color(ht)[row, col])) {
-    text_color <- format_color(text_color)
-    contents <- paste0('\\textcolor[RGB]{', text_color, '}{', contents, '}')
-  }
-  if (bold(ht)[row, col])   contents <- paste0('\\textbf{', contents, '}')
-  if (italic(ht)[row, col]) contents <- paste0('\\textit{', contents, '}')
-  if (! is.na(font <- font(ht)[row, col])) {
-    contents <- paste0('{\\fontfamily{', font, '}\\selectfont ', contents, '}')
-  }
-  if ( (rt <- rotation(ht)[row, col]) != 0) contents <- paste0('\\rotatebox{', rt, '}{', contents, '}')
-
-  return(contents)
-}
-
-# row can be from "0" for the top; up to nrow
-build_clines_for_row <- function(ht, row, collapsed_borders, cb_colors) {
-  # where a cell is shadowed, we don't want to add a top border (it'll go thru the middle)
-  # bottom borders of a shadowed cell are fine, but come from the display cell.
-  display_cells <- display_cells(ht, all = TRUE)
-  display_cells <- display_cells[display_cells$row == row, ]
-
-  blank_line_color <- rep('white', ncol(ht)) # never now used
-  for (i in seq_len(nrow(display_cells))) {
-    dc <- display_cells[i, ]
-    # Use color if we are in middle of display cell, also if we are at end and after a +ve border
-      blank_line_color[dc$display_col:dc$end_col] <- background_color(ht)[dc$display_row, dc$display_col]
-  }
-
-  widths <- collapsed_borders$horiz[row + 1, ]
-  if (all(widths == 0)) {
-    return('')
-  } else {
-    width <- max(widths)
-    if (! all(widths[widths > 0] == width)) warning("Multiple widths in a single border, using max")
-    colors <- cb_colors$horiz[row + 1, ]
-    colors <- sapply(colors, format_color, default = 'black')
-    blank_line_color <- sapply(blank_line_color, format_color, default = 'white')
-    hhlinechars <- sapply(seq_along(widths), function (x) {
-      col <- if (widths[x] > 0) colors[x] else blank_line_color[x]
-      paste0('>{\\arrayrulecolor[RGB]{', col, '}\\global\\arrayrulewidth=', width, 'pt}-')
-    })
-    vertlines <- compute_vertical_borders(ht, row, collapsed_borders, cb_colors)
-
-    hhline <- paste0(hhlinechars, vertlines[-1], collapse = '')
-    hhline <- paste0(vertlines[1], hhline)
-    hhline <- paste0('\n\n\\hhline{', hhline, '}\n\\arrayrulecolor{black}\n')
-    return(hhline)
-  }
-}
-
-
-# these are inserted into the hhline. They have to have the same arrayrulewidth as the
-# left/right borders of the cell above and below. That is, arrayrulewidth = max(right of above_left,
-# left of above_right, right of below_left, left of below_right).
-# row can be 0 for the top line.
-# returns an ncol(ht) + 1 string array
-compute_vertical_borders <- function (ht, row, collapsed_borders, cb_colors) {
-  # if we are at the top line, then we'll assume we want the same vertical borders as on the first line below.
-  if (row == 0) row <- 1
-  b_widths <- collapsed_borders$vert[row, ]
-  b_cols   <- cb_colors$vert[row, ]
-  borders <- sapply(seq_along(b_widths), function (x){
-    if (b_widths[x] == 0 ) return('')
-    my_col <- format_color(b_cols[x], default = 'black')
-    paste0('>{\\arrayrulecolor[RGB]{', my_col, '}\\global\\arrayrulewidth=', b_widths[x], 'pt}|')
-  })
-
-  return(borders)
-}
-
-# uses "real" border numbers in "ncol + 1 space"
-v_border <- function (ht, row, col, collapsed_borders, cb_colors) {
-  width <- collapsed_borders$vert[row, col]
-  color <- cb_colors$vert[row, col]
-  color <- format_color(color, default = 'black')
-
-  paste0('!{\\color[RGB]{', color, '}\\vrule width ', width, 'pt}')
 }

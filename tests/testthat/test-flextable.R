@@ -1,9 +1,6 @@
 
 context('flextable conversion')
-
-
-source('functions.R')
-
+skip_if_not_installed('flextable')
 
 test_that('Simple conversion works', {
   hx <- huxtable(a = 1:3, b = 4:6)
@@ -77,4 +74,13 @@ test_that('as_FlexTable gives warning', {
   hx <- huxtable(a = 1:3, b = 4:6)
   expect_warning(ft <- as_FlexTable(hx), 'deprecated')
   expect_is(ft, 'flextable')
+})
+
+
+test_that('0-row/0-column huxtables work', {
+  h_nrow0 <- hux(a = character(0), b = character(0), add_colnames = FALSE)
+  h_ncol0 <- hux(a = 1:2)[, FALSE]
+  skip("0-length tables don't work in flextable yet")
+  expect_warning(as_flextable(h_nrow0), "row")
+  expect_warning(as_flextable(h_ncol0), "col")
 })

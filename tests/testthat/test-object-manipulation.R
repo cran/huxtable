@@ -2,9 +2,6 @@
 context("Object manipulation")
 
 
-source('functions.R')
-
-
 test_that('Object subsetting and replacement examples unchanged', {
   test_ex_same('extract-methods')
   test_ex_same('add_colnames')
@@ -20,7 +17,7 @@ test_that('Subsetting preserves rownames', {
 })
 
 
-test_that('Subsetting cuts colspan', {
+test_that('Subsetting cuts rowspan and colspan', {
   ht <- hux(a = 1:3, b = 1:3, d = 1:3)
   rowspan(ht)[1, 1] <- 3
   colspan(ht)[1, 2] <- 2
@@ -30,10 +27,23 @@ test_that('Subsetting cuts colspan', {
 })
 
 
-test_that('Spans can\'t be overwritten', {
+test_that('Multirow/multicol cells cannot shadow other multirow/multicol cells', {
   ht <- hux(a = 1:3, b = 1:3, d = 1:3)
   colspan(ht)[1, 2] <- 2
   expect_error(colspan(ht)[1, 1] <- 2)
+
+  # going diagonally
+  ht <- hux(a = 1:3, b = 1:3, d = 1:3)
+  colspan(ht)[1, 2] <- 2
+  rowspan(ht)[1, 2] <- 2
+  expect_error(colspan(ht)[2, 1] <- 2)
+})
+
+
+test_that('Subsetting works with multirow/multicolumn cells', {
+  ht <- hux(a = 1:3, b = 1:3)
+  rowspan(ht)[1, 1] <- 2
+  expect_silent(ht[c(1,3), ])
 })
 
 
@@ -63,6 +73,54 @@ test_that('Subset assignment of hux into hux preserves attributes', {
   font(ht6) <- c('times', 'arial', 'times')
   expect_silent(ht[] <- ht6) # assignment with repetition
   expect_equivalent(font(ht)[1, ], c('times', 'arial', 'times'))
+})
+
+
+test_that('rbind and cbind work and copy properties', {
+  ht <- hux(1:2, 1:2)
+  italic(ht) <- TRUE
+  bold(ht) <- TRUE
+  row_height(ht) <- c("1in", "2in")
+  col_width(ht) <- c("2cm", "1cm")
+
+  expect_silent(ht_rbind <- rbind(ht, c(3, 3), copy_cell_props = TRUE))
+  expect_equivalent(row_height(ht_rbind), c("1in", "2in", "2in"))
+  expect_equivalent(italic(ht_rbind), matrix(TRUE, 3, 2))
+
+  ht_rbind <- rbind(ht, c(3, 3), copy_cell_props = FALSE)
+  expect_equivalent(row_height(ht_rbind), c("1in", "2in", NA))
+  expect_equivalent(italic(ht_rbind)[3, ], c(FALSE, FALSE))
+
+  ht_rbind <- rbind(ht, c(3, 3), copy_cell_props = "bold")
+  expect_equivalent(italic(ht_rbind)[3, ], c(FALSE, FALSE))
+  expect_equivalent(bold(ht_rbind)[3, ], c(TRUE, TRUE))
+
+  expect_silent(ht_cbind <- cbind(ht, 1:2, copy_cell_props = TRUE))
+  expect_equivalent(col_width(ht_cbind), c("2cm", "1cm", "1cm"))
+  expect_equivalent(italic(ht_cbind), matrix(TRUE, 2, 3))
+
+  ht_cbind <- cbind(ht, 1:2, copy_cell_props = FALSE)
+  expect_equivalent(col_width(ht_cbind), c("2cm", "1cm", NA))
+  expect_equivalent(italic(ht_cbind)[, 3], c(FALSE, FALSE))
+
+  ht_cbind <- cbind(ht, 1:2, copy_cell_props = "bold")
+  expect_equivalent(italic(ht_cbind)[, 3], c(FALSE, FALSE))
+  expect_equivalent(bold(ht_cbind)[, 3], c(TRUE, TRUE))
+})
+
+
+test_that('rbind and cbind make numeric row_height/col_width sum to 1', {
+  ht <- hux(1:2, 1:2)
+  ht2 <- hux(1:2, 1:2)
+  row_height(ht) <- c(.5, .5)
+  row_height(ht2) <- c(.5, .5)
+  col_width(ht) <- c(.5, .5)
+  col_width(ht2) <- c(.5, .5)
+
+  ht_cbind <- cbind(ht, ht2)
+  expect_equivalent(col_width(ht_cbind), rep(.25, 4))
+  ht_rbind <- rbind(ht, ht2)
+  expect_equivalent(row_height(ht_rbind), rep(.25, 4))
 })
 
 
@@ -147,11 +205,41 @@ test_that('insert_column and insert_row work', {
   expect_false(bold(ht)[1, 2])
 })
 
+
 test_that('insert_column works with column names', {
   ht_orig <- hux(a = 1:2, b = 1:2)
   ht <- insert_column(ht_orig, 8, 9, after = "a")
   expect_equivalent(ncol(ht), 3)
   expect_equivalent(ht[, 2], huxtable(8:9))
+})
+
+
+test_that('add_rows and add_columns work', {
+  ht <- hux(a = 1:2, b = 1:2, add_colnames = FALSE)
+  expect_silent(res <- add_rows(ht, 3:4))
+  expect_equivalent(nrow(res), 3)
+  expect_equivalent(res[[3, 1]], 3)
+  expect_silent(res <- add_rows(ht, 3:4, after = 0))
+  expect_equivalent(nrow(res), 3)
+  expect_equivalent(res[[1, 1]], 3)
+
+  mx <- matrix(3:6, 2, 2)
+  hx2 <- hux(3:4, 5:6)
+  for (obj in list(mx, hx2)) {
+    expect_silent(res <- add_rows(ht, obj))
+    expect_equivalent(res[[4,2]], 6)
+    expect_equivalent(nrow(res), 4)
+    expect_silent(res <- add_rows(ht, obj, after = 1))
+    expect_equivalent(nrow(res), 4)
+    expect_equivalent(res[[3,2]], 6)
+    expect_silent(res <- add_columns(ht, obj, after = "a"))
+    expect_equivalent(ncol(res), 4)
+    expect_equivalent(res[[1, 2]], 3)
+  }
+
+  bold(ht) <- TRUE
+  expect_silent(res <- add_rows(ht, mx, copy_cell_props = TRUE))
+  expect_true(bold(res)[3, 1])
 })
 
 
@@ -235,4 +323,35 @@ test_that('Can add row(s) to a huxtable by standard replacement methods', {
   expect_silent(ht3[3:4, 3] <- 1) # new rows and columns simultaneously
   expect_equivalent(as.data.frame(ht3[3:4, ]), data.frame(rep(NA_real_, 2), rep(NA_real_, 2), rep(1, 2)))
   expect_equivalent(dim(font(ht3)), c(4, 3))
+})
+
+
+test_that('cbind and rbind work with 0-dimension objects', {
+  ht <- hux(a = 1:2, b = 1:2)
+  expect_silent(ht_nrow0 <- ht[FALSE, ])
+  expect_silent(ht_ncol0 <- ht[, FALSE])
+
+  expect_silent(res <- cbind(ht, ht_ncol0))
+  expect_equivalent(dim(res), c(2, 2))
+  expect_silent(res <- cbind(ht_ncol0, ht))
+  expect_equivalent(dim(res), c(2, 2))
+
+  expect_silent(res <- rbind(ht, ht_nrow0))
+  expect_equivalent(dim(res), c(2, 2))
+  expect_silent(res <- rbind(ht_nrow0, ht))
+  expect_equivalent(dim(res), c(2, 2))
+
+  mx <- matrix(1:4, 2, 2)
+  mx_nrow0 <- mx[FALSE, ]
+  mx_ncol0 <- mx[, FALSE]
+
+  expect_silent(res <- cbind(ht, mx_ncol0))
+  expect_equivalent(dim(res), c(2, 2))
+  expect_silent(res <- cbind(mx_ncol0, ht))
+  expect_equivalent(dim(res), c(2, 2))
+
+  expect_silent(res <- rbind(ht, mx_nrow0))
+  expect_equivalent(dim(res), c(2, 2))
+  expect_silent(res <- rbind(mx_nrow0, ht))
+  expect_equivalent(dim(res), c(2, 2))
 })

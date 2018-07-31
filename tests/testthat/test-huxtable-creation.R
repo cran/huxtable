@@ -2,9 +2,6 @@
 context('huxtable creation')
 
 
-source('functions.R')
-
-
 test_that('Object creation examples unchanged', {
   test_ex_same('huxtable')
 })
@@ -17,6 +14,23 @@ test_that('create huxtable using hux[table]()', {
   expect_equal(ncol(ht), 2)
   expect_equal(nrow(ht), 3)
   expect_identical(ht, ht2)
+})
+
+
+test_that('create huxtable using tribble_hux()', {
+  for (addc in c(TRUE, FALSE)) {
+    expect_silent(ht <- tribble_hux(
+      ~a, ~b,
+      1, 'a',
+      2, 'b',
+      3, 'c',
+      add_colnames = addc
+    ))
+    expect_is(ht, 'huxtable')
+    expect_equal(nrow(ht), 3 + addc)
+    expect_equal(ncol(ht), 2)
+    expect_equivalent(colnames(ht), c('a', 'b'))
+  }
 })
 
 
