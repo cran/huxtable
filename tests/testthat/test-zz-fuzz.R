@@ -13,7 +13,9 @@ expect_outputs_unchanged <- function (hx, idx) {
         info = info)
   expect_known_value(to_html(hx),   file = paste0(file, "-html.rds"),   info = info)
   expect_known_value(to_latex(hx),  file = paste0(file, "-latex.rds"),  info = info)
+  expect_known_value(to_rtf(hx),  file = paste0(file, "-rtf.rds"),  info = info)
 }
+
 
 variations <- expand.grid(
   align             = c('left', 'right', 'centre', '.'),
@@ -24,6 +26,7 @@ variations <- expand.grid(
   italic            = c(TRUE, FALSE),
   left_border       = c(0, 1, 2),
   left_border_color = c('red', grey(.6)),
+  left_border_style = c('double', 'dotted', 'dashed'),
   left_padding      = c(0, 4),
   number_format     = c("%3.1g", NA),
   rotation          = c(0, 90),
@@ -34,7 +37,6 @@ variations <- expand.grid(
   KEEP.OUT.ATTRS   = FALSE
 )
 
-
 hx_raw <- hux(
   int  = 1:3,
   real = 1:3 + 0.005,
@@ -42,6 +44,7 @@ hx_raw <- hux(
   date = as.Date(1:3, origin = "1970-01-01"),
   fact = factor(letters[4:6])
 )
+
 
 add_props <- function(hx, row) {
   props <- as.list(row)
@@ -51,32 +54,70 @@ add_props <- function(hx, row) {
   return(hx_set)
 }
 
+
 test_that('various outputs unchanged', {
   skip_on_R_CMD_check()
 
   RNGversion("3.3.0")
   set.seed(271075L) # expect_unchanged is useless if we always pick new variations
   for (i in sample(nrow(variations), 300)) {
-    hx_set <- add_props(hx_raw, variations[i,])
+    hx_set <- add_props(hx_raw, variations[i, ])
     expect_outputs_unchanged(hx_set, i)
   }
 })
 
 
-test_that('Some random TeX outputs compile', {
+test_that('Some random outputs compile', {
   skip_on_R_CMD_check()
 
+  n_tests <- get0('N_OUTPUT_TESTS', envir = globalenv(), ifnotfound = 10)
+
+  outfiles <- character(n_tests * 4)
   on.exit({
-    try(file.remove(pdf_out), silent = TRUE)
+    try(file.remove(outfiles), silent = TRUE)
   })
-  pdf_out <- character(0)
-  for (i in sample(nrow(variations), 10)) {
-    hx_set <- add_props(hx_raw, variations[i,])
-    pdf_out[as.character(i)] <- pdfo <- sprintf('tex-check-%d.pdf', i)
-    expect_error(quick_pdf(hx_set, file = pdfo, open = FALSE),
-          regexp = NA,
-          info = list(index = i))
-    expect_true(file.exists(pdfo), info = list(index = i))
+
+  sample_rows <- sample(nrow(variations), n_tests * 4)
+  for (i in seq_len(n_tests)) {
+    sr <- sample_rows[i]
+    hx_set <- add_props(hx_raw, variations[sr, ])
+    pdfo <- sprintf('pdf-check-%d.pdf', sr)
+    outfiles[i] <- pdfo
+    expect_error(quick_pdf(hx_set, file = pdfo, open = FALSE), regexp = NA, info = list(index = sr))
+    expect_true(file.exists(pdfo), info = list(index = sr))
+  }
+
+  skip_if_not_installed('openxlsx')
+
+  for (i in seq(n_tests + 1, 2 * n_tests)) {
+    sr <- sample_rows[i]
+    hx_set <- add_props(hx_raw, variations[sr, ])
+    xlsxo <- sprintf('xlsx-check-%d.xlsx', sr)
+    outfiles[i] <- xlsxo
+    expect_error(quick_xlsx(hx_set, file = xlsxo, open = FALSE), regexp = NA, info = list(index = sr))
+    expect_true(file.exists(xlsxo), info = list(index = sr))
+  }
+
+  skip_if_not_installed('flextable')
+
+  for (i in seq(2 * n_tests + 1, 3 * n_tests)) {
+    sr <- sample_rows[i]
+    hx_set <- add_props(hx_raw, variations[sr, ])
+    docxo <- sprintf('docx-check-%d.docx', sr)
+    outfiles[i] <- docxo
+    expect_error(quick_docx(hx_set, file = docxo, open = FALSE), regexp = NA,
+          info = list(index = sr))
+    expect_true(file.exists(docxo), info = list(index = sr))
+  }
+
+  for (i in seq(3 * n_tests + 1, 4 * n_tests)) {
+    sr <- sample_rows[i]
+    hx_set <- add_props(hx_raw, variations[sr, ])
+    pptxo <- sprintf('pptx-check-%d.pptx', sr)
+    outfiles[i] <- pptxo
+    expect_error(quick_pptx(hx_set, file = pptxo, open = FALSE), regexp = NA,
+      info = list(index = sr))
+    expect_true(file.exists(pptxo), info = list(index = sr))
   }
 })
 
@@ -88,7 +129,7 @@ test_that('Some random HTML outputs are validated by W3C', {
 
   # here we do randomize
   for (i in sample(nrow(variations), 10)) {
-    hx_set <- add_props(hx_raw, variations[i,])
+    hx_set <- add_props(hx_raw, variations[i, ])
     webpage <- paste0("<!DOCTYPE html><html lang=\"en\">",
       "<head><meta charset=\"utf-8\"><title>huxtable table validation</title></head>",
       "<body>\n", to_html(hx_set), "\n</body></html>")

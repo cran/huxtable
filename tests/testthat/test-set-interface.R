@@ -168,11 +168,12 @@ test_that('set_all_* functions work when huxtable is not attached', {
   expect_silent(ht2 <- huxtable::set_all_borders(ht, 1))
   expect_silent(ht3 <- huxtable::set_all_border_colors(ht, 'red'))
   expect_silent(ht4 <- huxtable::set_all_padding(ht, 1))
+  expect_silent(ht5 <- huxtable::set_all_border_styles(ht, 'double'))
   library(huxtable) # we reattach before these tests, or we have problems with unavailable methods
   expect_equivalent(top_border(ht2), matrix(1, 2, 2))
   expect_equivalent(top_border_color(ht3), matrix('red', 2, 2))
   expect_equivalent(top_padding(ht4), matrix(1, 2, 2))
-
+  expect_equivalent(top_border_style(ht5), matrix('double', 2, 2))
 })
 
 
@@ -215,6 +216,26 @@ test_that('set_outer_borders() works with non-standard/empty position arguments'
     expect_equivalent(left_border(h), matrix(c(0, 1, 0, 0), 2, 2))
     expect_equivalent(right_border(h), matrix(c(0, 0, 0, 1), 2, 2))
   }
+})
+
+
+test_that('merge_cells() works as expected', {
+  ht <- hux(a = 1:3, b = 1:3)
+  expect_silent(ht2 <- merge_cells(ht, 1, 1:2))
+  expect_silent(ht2 <- merge_cells(ht2, 2:3, 1))
+  expect_equivalent(colspan(ht2), matrix(c(2, 1, 1, 1, 1, 1), 3, 2))
+  expect_equivalent(rowspan(ht2), matrix(c(1, 2, 1, 1, 1, 1), 3, 2))
+
+  expect_silent(ht3 <- merge_cells(ht, 1, everywhere))
+  expect_equivalent(colspan(ht3), matrix(c(2, 1, 1, 1, 1, 1), 3, 2))
+
+  expect_silent(ht4 <- merge_cells(ht, 1:2, 1:2))
+  expect_equivalent(colspan(ht4), matrix(c(2, 1, 1, 1, 1, 1), 3, 2))
+  expect_equivalent(rowspan(ht4), matrix(c(2, 1, 1, 1, 1, 1), 3, 2))
+
+  expect_silent(ht5 <- merge_cells(ht, c(1, 3), 1))
+  expect_equivalent(rowspan(ht5), matrix(c(3, 1, 1, 1, 1, 1), 3, 2))
+
 })
 
 

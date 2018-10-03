@@ -19,13 +19,19 @@
 knit_print.huxtable <- function (x, options, ...) {
   # guess... runs assert_package for knitr
   of <- getOption('huxtable.knitr_output_format', guess_knitr_output_format())
-  call_name <- switch(of, latex = 'to_latex', html = 'to_html', md = 'to_md', screen = 'to_screen',
-    {
-      warning(glue::glue('Unrecognized output format "{of}". Using `to_screen` to print huxtables.\n',
+  call_name <- switch(of,
+        latex  = 'to_latex',
+        html   = 'to_html',
+        md     = 'to_md',
+        screen = 'to_screen',
+        rtf    = 'to_rtf',
+        { # default
+        warning(glue::glue(
+            'Unrecognized output format "{of}". Using `to_screen` to print huxtables.\n',
             'Set options("huxtable.knitr_output_format") manually to ',
-            '"latex", "html", "md" or "screen.'))
-      'to_screen'
-    })
+            '"latex", "html", "rtf", "md" or "screen".'))
+          'to_screen'
+        })
   res <- do.call(call_name, list(ht = x))
   if (of == 'latex') {
     latex_deps <- report_latex_dependencies(quiet = TRUE)
@@ -35,6 +41,8 @@ knit_print.huxtable <- function (x, options, ...) {
   } else if (of == 'html') {
     res <- knitr::asis_output(htmlPreserve(res))
     return(res)
+  } else if (of == 'rtf') {
+    return(knitr::raw_output(res))
   } else {
     return(knitr::asis_output(res))
   }
@@ -86,7 +94,8 @@ knit_print.data.frame <- function(x, options, ...) {
 #'
 #' Convenience function which tries to guess the ultimate output from knitr and rmarkdown.
 #'
-#' @return 'html', 'latex', or something else. If we are not in a knitr document, returns an empty string.
+#' @return 'html', 'latex', or something else. If we are not in a knitr document, returns an empty
+#'   string.
 #' @export
 #'
 #' @examples

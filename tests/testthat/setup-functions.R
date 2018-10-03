@@ -1,4 +1,6 @@
 
+options(width = 80) # keeps to_screen examples unchanged
+
 example_code_for_topic <- function (fname) {
   path <- devtools::find_topic(fname)[1] # sometimes we get multiples!
 
@@ -10,7 +12,8 @@ example_code_for_topic <- function (fname) {
 }
 
 
-code_path_for_topic <- function (fname) file.path(test_path(), 'example-rds', paste0(fname, '-example-code.rds'))
+code_path_for_topic <- function (fname) file.path(test_path(), 'example-rds',
+      paste0(fname, '-example-code.rds'))
 
 
 # runs example and checks output & values haven't changed; optionally reset files if code has changed
@@ -79,4 +82,14 @@ skip_without_pandoc <- function () {
 skip_on_R_CMD_check <- function () {
   skip_if(exists('we_are_in_R_CMD_check'), 'Not testing, code doesn\'t play well with R CMD check')
   skip_if(Sys.getenv('COVERAGE') != '', 'Not testing, code doesn\'t play well with R CMD check')
+}
+
+
+require_temp_artefacts_dir <- function () {
+  if (dir.exists('temp-artefacts')) return(TRUE)
+  if (dir.create('temp-artefacts', showWarnings = FALSE)) {
+    return(TRUE)
+  } else {
+    skip('Couldn\'t create temp-artefacts dir')
+  }
 }

@@ -1,4 +1,5 @@
 
+# LaTeX printing -----------------------------------------------------------------------------------
 
 #' @import assertthat
 NULL
@@ -8,7 +9,6 @@ default_table_width_unit <- '\\textwidth'
 
 
 #' @export
-#'
 #' @rdname to_latex
 print_latex <- function (ht, ...) {
   cat(to_latex(ht, ...))
@@ -31,19 +31,13 @@ print_latex <- function (ht, ...) {
 #' print_latex(ht)
 to_latex <- function (ht, ...) UseMethod('to_latex')
 
+
 #' @export
 #' @rdname to_latex
 to_latex.huxtable <- function (ht, tabular_only = FALSE, ...){
   assert_that(is.flag(tabular_only))
   tabular <- build_tabular(ht)
   if (tabular_only) return(tabular)
-
-  # table position
-  pos_text <- switch(position(ht),
-    left   = c('\\begin{raggedright}', '\\par\\end{raggedright}\n'),
-    center = c('\\centering',   '\n'),
-    right  = c('\\begin{raggedleft}',  '\\par\\end{raggedleft}\n')
-  )
 
   resize_box <- if (is.na(height <- height(ht))) c('', '') else {
     if (is.numeric(height)) height <- sprintf('%.3g\\textheight', height)
@@ -61,68 +55,20 @@ to_latex.huxtable <- function (ht, tabular_only = FALSE, ...){
   }
   lab <- if (is.na(lab <- label(ht))) '' else sprintf('\\label{%s}\n', lab)
   if (nzchar(lab) && ! nzchar(cap)) warning('No caption set: LaTeX table labels may not work as expected.')
-  res <- if (grepl('top', caption_pos(ht))) paste0(cap, lab, tabular) else paste0(tabular, cap, lab)
+
+  pos_text <- switch(position(ht),
+    left   = c('\\begin{raggedright}', '\\par\\end{raggedright}\n'),
+    center = c('\\centering',   '\n'),
+    right  = c('\\begin{raggedleft}',  '\\par\\end{raggedleft}\n')
+  )
 
   begin_table <- sprintf('\\begin{table}[%s]\n', latex_float(ht))
-  res <- paste0(begin_table, pos_text[1], resize_box[1], res,
-        resize_box[2], pos_text[2], '\\end{table}\n')
+
+  res <- paste0(resize_box[1], tabular, resize_box[2])
+  res <- if (grepl('top', caption_pos(ht))) paste0(cap, lab, res) else paste0(res, cap, lab)
+  res <- paste0(begin_table, pos_text[1], res, pos_text[2], '\\end{table}\n')
 
   return(res)
-}
-
-
-huxtable_latex_dependencies <- list(
-  list(name = 'array'),
-  list(name = 'caption'),
-  list(name = 'graphicx'),
-  list(name = 'siunitx'),
-  list(name = 'xcolor', options = 'table'),
-  list(name = 'multirow'),
-  list(name = 'hhline'),
-  list(name = 'calc'),
-  list(name = 'tabularx')
-)
-
-#' Report LaTeX dependencies
-#'
-#' Prints out and returns a list of LaTeX dependencies for adding to a LaTeX preamble.
-#'
-#' @param quiet Logical: suppress printing.
-#' @param as_string Logical: return dependencies as a string.
-#'
-#' @return If `as_string` is `TRUE`, a string of "\\\\usepackage\\{...\\}" statements;
-#'   otherwise a list of rmarkdown::latex_dependency objects, invisibly.
-#' @export
-#'
-#' @examples
-#' report_latex_dependencies()
-#'
-report_latex_dependencies <- function(quiet = FALSE, as_string = FALSE) {
-  assert_that(is.flag(quiet), is.flag(as_string))
-
-  report <- sapply(huxtable_latex_dependencies, function(ld) {
-    package_str <- '\\usepackage'
-    if (! is.null(ld$options)) {
-      options_str <- paste(ld$options, collapse = ',')
-      package_str <- paste0(package_str, '[', options_str, ']')
-    }
-    package_str <- paste0(package_str, '{', ld$name, '}\n')
-    package_str
-  })
-  if (! quiet) {
-    cat(paste0(report, collapse = ''))
-    cat('% Other packages may be required if you use non-standard tabulars (e.g. tabulary)')
-  }
-
-  if (as_string) {
-    return(paste0(report, collapse = ''))
-  } else {
-    assert_package('report_latex_dependencies', 'rmarkdown')
-    huxtable_latex_dependencies <- lapply(huxtable_latex_dependencies, function (x) {
-      rmarkdown::latex_dependency(x$name, options = x$options)
-    })
-    return(invisible(huxtable_latex_dependencies))
-  }
 }
 
 
@@ -140,6 +86,7 @@ build_tabular <- function(ht) {
   width_spec <- apply(start_end_cols, 1, function (x) compute_width(ht, x[1], x[2]))
   cb <- collapsed_borders(ht)
   cbc <- collapsed_border_colors(ht)
+  cbs <- collapsed_border_styles(ht)
 
   ## PREPARE INDICES -----------
   dc_pos_matrix <- as.matrix(display_cells[, c('display_row', 'display_col')])
@@ -169,8 +116,9 @@ build_tabular <- function(ht) {
   has_own_border <- horiz_b > 0
   # set border widths to the row maximum:
   horiz_b[] <- hb_maxes[row(horiz_b)]
+  hb_default <- is.na(cbc$horiz)
   hb_colors <- format_color(cbc$horiz, default = 'black')
-
+  hb_chars <- ifelse(cbs$horiz == 'double', '=', '-')
 
   # background colors come from shadowing cells
   bg_colors <- background_color(ht)[dc_map]
@@ -178,12 +126,11 @@ build_tabular <- function(ht) {
   # add a top row for the first hhline
   bg_colors <- rbind(rep(NA, ncol(horiz_b)), bg_colors) # or, should color be taken from cells below?
   bg_colors <- format_color(bg_colors, default = 'white')
-  hhline_colors <- ifelse(has_own_border, hb_colors ,bg_colors)
-  hhline_colors_tex <- sprintf('\\arrayrulecolor[RGB]{%s}', hhline_colors)
-  # if we do this, color bleeds from previous vertical borders (via the v_border of the hhline)
-  # has_hb_color <- ! is.na(cbc$horiz)
-  # hhline_colors_tex[horiz_b > 0 & ! has_hb_color] <- ''
-  hhlines_horiz <- sprintf('>{%s\\global\\arrayrulewidth=%.4gpt}-', hhline_colors_tex, horiz_b)
+  hhline_colors <- bg_colors
+  hhline_colors[has_own_border] <- hb_colors[has_own_border]
+  hhline_colors_tex <- sprintf('[%s]', hhline_colors)
+  hhline_colors_tex[has_own_border & hb_default] <- ''
+  hhlines_horiz <- sprintf('>{\\huxb%s{%.4g}}%s', hhline_colors_tex, horiz_b, hb_chars)
   dim(hhlines_horiz) <- dim(horiz_b)
   no_hborder_in_row <- hb_maxes[row(hhlines_horiz)] == 0
   hhlines_horiz[no_hborder_in_row] <- ''
@@ -191,7 +138,8 @@ build_tabular <- function(ht) {
   # vertical borders in hhlines are an n+1 x n+1 matrix of "corner dots"
   vert_b <- cb$vert # nrow X ncol + 1
   # we add an extra row to match the nrow+1 hhlines
-  vert_b <- rbind(vert_b[1,], vert_b) # we checked positive dims; row 1 exists
+  vert_b <- rbind(vert_b[1, ], vert_b) # we checked positive dims; row 1 exists
+  vert_bs <- rbind(cbs$vert[1, ], cbs$vert)
   # vertical dots should have colour from, in order of preference:
   # (a) left horiz border; (b) right horiz border; (c) lower vert border; (d) upper vert border
   # We use lower borders first on the theory that the "top of a square" matters more
@@ -205,16 +153,30 @@ build_tabular <- function(ht) {
   vert_bc[no_lrb_b] <- rbind(NA, cbc$vert)[no_lrb_b] # vert border color above
   # if it's still NA, no border on any side had a defined colour
   # At the moment we reset to black. Otherwise maybe we "bleed" along the row from much earlier.
+  vert_bc_na <- is.na(vert_bc)
   vert_bc <- format_color(vert_bc, default = 'black')
   vert_bc_tex <- rep('', length(vert_bc))
-  vert_bc_tex <- sprintf('\\arrayrulecolor[RGB]{%s}', vert_bc)
-
+  vert_bc_tex[! vert_bc_na] <- sprintf('[%s]', vert_bc[! vert_bc_na])
   hhlines_vert <- rep('', length(vert_b))
   has_vert_b <- vert_b > 0
-  hhlines_vert[has_vert_b] <- sprintf('>{%s\\global\\arrayrulewidth=%spt}|',
+
+  # here we want the real borders, not the row maxes of `horiz_b`:
+  has_horiz_b <- cbind(cb$horiz[, 1], cb$horiz) > 0
+
+  vert_bchars <- rep('', length(vert_bc))
+  # Put in | when you have a single meets no border;
+  # Put in || where a double meets no border;
+  # Otherwise, leave them blank
+  # PROBLEM: if you have no border on L, you don't get a horizontal line (of the right colour)
+  vert_bchars[! vert_bs == 'double' & ! has_horiz_b]  <- '|'
+  vert_bchars[vert_bs == 'double' & ! has_horiz_b]    <- '||'
+
+  hhlines_vert[has_vert_b] <- sprintf('>{\\huxb%s{%.4g}}%s',
         vert_bc_tex[has_vert_b],
-        vert_b[has_vert_b])
-  dim(hhlines_vert) <- c(nrow(horiz_b), ncol(horiz_b) + 1)
+        vert_b[has_vert_b],
+        vert_bchars[has_vert_b])
+  hhlines_vert[vert_bchars == ''] <- ''
+  dim(hhlines_vert) <- c(nrow(horiz_b), ncol(horiz_b) + 1) # n+1 x n+1
 
   # interleave vertical and horizontal lines like: |-|-|-|
   hhlines <- matrix('', nrow(hhlines_horiz), ncol(hhlines_horiz) + ncol(hhlines_vert))
@@ -234,7 +196,7 @@ build_tabular <- function(ht) {
   fs_bldc <- font_size(ht)[bl_dc]
   line_space_bldc <- round(fs_bldc * 1.2, 2)
   has_fs_bldc <- ! is.na(fs_bldc)
-  inner_cell_bldc[has_fs_bldc] <- sprintf('{\\fontsize{%.4gpt}{%.4gpt}\\selectfont %s}' ,
+  inner_cell_bldc[has_fs_bldc] <- sprintf('{\\fontsize{%.4gpt}{%.4gpt}\\selectfont %s}',
         fs_bldc[has_fs_bldc], line_space_bldc[has_fs_bldc], inner_cell_bldc[has_fs_bldc])
 
   tc_bldc <- text_color(ht)[bl_dc]
@@ -271,11 +233,12 @@ build_tabular <- function(ht) {
   has_pad_bldc <- lapply(pad_bldc, Negate(is.na))
   pad_bldc <- lapply(pad_bldc, function (x) if (is.numeric(x)) sprintf('%.4gpt', x) else x)
   tpad_tex_bldc <- rep('', length(pad_bldc$top))
-  tpad_tex_bldc[has_pad_bldc$top] <- sprintf('\\rule{0pt}{\\baselineskip+%s}',
-        pad_bldc$top[has_pad_bldc$top])
+  # tpad_tex_bldc[has_pad_bldc$top] <- sprintf('\\rule{0pt}{\\baselineskip+%s}',
+  #       pad_bldc$top[has_pad_bldc$top])
+  tpad_tex_bldc[has_pad_bldc$top] <- sprintf('\\huxtpad{%s}', pad_bldc$top[has_pad_bldc$top])
   bpad_tex_bldc <- rep('', length(pad_bldc$bottom))
   bpad_vals_bldc <- pad_bldc$bottom[has_pad_bldc$bottom]
-  bpad_tex_bldc[has_pad_bldc$bottom] <- sprintf('\\rule[-%s]{0pt}{%s}', bpad_vals_bldc, bpad_vals_bldc)
+  bpad_tex_bldc[has_pad_bldc$bottom] <- sprintf('\\huxbpad{%s}', bpad_vals_bldc)
   align_tex_key <- c('left' = '\\raggedright ', 'right' = '\\raggedleft ', 'center' = '\\centering ')
   align_tex_bldc <- align_tex_key[align_bldc]
   inner_cell_bldc <- paste0(tpad_tex_bldc, align_tex_bldc, inner_cell_bldc, bpad_tex_bldc)
@@ -306,7 +269,7 @@ build_tabular <- function(ht) {
     rep('', sum(dc_idx))
   } else {
     # bl_to_dc for matrices:
-    start_end_rows_bldc <- display_cells[dc_map, c('display_row', 'end_row')][bl_idx,]
+    start_end_rows_bldc <- display_cells[dc_map, c('display_row', 'end_row')][bl_idx, ]
     row_seqs_bldc <- apply(start_end_rows_bldc, 1, function (x) seq(x[1], x[2]))
     rh_bldc <- sapply(row_seqs_bldc, function (x) {
       rh <- row_height[x]
@@ -327,6 +290,7 @@ build_tabular <- function(ht) {
   has_bg_color_lhdc <- ! is.na(bg_color_lhdc)
   bg_color_lhdc <- format_color(bg_color_lhdc)
   bg_color_lhdc <- sprintf('\\cellcolor[RGB]{%s}', bg_color_lhdc)
+  bg_color_lhdc[! has_bg_color_lhdc] <- '' # NAs don't have a \cellcolor instruction
   bg_color[left_idx] <- bg_color_lhdc
 
 
@@ -359,11 +323,14 @@ build_tabular <- function(ht) {
   bcol <- cbc$vert
   has_bord <- ! is.na(bord)
   has_bcol <- ! is.na(bcol) # if *defined* as black, then we print it. Otherwise not.
+  bs_double <- cbs$vert == 'double'
   bcol <- format_color(bcol, default = 'black')
   bord_tex <- rep('', length(bord))
   bcol_tex <- rep('', length(bcol))
-  bcol_tex[has_bcol] <- sprintf('\\color[RGB]{%s}', bcol[has_bcol])
-  bord_tex[has_bord] <- sprintf('!{%s\\vrule width %.4gpt}', bcol_tex[has_bord], bord[has_bord])
+  bcol_tex[has_bcol] <- sprintf('[%s]', bcol[has_bcol])
+  # bord_tex[has_bord] <- sprintf('!{%s\\vrule width %.4gpt}', bcol_tex[has_bord], bord[has_bord])
+  bord_tex[has_bord] <- sprintf('!{\\huxvb%s{%.4g}}', bcol_tex[has_bord], bord[has_bord])
+  bord_tex[bs_double] <- paste0(bord_tex[bs_double], bord_tex[bs_double])
   dim(bord_tex) <- dim(cb$vert)
   # the first column is the left border of the left-most cell.
   # subsequent columns become the right border of all cells.
@@ -389,6 +356,7 @@ build_tabular <- function(ht) {
   multirow_blm_tex <- sprintf('\\multirow{-%s}{*}[%s]{', rowspan_blm, vert_adj_blm)
   multirow[blm_idx] <- multirow_blm_tex
 
+  ## FINAL ASSEMBLY----------------
   closer <- function (x) ifelse(nchar(x) > 0, '}', '')
 
   contents <- paste0(
@@ -426,7 +394,14 @@ build_tabular <- function(ht) {
   colspec_top <- paste0(colspec_top, collapse = ' ')
   colspec_top <- sprintf('{%s}\n', colspec_top)
 
-  res <- paste0(tenv_tex[1], width_spec, colspec_top, table_body, tenv_tex[2])
+  commands <- '
+    \\providecommand{\\huxb}[2][0,0,0]{\\arrayrulecolor[RGB]{#1}\\global\\arrayrulewidth=#2pt}
+    \\providecommand{\\huxvb}[2][0,0,0]{\\color[RGB]{#1}\\vrule width #2pt}
+    \\providecommand{\\huxtpad}[1]{\\rule{0pt}{\\baselineskip+#1}}
+    \\providecommand{\\huxbpad}[1]{\\rule[-#1]{0pt}{#1}}
+  '
+  # use like \huxb[color]{width} in >{} sections
+  res <- paste0(commands, tenv_tex[1], width_spec, colspec_top, table_body, tenv_tex[2])
   return(res)
 }
 

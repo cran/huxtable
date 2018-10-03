@@ -90,21 +90,22 @@ to_html.huxtable <- function(ht, ...) {
 
   # collapsed_borders() are in "real cell" position. But we just want to grab the original data
   # and apply it?
-  # cb <- collapsed_borders(ht)
-  top_border    <- top_border(ht)
-  bottom_border <- bottom_border(ht)
-  left_border   <- left_border(ht)
-  right_border  <- right_border(ht)
-  border_width <- sprintf(' border-style: solid; border-width: %.4gpt %.4gpt %.4gpt %.4gpt;',
-        top_border, right_border, bottom_border, left_border)
-  no_borders <- top_border == 0 & right_border == 0 & bottom_border == 0 & left_border == 0
+  borders    <- get_all_borders(ht)
+  border_styles    <- get_all_border_styles(ht)
+  if (length(unlist(borders)) > 0 && any(unlist(borders) > 0 & unlist(borders) < 3 &
+        unlist(border_styles) == 'double'))
+        warning('border_style set to "double" but border less than 3 points')
+
+  border_width <- sprintf(' border-style: %s %s %s %s; border-width: %.4gpt %.4gpt %.4gpt %.4gpt;',
+        border_styles$top, border_styles$right, border_styles$bottom, border_styles$left,
+        borders$top, borders$right, borders$bottom, borders$left)
+  no_borders <- borders$top == 0 & borders$right == 0 & borders$bottom == 0 & borders$left == 0
   border_width <- blank_where(border_width, no_borders)
 
   format_bc <- function (pos, col) {
     x <- sprintf(' border-%s-color: rgb(%s);', pos, format_color(col))
     blank_where(x, is.na(col))
   }
-  # cbc <- collapsed_border_colors(ht)
   top_bc    <- top_border_color(ht)
   bottom_bc <- bottom_border_color(ht)
   left_bc   <- left_border_color(ht)
@@ -146,8 +147,14 @@ to_html.huxtable <- function(ht, ...) {
   rot <- rotation(ht)
   rot <- (rot %% 360) * -1 # HTML goes anticlockwise
   rot_div <- sprintf('<div style="transform: rotate(%.4gdeg); white-space: nowrap;">', rot)
-  rot_div <- blank_where(rot_div, rot == 0)
+  # special-case straight up/down to be handled by writing-mode.
+  # this will probably break on non-LTR text, but before it was hard to use anyway.
+  rot_div[rot == -270] <- sprintf('<div style="writing-mode: vertical-rl;">')
+  rot_div[rot == -90]  <- sprintf(
+        '<div style="writing-mode: vertical-rl; transform: rotate(180deg);">')
+
   rot_div_end <- rep('</div>', length(rot_div))
+  rot_div <- blank_where(rot_div, rot == 0)
   rot_div_end <- blank_where(rot_div_end, rot == 0)
 
   color <- text_color(ht)

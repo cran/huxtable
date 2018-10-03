@@ -5,138 +5,6 @@
 NULL
 
 
-#' Insert one matrix into another.
-#'
-#' These functions combine two matrix-like objects and return the result.
-#'
-#' @param x A matrix-like object, e.g. a huxtable
-#' @param y Matrix or vector to be inserted into `x`
-#' @param after Row or column after which `y` is inserted. Can be 0. Can be a row or column name.
-#'   By default, inserts `y` after the end of `x`.
-#' @param ... Arguments passed to [rbind()] or [cbind()]
-#'
-#' @return For `add_rows`, the result of `rbind(x[1:after,], y, x[-(1:after),]`. For `add_columns`
-#'   the same but with columns. `after = 0` and `after = nrow(x)` or `ncol(x)` are handled correctly.
-#' @export
-#'
-#' @details
-#' For `huxtable` objects, arguments in `...` can include `copy_cell_props`.
-#'
-#' You cannot insert data frames into huxtables using this method, because you can't
-#' `cbind` huxtables and data frames. (See the "Dispatch" section in [cbind()] for details of why
-#' not.)
-#'
-#' @seealso [insert_row()] and [insert_column()], which insert multiple values into a single row.
-#'
-#' @examples
-#' ht <- hux(Jam = c('Blackberry', 'Strawberry'), Price = c(1.90, 1.80), add_colnames = TRUE)
-#' ht2 <- hux('Gooseberry', 2.10)
-#' add_rows(ht, ht2)
-#' add_rows(ht, ht2, after = 1)
-#' mx <- matrix(c('Sugar', '50%', '60%', 'Weight (g)', 300, 250), 3, 2)
-#' add_columns(ht, mx, after = 'Jam')
-add_rows <- function (x, y, after = nrow(x), ...) {
-  add_row_cols(x, y, after, dimno = 1, ...)
-}
-
-
-#' @export
-#' @rdname add_rows
-#' @examples
-#' ht <- hux(a = 1:3, b = 1:3)
-#' ht2 <- hux(d = letters[1:3])
-#' add_columns(ht, ht2, after = "a")
-add_columns <- function (x, y, after = ncol(x), ...) {
-  add_row_cols(x, y, after, dimno = 2, ...)
-}
-
-
-add_row_cols <- function (x, y, after, dimno, ...) {
-  dims <- dim(x)
-  end_idx <- dims[dimno]
-  assert_that(is.numeric(dims))
-  if (is.character(after)) {
-    after <- match(after, dimnames(x)[[dimno]])
-  }
-  assert_that(is.number(after), after >= 0, after <= end_idx)
-
-  second_idxes <- if (after < end_idx) seq(after + 1, end_idx) else integer(0)
-  if (dimno == 1) {
-    rbind(x[seq_len(after),], y, x[second_idxes,], ...)
-  } else {
-    cbind(x[, seq_len(after)], y, x[, second_idxes], ...)
-  }
-}
-
-
-#' Insert a row or column
-#'
-#' These convenience functions wrap `cbind` or `rbind` for huxtables to insert
-#' a single row.
-#' @param ht A huxtable.
-#' @param ... Cell contents.
-#' @param after Insert the row/column after this position. 0 (the default) inserts as the first row/column.
-#' @param copy_cell_props Copy cell properties from the previous row or column (if after > 0). See [cbind.huxtable()].
-#' @details
-#' In `insert_column` only, you can use a column name for `after`.
-#' @return The modified huxtable
-#' @seealso [add_rows()] and [add_columns()], which are more general.
-#' @export
-#'
-#' @examples
-#' ht <- hux(a = 1:5, b = 1:5, c = 1:5)
-#' insert_row(ht, 2.5, 2.5, 2.5, after = 2)
-#' insert_column(ht, 5:1)
-#' insert_column(ht, 5:1, after = 3)
-#' insert_column(ht, 5:1, after = "b")
-insert_column <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
-  # is.count would complain about 0
-  assert_that(is.scalar(after), is.number(after) || is.string(after))
-  if (is.number(after)) assert_that(after >= 0, after <= ncol(ht))
-  if (is.string(after)) {
-    assert_that(has_name(ht, after))
-    after <- match(after, colnames(ht))
-  }
-
-  ht1 <- NULL
-  ht2 <- NULL
-  if (after > 0) {
-    ht1 <- ht[, seq(1, after, 1)]
-  }
-  if (after < ncol(ht)) {
-    ht2 <- ht[, seq(after + 1, ncol(ht), 1)]
-  }
-  to_insert <- c(...)
-  res <- if (! is.null(ht1)) cbind(ht1, to_insert, copy_cell_props = copy_cell_props) else to_insert
-  res <- if (! is.null(ht2)) cbind(res, ht2) else res
-
-  res
-}
-
-
-#' @rdname insert_column
-#'
-#' @export
-insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
-  # is.count would complain about 0
-  assert_that(is.scalar(after), is.number(after), after >= 0, after <= nrow(ht))
-
-  ht1 <- NULL
-  ht2 <- NULL
-  if (after > 0) {
-    ht1 <- ht[seq(1, after, 1), ]
-  }
-  if (after < nrow(ht)) {
-    ht2 <- ht[seq(after + 1, nrow(ht), 1), ]
-  }
-  to_insert <- c(...)
-  res <- if (! is.null(ht1)) rbind(ht1, to_insert, copy_cell_props = copy_cell_props) else to_insert
-  res <- if (! is.null(ht2)) rbind(res, ht2) else res
-
-  res
-}
-
-
 #' Add a row with a footnote
 #'
 #' This adds a single row at the bottom. The first cell contains the footnote; it spans
@@ -171,46 +39,55 @@ add_footnote <- function(ht, text, border = 0.8, ...) {
 
 
 
-#' Sanitize table elements
+#' Escape text for various formats
 #'
-#' This is copied over from `xtable::sanitize()`.
+#' This escapes a string for LaTeX, HTML or RTF.
 #'
 #' @param str A character object.
-#' @param type `"latex"` or `"html"`.
+#' @param type `"latex"`, `"html"` or `"rtf"`.
 #'
 #' @return The sanitized character object.
+#'
+#' @details
+#' HTML and LaTeX code was copied over from `xtable::sanitize()`.
+#'
 #' @export
 #'
 #' @examples
 #' foo <- 'Make $$$ with us'
 #' sanitize(foo, type = 'latex')
-sanitize <- function (str, type = "latex") {
-  if (type == "latex") {
-    result <- str
-    result <- gsub("\\\\", "SANITIZE.BACKSLASH", result)
-    result <- gsub("$", "\\$", result, fixed = TRUE)
-    result <- gsub(">", "$>$", result, fixed = TRUE)
-    result <- gsub("<", "$<$", result, fixed = TRUE)
-    result <- gsub("|", "$|$", result, fixed = TRUE)
-    result <- gsub("{", "\\{", result, fixed = TRUE)
-    result <- gsub("}", "\\}", result, fixed = TRUE)
-    result <- gsub("%", "\\%", result, fixed = TRUE)
-    result <- gsub("&", "\\&", result, fixed = TRUE)
-    result <- gsub("_", "\\_", result, fixed = TRUE)
-    result <- gsub("#", "\\#", result, fixed = TRUE)
-    result <- gsub("^", "\\verb|^|", result, fixed = TRUE)
-    result <- gsub("~", "\\~{}", result, fixed = TRUE)
-    result <- gsub("SANITIZE.BACKSLASH", "$\\backslash$",
+sanitize <- function (str, type = c('latex', 'html', 'rtf')) {
+  type <- match.arg(type)
+  result <- str
+
+  if (type == 'latex') {
+    result <- gsub('\\\\', 'SANITIZE.BACKSLASH', result)
+    result <- gsub('$', '\\$', result, fixed = TRUE)
+    result <- gsub('>', '$>$', result, fixed = TRUE)
+    result <- gsub('<', '$<$', result, fixed = TRUE)
+    result <- gsub('|', '$|$', result, fixed = TRUE)
+    result <- gsub('{', '\\{', result, fixed = TRUE)
+    result <- gsub('}', '\\}', result, fixed = TRUE)
+    result <- gsub('%', '\\%', result, fixed = TRUE)
+    result <- gsub('&', '\\&', result, fixed = TRUE)
+    result <- gsub('_', '\\_', result, fixed = TRUE)
+    result <- gsub('#', '\\#', result, fixed = TRUE)
+    result <- gsub('^', '\\verb|^|', result, fixed = TRUE)
+    result <- gsub('~', '\\~{}', result, fixed = TRUE)
+    result <- gsub('SANITIZE.BACKSLASH', '$\\backslash$',
       result, fixed = TRUE)
-    return(result)
   }
-  else {
-    result <- str
-    result <- gsub("&", "&amp;", result, fixed = TRUE)
-    result <- gsub(">", "&gt;", result, fixed = TRUE)
-    result <- gsub("<", "&lt;", result, fixed = TRUE)
-    return(result)
+  else if (type == 'html'){
+    result <- gsub('&', '&amp;', result, fixed = TRUE)
+    result <- gsub('>', '&gt;', result, fixed = TRUE)
+    result <- gsub('<', '&lt;', result, fixed = TRUE)
+  } else {
+    result <- gsub('\\', '\\\\', result, fixed = TRUE)
+    result <- gsub('{', '\\{', result, fixed = TRUE)
+    result <- gsub('}', '\\}', result, fixed = TRUE)
   }
+
+  return(result)
 }
 
 
@@ -246,6 +123,7 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
   mondrian <- set_all_padding(mondrian, 0)
   mondrian <- set_all_border_colors(mondrian, 'black')
   background_color(mondrian)[sample(36, 8)] <- sample(c('red', 'blue', 'yellow'), 8, replace = TRUE)
+  mondrian <- set_text_color(mondrian, where(background_color(mondrian) == 'blue'), 'white')
   bold(mondrian)[h_square] <- TRUE
 
   colspan_ok <- setdiff(1:30, letter_squares - 6)
@@ -257,7 +135,7 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
 
   # -7 to avoid being top-left of any letter_squares (as we may get 2x2 cells)
   # also avoid breaking colspans
-  rowspan_ok <- setdiff(1:36, c(1:6*6, letter_squares - 1, letter_squares - 7, colspan2 - 1,
+  rowspan_ok <- setdiff(1:36, c(1:6 * 6, letter_squares - 1, letter_squares - 7, colspan2 - 1,
         colspan2 + 5, colspan2 + 6, colspan2))
   rowspan2 <- rep(- 1, 3)
   for (i in 1:3) {
@@ -279,6 +157,21 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
   mondrian
 }
 
+
+
+#' @export
+#' @rdname hux_logo
+#' @details
+#' All modern packages should have a hex logo. Run `hux_hex` if you wish to produce one.
+hux_hex <- function () {
+  hell_no <- hux(c('We don\'t', 'stinkin\''), c('need no', 'hexes'))
+  hell_no <- set_all_borders(hell_no, 1)
+  hell_no <- set_all_border_colors(hell_no, 'red')
+  background_color(hell_no) <- 'black'
+  text_color(hell_no) <- 'red'
+
+  hell_no
+}
 
 #' Default print method for huxtables
 #'

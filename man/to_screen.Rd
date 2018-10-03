@@ -38,9 +38,9 @@ to_screen(ht, ...)
 Print a huxtable on screen
 }
 \details{
-\code{colspan}, \code{rowspan}, \code{align} and \code{caption} properties are shown. If the \code{crayon}
-package is installed, output will be colorized (and contents bolded or italicized) by default;
-this will work in recent daily builds of RStudio as of October 2017.
+\code{colspan}, \code{rowspan}, \code{align} and \code{caption} properties are shown. So are borders (but not border
+styles). If the \code{crayon} package is installed, output will be colorized (and contents bolded or
+italicized) by default; this will work in recent daily builds of RStudio as of October 2017.
 }
 \examples{
 ht <- huxtable(a = 1:5, b = 1:5, add_colnames = TRUE)
@@ -51,6 +51,7 @@ print_screen(ht)
 }
 \seealso{
 Other printing functions: \code{\link{print_html}},
-  \code{\link{print_latex}}, \code{\link{print_md}}
+  \code{\link{print_latex}}, \code{\link{print_md}},
+  \code{\link{print_rtf}}
 }
 \concept{printing functions}

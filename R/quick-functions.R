@@ -5,7 +5,7 @@
 NULL
 
 
-#' Quickly print objects to a PDF, HTML, Word or Excel document.
+#' Quickly print objects to a PDF, HTML, Microsoft Office or RTF document.
 #'
 #' These functions use huxtable to print objects to an output document. They are useful
 #' as one-liners for data reporting.
@@ -31,16 +31,21 @@ NULL
 #' quick_html(m, dfr)
 #' quick_docx(m, dfr)
 #' quick_xlsx(m, dfr)
+#' quick_pptx(m, dfr)
 #' }
 #' @name quick-output
 NULL
 
 
 #' @rdname quick-output
+#' @param width String passed to the LaTeX `geometry` package's `paperwidth` option. Use `NULL` for
+#'   the default width.
+#' @param height String passed to `geometry`'s `paperheight` option. Use `NULL` for the default
+#'   height.
 #' @export
 quick_pdf <- function (..., file = confirm("huxtable-output.pdf"), borders = 0.4,
-  open = interactive()) {
-  assert_that(is.number(borders))
+  open = interactive(), width = NULL, height = NULL) {
+  assert_that(is.number(borders), is.string(width) || is.null(width), is.string(height) || is.null(height))
   assert_that(is.flag(open))
   force(file) # ensures confirm() is called before any other files are created.
   hts <- huxtableize(list(...), borders)
@@ -54,6 +59,14 @@ quick_pdf <- function (..., file = confirm("huxtable-output.pdf"), borders = 0.4
   tryCatch({
     cat('\\documentclass{article}\n')
     report_latex_dependencies()
+    if (! is.null(width) || ! is.null(height)) {
+      dim_string <- character(2)
+      dim_string[1] <- if (is.null(width)) '' else sprintf('paperwidth=%s', width)
+      dim_string[2] <- if (is.null(height)) '' else sprintf('paperheight=%s', height)
+      dim_string = paste(dim_string, collapse = ',')
+      cat(sprintf('\\usepackage[%s]{geometry}\n', dim_string))
+    }
+    cat('\\pagenumbering{gobble}\n')
     cat('\n\\begin{document}')
     lapply(hts, function (ht) {
       cat('\n\n')
@@ -132,11 +145,31 @@ quick_docx <- function (..., file = confirm("huxtable-output.docx"), borders = 0
   invisible(NULL)
 }
 
+#' @rdname quick-output
+#' @export
+quick_pptx <- function (..., file = confirm("huxtable-output.pptx"), borders = 0.4,
+  open = interactive()) {
+  assert_that(is.number(borders))
+  assert_that(is.flag(open))
+  force(file)
+  hts <- huxtableize(list(...), borders)
+
+  my_pptx <- officer::read_pptx()
+  for (ht in hts) {
+    ft <- as_flextable(ht)
+    my_pptx <- officer::add_slide(my_pptx, layout = "Title and Content", master = "Office Theme")
+    my_pptx <- flextable::ph_with_flextable(my_pptx, ft)
+  }
+  print(my_pptx, target = file)
+
+  if (open) auto_open(file)
+  invisible(NULL)
+}
 
 #' @rdname quick-output
 #' @export
 quick_xlsx <- function (..., file = confirm("huxtable-output.xlsx"), borders = 0.4,
-  open = interactive()) {
+      open = interactive()) {
   assert_that(is.number(borders))
   assert_that(is.flag(open))
   force(file)
@@ -149,6 +182,33 @@ quick_xlsx <- function (..., file = confirm("huxtable-output.xlsx"), borders = 0
     wb <- as_Workbook(ht, Workbook = wb, sheet = paste("sheet", ix))
   }
   openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
+
+  if (open) auto_open(file)
+  invisible(NULL)
+}
+
+#' @rdname quick-output
+#' @export
+quick_rtf <- function (..., file = confirm('huxtable-output.rtf'), borders = 0.4,
+      open = interactive()) {
+  assert_that(is.number(borders))
+  assert_that(is.flag(open))
+  force(file)
+  hts <- huxtableize(list(...), borders)
+
+  fc_tbls <- do.call(rtf_fc_tables, hts)
+
+  sink(file)
+  tryCatch({
+    cat('{\\rtf1\\ansi\\deff0\n')
+    print(fc_tbls)
+    cat('\n\n\n')
+    lapply(hts, print_rtf)
+    cat('\n\n\n}')
+  },
+    error = identity,
+    finally = {sink()}
+  )
 
   if (open) auto_open(file)
   invisible(NULL)

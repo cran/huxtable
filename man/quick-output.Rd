@@ -5,11 +5,13 @@
 \alias{quick_pdf}
 \alias{quick_html}
 \alias{quick_docx}
+\alias{quick_pptx}
 \alias{quick_xlsx}
-\title{Quickly print objects to a PDF, HTML, Word or Excel document.}
+\alias{quick_rtf}
+\title{Quickly print objects to a PDF, HTML, Microsoft Office or RTF document.}
 \usage{
 quick_pdf(..., file = confirm("huxtable-output.pdf"), borders = 0.4,
-  open = interactive())
+  open = interactive(), width = NULL, height = NULL)
 
 quick_html(..., file = confirm("huxtable-output.html"), borders = 0.4,
   open = interactive())
@@ -17,7 +19,13 @@ quick_html(..., file = confirm("huxtable-output.html"), borders = 0.4,
 quick_docx(..., file = confirm("huxtable-output.docx"), borders = 0.4,
   open = interactive())
 
+quick_pptx(..., file = confirm("huxtable-output.pptx"), borders = 0.4,
+  open = interactive())
+
 quick_xlsx(..., file = confirm("huxtable-output.xlsx"), borders = 0.4,
+  open = interactive())
+
+quick_rtf(..., file = confirm("huxtable-output.rtf"), borders = 0.4,
   open = interactive())
 }
 \arguments{
@@ -28,6 +36,12 @@ quick_xlsx(..., file = confirm("huxtable-output.xlsx"), borders = 0.4,
 \item{borders}{Border width for members of \code{...} that are not huxtables.}
 
 \item{open}{Logical. Automatically open the resulting file?}
+
+\item{width}{String passed to the LaTeX \code{geometry} package's \code{paperwidth} option. Use \code{NULL} for
+the default width.}
+
+\item{height}{String passed to \code{geometry}'s \code{paperheight} option. Use \code{NULL} for the default
+height.}
 }
 \value{
 Invisible \code{NULL}.
@@ -51,5 +65,6 @@ quick_pdf(m, dfr)
 quick_html(m, dfr)
 quick_docx(m, dfr)
 quick_xlsx(m, dfr)
+quick_pptx(m, dfr)
 }
 }

@@ -17,7 +17,7 @@ if (is_latex) knitr::opts_chunk$set(barrier = TRUE)
 
 
 ## ---- echo = FALSE-------------------------------------------------------
-huxtable::hux_logo(latex = is_latex)
+huxtable::hux_logo(latex = is_latex, html = ! is_latex)
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  install.packages('huxtable')
@@ -74,8 +74,9 @@ sides <- c('left_', 'right_', 'top_', 'bottom_')
 props <- list()
 props[['Cell_Text']] <- sort(c('font', 'text_color', 'wrap', 'bold', 'italic', 'font', 'font_size', 'na_string', 'escape_contents', 'number_format', 'rotation'))
 
-props[['Cell']] <- sort(c('align', 'valign', 'rowspan', 'colspan', 'background_color', paste0(sides, 'border'),
-      paste0(sides, 'border_color'), paste0(sides, 'padding')))
+props[['Cell']] <- sort(c('align', 'valign', 'rowspan', 'colspan', 'background_color', 
+      paste0(sides, 'border'), paste0(sides, 'border_color'), paste0(sides, 'border_style'), 
+      paste0(sides, 'padding')))
 props[['Row']]    <- 'row_height'
 props[['Column']] <- 'col_width'
 props[['Table']]  <- sort(c('width', 'height', 'position', 'caption', 'caption_pos', 'tabular_environment', 'label', 'latex_float'))
@@ -238,18 +239,18 @@ as_hux(mtcars[1:4, 1:4])                           %>%
 
 ## ------------------------------------------------------------------------
 cars_mpg <- cbind(cylinders = cars_mpg$cyl, cars_mpg)
-table(cars_mpg$cylinders) # how many rows for each group?
 cars_mpg$cylinders[1]   <- ""
 cars_mpg$cylinders[2]   <- "Four cylinders"
 cars_mpg$cylinders[13]  <- "Six cylinders"
 cars_mpg$cylinders[20]  <- "Eight cylinders"
 
-rowspan(cars_mpg)[2, 1]  <- 11
-rowspan(cars_mpg)[13, 1] <- 7
-rowspan(cars_mpg)[20, 1] <- 14
+cars_mpg <- cars_mpg %>%  
+  merge_cells(2:12, 1) %>% 
+  merge_cells(13:19, 1) %>% 
+  merge_cells(20:33, 1)
 
 cars_mpg <- rbind(c("List of cars", "", "", "", ""), cars_mpg)
-colspan(cars_mpg)[1, 1] <- 5
+cars_mpg <- merge_cells(cars_mpg, 1, 1:5)
 align(cars_mpg)[1, 1] <- "center"
 
 # a little more formatting:
@@ -263,6 +264,9 @@ bold(cars_mpg)[1:2, ] <- TRUE
 bold(cars_mpg)[, 1] <- TRUE
 if (is_latex) font_size(cars_mpg) <- 10
 cars_mpg
+
+## ---- eval = FALSE-------------------------------------------------------
+#  colspan(cars_mpg)[1, 1] <- 5
 
 ## ------------------------------------------------------------------------
 theme_plain(car_ht)
@@ -344,6 +348,19 @@ options(huxtable.knit_print_df = TRUE)
 
 ## ---- results = 'markup'-------------------------------------------------
 print_screen(ht)
+
+## ---- echo = FALSE-------------------------------------------------------
+quick_commands <- hux(
+        Command = paste0("<code>", 
+          c("quick_pdf", "quick_docx", "quick_html", "quick_xlsx", "quick_pptx", "quick_rtf"), 
+          "</code>"),
+        Output = c("PDF document", "Word document", "HTML web page", "Excel spreadsheet", 
+          "Powerpoint presentation", "RTF document"),
+        add_colnames = TRUE
+      )
+escape_contents(quick_commands) <- FALSE
+
+theme_plain(quick_commands)
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  quick_pdf(mtcars)

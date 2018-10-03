@@ -16,8 +16,22 @@ ncharw <- function (x) nchar(x, type = 'width')
 
 
 blank_where <- function (text, cond) {
+  stopifnot(length(text) == length(cond))
   text[cond] <- ''
   text
+}
+
+
+recall_ltrb <- function(ht, prop) {
+  call <- sys.call(sys.parent(1))
+  call_names <- parse(text = paste0('huxtable::set_', c('left_', 'top_', 'right_', 'bottom_'), prop))
+  for (cn in call_names) {
+    call[[1]] <- cn
+    call[[2]] <- quote(ht)
+    ht <- eval(call, list(ht = ht), parent.frame(2L)) # = sys.frame(sys.parent(1)) i.e. caller of orig
+  }
+
+  ht
 }
 
 
@@ -43,7 +57,11 @@ assert_package <- function (fun, package) {
 
 
 # return character matrix of formatted contents, suitably escaped
-clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', 'word', 'excel'), ...) {
+clean_contents <- function(
+        ht,
+        type = c('latex', 'html', 'screen', 'markdown', 'word', 'excel', 'rtf'),
+        ...
+      ) {
   type <- match.arg(type)
   contents <- as.matrix(as.data.frame(ht))
 
@@ -51,11 +69,15 @@ clean_contents <- function(ht, type = c('latex', 'html', 'screen', 'markdown', '
     for (row in seq_len(nrow(contents))) {
       cell <- contents[row, col]
       num_fmt <- number_format(ht)[[row, col]] # a list element, double brackets
-      if (! is.na(cell)) cell <- format_numbers(cell, num_fmt)
+      cell <- format_numbers(cell, num_fmt)
       if (is.na(cell)) cell <- na_string(ht)[row, col]
       contents[row, col] <- as.character(cell)
     }
-    if (type %in% c('latex', 'html')) {
+  }
+  contents[is.na(contents)] <- na_string(ht)
+
+  for (col in seq_len(ncol(contents))) {
+    if (type %in% c('latex', 'html', 'rtf')) {
       to_esc <- escape_contents(ht)[, col]
       contents[to_esc, col] <-  sanitize(contents[to_esc, col], type)
     }
@@ -79,77 +101,107 @@ format_color <- function (r_color, default = 'white') {
 
 # returns two rows(+1),cols(+1) arrays of border widths
 collapsed_borders <- function (ht) {
-  lb <- rb <- matrix(0, nrow(ht), ncol(ht))
-  tb <- bb <- matrix(0, nrow(ht), ncol(ht))
+  result <- do_collapse(ht, get_all_borders, default = 0)
+  result$vert <- pmax(result$left, result$right)
+  result$horiz <- pmax(result$top, result$bottom)
 
-  dc <- display_cells(ht, all = TRUE)
-  # provides large speedup:
-  dc <- as.matrix(dc[, c('row', 'col', 'display_row', 'display_col', 'end_row', 'end_col')])
-  for (i in seq_len(nrow(ht))) for (j in seq_len(ncol(ht))) {
-    dcell <- dc[ dc[, 'row'] == i & dc[, 'col'] == j, ]
-    drow <- dcell['display_row']
-    dcol <- dcell['display_col']
-    # if we're in top row, set top border; bottom row set bb etc.
-    if (i == drow)          tb[i, j] <- top_border(ht)[drow, dcol]
-    if (i == dcell['end_row']) bb[i, j] <- bottom_border(ht)[drow, dcol]
-    if (j == dcol)          lb[i, j] <- left_border(ht)[drow, dcol]
-    if (j == dcell['end_col']) rb[i, j] <- right_border(ht)[drow, dcol]
-  }
-  lb <- cbind(lb, 0)
-  rb <- cbind(0, rb)
-  tb <- rbind(tb, 0)
-  bb <- rbind(0, bb)
-  result <- list()
-  result$vert <- pmax(lb, rb)
-  result$horiz <- pmax(tb, bb)
-
-  result
+  result[c('vert', 'horiz')]
 }
 
 
 # returns two rows(+1),cols(+1) arrays of border colors. right and top borders have priority.
 # A border of 0 can still have a color.
 collapsed_border_colors <- function (ht) {
-  lb <- rb <- matrix(NA, nrow(ht), ncol(ht))
-  tb <- bb <- matrix(NA, nrow(ht), ncol(ht))
+  result <- do_collapse(ht, get_all_border_colors, default = NA)
+  result$vert <- result$right
+  result$vert[is.na(result$right)] <- result$left[is.na(result$right)]
+  result$horiz <- result$bottom
+  result$horiz[is.na(result$bottom)] <- result$top[is.na(result$bottom)]
 
+  result[c('vert', 'horiz')]
+}
+
+
+# returns two rows(+1),cols(+1) arrays of border styles. Non-"solid" styles have priority;
+# if two styles are non-"solid" then right and top has priority
+# A border of 0 can still have a style.
+collapsed_border_styles <- function (ht) {
+  result <- do_collapse(ht, get_all_border_styles, default = 'solid')
+  result$vert <- result$right
+  result$vert[result$right == 'solid'] <- result$left[result$right == 'solid']
+  result$horiz <- result$bottom
+  result$horiz[result$bottom == 'solid'] <- result$top[result$bottom == 'solid']
+
+  result[c('vert', 'horiz')]
+}
+
+
+do_collapse <- function(ht, prop_fun, default) {
+  res <- list()
+  res$top <- res$left <- res$right <- res$bottom <- matrix(default, nrow(ht), ncol(ht))
   dc <- display_cells(ht, all = TRUE)
   # provides large speedup:
   dc <- as.matrix(dc[, c('row', 'col', 'display_row', 'display_col', 'end_row', 'end_col')])
-  for (i in seq_len(nrow(ht))) for (j in seq_len(ncol(ht))) {
-    dcell <- dc[ dc[, 'row'] == i & dc[, 'col'] == j, ]
-    drow <- dcell['display_row']
-    dcol <- dcell['display_col']
-    # if we're in top row, set top border; bottom row set bb etc.
-    if (i == drow)          tb[i, j] <- top_border_color(ht)[drow, dcol]
-    if (i == dcell['end_row']) bb[i, j] <- bottom_border_color(ht)[drow, dcol]
-    if (j == dcol)          lb[i, j] <- left_border_color(ht)[drow, dcol]
-    if (j == dcell['end_col']) rb[i, j] <- right_border_color(ht)[drow, dcol]
-  }
-  lb <- cbind(lb, NA)
-  rb <- cbind(NA, rb)
-  tb <- rbind(tb, NA)
-  bb <- rbind(NA, bb)
-  result <- list()
-  result$vert <- rb
-  result$vert[is.na(rb)] <- lb[is.na(rb)]
-  result$horiz <- bb
-  result$horiz[is.na(bb)] <- tb[is.na(bb)]
+  dc_idx <- dc[, c('display_row', 'display_col'), drop = FALSE]
+  dc_map <- matrix(seq_len(nrow(ht) * ncol(ht)), nrow(ht), ncol(ht))
+  dc_map <- dc_map[dc_idx]
 
-  result
+  at <- list()
+  at$left   <- dc[, 'col'] == dc[, 'display_col']
+  at$right  <- dc[, 'col'] == dc[, 'end_col']
+  at$top    <- dc[, 'row'] == dc[, 'display_row']
+  at$bottom <- dc[, 'row'] == dc[, 'end_row']
+
+  properties <- prop_fun(ht)
+  for (side in names(at)) {
+    at_side <- at[[side]]
+    res[[side]][at_side] <- properties[[side]][dc_map][at_side]
+  }
+
+  res$left <- cbind(res$left, default)
+  res$right <- cbind(default, res$right)
+  res$top <- rbind(res$top, default)
+  res$bottom <- rbind(default, res$bottom)
+
+  return(res)
+}
+
+
+# Format numeral generics
+numeral_formatter <- function (x) {
+  UseMethod('numeral_formatter')
+}
+
+
+numeral_formatter.default <- function (x) {
+  stop('Unrecognized number_format. Please use a number, string or function.')
+}
+
+
+# If we are a function then return output from the function
+numeral_formatter.function <- function (x) {
+  return(x)
+}
+
+
+numeral_formatter.character <- function (x) {
+  return(function(numeral) sprintf(x, numeral))
+}
+
+
+numeral_formatter.numeric <- function (x) {
+  return(function(numeral) formatC(round(numeral, x), format = 'f', digits = x))
 }
 
 
 # find each numeric substring, and replace it:
 format_numbers <- function (string, num_fmt) {
+  if (is.na(string)) return(NA_character_)
+
   # ! is.function avoids a warning if num_fmt is a function:
   if (! is.function(num_fmt) && is.na(num_fmt)) return(string)
 
-  format_numeral <- if (is.function(num_fmt)) num_fmt else
-        if (is.character(num_fmt)) function (numeral) sprintf(num_fmt, numeral) else
-        if (is.numeric(num_fmt)) function (numeral) formatC(round(numeral, num_fmt), format = 'f',
-          digits = num_fmt) else
-        stop('Unrecognized type of number_format: should be function, character or integer. See ?number_format')
+  format_numeral <- numeral_formatter(num_fmt)
   # Breakdown:
   # -?                    optional minus sign
   # [0-9]*                followed by any number of digits
@@ -181,8 +233,12 @@ decimal_pad <- function(col, pad_chars, type) {
   chars_after_. <- nchars - pos
 
   pad_n_spaces <- max(chars_after_.) - chars_after_.
-  # use non-breaking space on screen also
-  pad_char <- switch(type, 'html' = '&nbsp;', 'latex' = '~', 'screen' = '\u00a0', ' ')
+  pad_char <- switch(type,
+        'html'   = '&nbsp;',
+        'latex'  = '~',
+        'screen' = '\u00a0', # screen non-breaking space
+        'rtf'    = '\\~',
+        ' ')
   col <- paste0(col, str_rep(pad_char, pad_n_spaces))
 
   orig_col[! na_pad] <- col
@@ -206,6 +262,7 @@ check_positive_dims <- function (ht) {
 
 # return data frame mapping real cell positions to cells displayed. `all = TRUE` returns all
 # cells, including those shadowed by others.
+# data frame is ordered by row then column, i.e. the same as 1-based indexing into a matrix
 # columns are row, col (of real cell);
 # shadowed if cell is covered by another, the 'display cell'; if not, it is its own 'display cell';
 # display_row, display_col, rowspan, colspan, end_row, end_col of the display cell.
@@ -278,10 +335,6 @@ smart_hux_from_df <- function(dfr) {
   wrap(ht)[-1, col_nchars > 15] <- TRUE
   width <- sum(col_nchars) / 90
   width(ht) <- min(1, max(0.2, width))
-  # this did not seem to improve on LaTeX's own attempts
-  # prop_widths  <- col_nchars/sum(col_nchars)
-  # equal_widths <- rep(1/ncol(ht), ncol(ht))
-  # col_width(ht) <- round((prop_widths * .75 + equal_widths * .25), 2)
 
   ht
 }

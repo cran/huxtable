@@ -22,9 +22,9 @@ print_screen <- function(ht, ...) cat(to_screen(ht, ...))
 #' @return `to_screen` returns a string. `print_screen` prints the string and returns `NULL`.
 #'
 #' @details
-#' `colspan`, `rowspan`, `align` and `caption` properties are shown. If the `crayon`
-#' package is installed, output will be colorized (and contents bolded or italicized) by default;
-#' this will work in recent daily builds of RStudio as of October 2017.
+#' `colspan`, `rowspan`, `align` and `caption` properties are shown. So are borders (but not border
+#' styles). If the `crayon` package is installed, output will be colorized (and contents bolded or
+#' italicized) by default; this will work in recent daily builds of RStudio as of October 2017.
 #'
 #' @export
 #' @family printing functions
@@ -55,12 +55,16 @@ to_screen.huxtable <- function (
     color <- FALSE
   }
 
+  all_colnames <- colnames(ht)
+  last_ht_col <- orig_ncol <- ncol(ht)
   if (ncol(ht) > 0 && nrow(ht) > 0) {
     charmat_data <- character_matrix(ht, inner_border_h = 3, outer_border_h = 2, inner_border_v = 1, outer_border_v = 1,
-          min_width = min_width, max_width = max_width, color = color)
+          min_width = min_width, max_width = max_width, color = color, markdown = FALSE)
     charmat <- charmat_data$charmat
     border_rows <- charmat_data$border_rows
     border_cols <- charmat_data$border_cols
+    last_ht_col    <- charmat_data$last_ht_col
+    ht <- ht[, seq_len(last_ht_col)]
     border_cols[-1] <- border_cols[-1] + 1 # middle of 3 for interior, last of 2 for last outer
 
     borders <- collapsed_borders(ht)
@@ -72,16 +76,16 @@ to_screen.huxtable <- function (
     for (i in seq_len(nrow(ht) + 1)) for (j in seq_len(ncol(ht) + 1)) {
       if (i <= nrow(ht)) {
         ir <- index_rows[[i]]
-        # has a line above:
+        # 1: has a line above:
         border_mat[ ir, border_cols[j] ]     <- border_mat[ ir, border_cols[j] ]     + 1L * (borders$vert[i, j] > 0)
-        # has a line below:
+        # 2: has a line below:
         border_mat[ ir + 1, border_cols[j] ] <- border_mat[ ir + 1, border_cols[j] ] + 2L * (borders$vert[i, j] > 0)
       }
       if (j <= ncol(ht)) {
         ic <- index_cols[[j]]
-        # on right:
+        # 4: a line on right:
         border_mat[ border_rows[i], ic ]    <- border_mat[ border_rows[i], ic ]     + 4L * (borders$horiz[i, j] > 0)
-        # on left:
+        # 8: a line on left:
         border_mat[ border_rows[i], ic + 1] <- border_mat[ border_rows[i], ic + 1 ] + 8L * (borders$horiz[i, j] > 0)
       }
     }
@@ -124,7 +128,8 @@ to_screen.huxtable <- function (
     }
 
     result <- paste(apply(charmat, 1, paste0, collapse = ''), collapse = '\n')
-  } else { # 0-nrow or 0-ncol huxtable
+  } else {
+    # 0-nrow or 0-ncol huxtable
     result <- glue::glue('<huxtable with {nrow(ht)} rows and {ncol(ht)} columns>')
   }
   if (! is.na(cap <- caption(ht))) {
@@ -136,12 +141,14 @@ to_screen.huxtable <- function (
   }
 
 
-  if (colnames && any(nchar(colnames(ht)) > 0)) {
-    colnames_text <- paste0('Column names: ', paste(colnames(ht), collapse = ', '))
+  if (colnames && any(nchar(all_colnames) > 0)) {
+    colnames_text <- paste0('Column names: ', paste(all_colnames, collapse = ', '))
     colnames_text <- strwrap(colnames_text, max_width)
     colnames_text <- paste0(colnames_text, collapse = '\n')
     result <- paste0(result, '\n\n', colnames_text, '\n')
   }
+  if (last_ht_col < orig_ncol) result <- glue::glue(
+        '{result}\n{last_ht_col}/{orig_ncol} columns shown.\n')
 
   result
 }
@@ -189,11 +196,16 @@ to_md.huxtable <- function(ht, header = TRUE, min_width = getOption('width') / 4
     warning("Can't vary column alignment in markdown; using first row")
   ht <- set_align(ht, align[1, ], byrow = TRUE)
 
-  charmat_data <- character_matrix(ht, inner_border_h = 1, outer_border_h = 1, inner_border_v = 1, outer_border_v = 1,
-        min_width = min_width, max_width = max_width)
+  charmat_data <- character_matrix(ht, inner_border_h = 1, outer_border_h = 1, inner_border_v = 1,
+        outer_border_v = 1, min_width = min_width, max_width = max_width, markdown = TRUE)
   charmat <- charmat_data$charmat
   border_rows <- charmat_data$border_rows
   border_cols <- charmat_data$border_cols
+  last_ht_col <- charmat_data$last_ht_col
+  if (last_ht_col < ncol(ht)) warning(glue::glue(
+          "Couldn't print whole table in max_width = {max_width} characters.\n",
+          "Printing {last_ht_col}/{ncol(ht)} columns."
+        ))
   # if you have a header, you need a whole line of dashes. Otherwise just to indicate columns
   dash_cols <- if (header) seq_len(ncol(charmat)) else - (border_cols)
   charmat[c(1, nrow(charmat)), dash_cols] <- '-'
@@ -213,11 +225,14 @@ to_md.huxtable <- function(ht, header = TRUE, min_width = getOption('width') / 4
 # function to calculate text column widths, wrap huxtable text accordingly, and return a matrix of characters, without
 # borders
 character_matrix <- function (ht, inner_border_h, inner_border_v, outer_border_h, outer_border_v,
-      min_width, max_width = Inf, color = FALSE) {
+      min_width, max_width = Inf, color = FALSE, markdown) {
+  if (ncol(ht) == 0) stop("Couldn't display any columns in less than max_width characters.")
+
   dc <- display_cells(ht, all = FALSE)
   dc <- dc[order(dc$colspan), ]
   contents <- clean_contents(ht, type = 'screen')
   drow_mat <- as.matrix(dc[, c('display_row', 'display_col')])
+
   dc$contents <- contents[drow_mat]
   cw <- col_width(ht)
   if (! is.numeric(cw) || anyNA(cw)) cw <- rep(1, ncol(ht))
@@ -240,6 +255,13 @@ character_matrix <- function (ht, inner_border_h, inner_border_v, outer_border_h
   }
 
   max_widths <- floor(cw * (max_width - 2 * outer_border_h - (ncol(ht) - 1) * inner_border_h))
+  if (any(max_widths < 8)) {
+    # out of space, try with fewer columns
+    # assumption here is that we need say 2 characters for anything sensible; and could have
+    # bold+italic which adds *** before and after!
+    return(character_matrix(ht[, -ncol(ht)], inner_border_h, inner_border_v, outer_border_h,
+          outer_border_v, min_width, max_width, color, markdown = markdown))
+  }
   widths <- pmin(widths, max_widths)
 
   dc$strings <- vector(nrow(dc), mode = 'list')
@@ -248,27 +270,37 @@ character_matrix <- function (ht, inner_border_h, inner_border_v, outer_border_h
     col <- dcell$display_col
     end_col <- dcell$end_col
     width <- sum(widths[col:end_col])
+    md_bold <- markdown && bold(ht)[dcell$display_row, dcell$display_col]
+    md_italic <- markdown && italic(ht)[dcell$display_row, dcell$display_col]
+    eff_width <- width
+    if (md_bold) eff_width <- eff_width - 4
+    if (md_italic) eff_width <- eff_width - 2
     # strwrap treats non-breaking spaces differently than breaking spaces; this can fuck things up
     # with decimal padding. So all END spaces become non-breaking.
-    while (! identical(new <- gsub('( |\u00a0)$', '\u00a0', dcell$contents), dcell$contents)) dcell$contents <- new
-    strings <- strwrap(dcell$contents, width = width + 1) # for the + 1 see ?strwrap
-    # some strings may still be longer than width,
+    while (! identical(new <- gsub('( |\u00a0)$', '\u00a0', dcell$contents), dcell$contents)) {
+      dcell$contents <- new
+    }
+    strings <- strwrap(dcell$contents, width = eff_width + 1) # for the + 1 see ?strwrap
+    # some strings may still be longer than width:
     strings <- unlist(lapply(strings, function (x) {
-      while (any(ncharw(x) > width)) {
+      while (any(ncharw(x) > eff_width)) {
         lx <- length(x)
         last <- x[lx]
-        last <- c(substring(last, 1, width), substring(last, width + 1))
+        last <- c(substring(last, 1, eff_width), substring(last, eff_width + 1))
         x[lx:(lx + 1)] <- last
       }
       x
     }))
+    if (md_bold) strings[ncharw(strings) > 0] <- paste0('**', strings[ncharw(strings) > 0], '**')
+    if (md_italic) strings[ncharw(strings) > 0] <- paste0('*', strings[ncharw(strings) > 0], '*')
     strings <- str_pad(strings, real_align(ht)[ dcell$display_row, dcell$display_col ], width)
     dc$strings[[r]] <- strings
   }
+
   dc$text_height <- sapply(dc$strings, length)
   dc$text_width <- sapply(dc$strings, function (x) max(ncharw(x)))
 
-  # row heights as widths: start at 0 and increase it if its too little, sharing equally among relevant cols
+  # row heights as widths: start at 0 and increase it if it's too little, sharing equally among relevant cols
   dc <- dc[order(dc$rowspan), ]
   heights <- rep(1, nrow(ht))
   for (r in seq_len(nrow(dc))) {
@@ -302,7 +334,12 @@ character_matrix <- function (ht, inner_border_h, inner_border_v, outer_border_h
     charmat[rows, cols] <- matrix(style(string_letters), length(rows), length(cols), byrow = TRUE)
   }
 
-  list(charmat = charmat, border_rows = border_rows, border_cols = border_cols)
+  list(
+          charmat     = charmat,
+          border_rows = border_rows,
+          border_cols = border_cols,
+          last_ht_col = ncol(ht)
+        )
 }
 
 
