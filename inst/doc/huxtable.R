@@ -279,7 +279,7 @@ car_ht                                                 %>%
 
 ## ------------------------------------------------------------------------
 car_ht %>% set_background_color(everywhere, starts_with("C"), "orange")
-car_ht %>% set_italic(everywhere, matches("[aeiou]"), TRUE)
+car_ht %>% set_italic(everywhere, dplyr::matches("[aeiou]"), TRUE)
 
 ## ------------------------------------------------------------------------
 library(psych)
