@@ -28,7 +28,8 @@ is_hux(x)
 
 \item{add_colnames}{If \code{TRUE}, add a first row of column names to the huxtable.}
 
-\item{add_rownames}{If \code{TRUE}, add a first column of row names, named 'rownames', to the huxtable.}
+\item{add_rownames}{If \code{TRUE} or a character string, add a first column of row names
+to the huxtable. The string gives the name for the new column (or \code{"rownames"} for \code{TRUE}).}
 
 \item{autoformat}{If \code{TRUE}, automatically format columns by type. See below.}
 }
@@ -41,11 +42,23 @@ Conversion methods exist for data frames, tables, ftables, matrices and (most) v
 \code{is_hux[table]} tests if an object is a huxtable.
 }
 \examples{
-dfr <- data.frame(a = 1:5, b = letters[1:5], stringsAsFactors = FALSE)
+dfr <- data.frame(
+        a = 1:5,
+        b = letters[1:5],
+        stringsAsFactors = FALSE
+      )
 as_huxtable(dfr)
 mx <- matrix(letters[1:12], 4, 3)
 as_huxtable(mx)
 library(stats)
-tbl <- table(Wool = warpbreaks$wool, Tension = warpbreaks$tension)
+tbl <- table(
+        Wool    = warpbreaks$wool,
+        Tension = warpbreaks$tension
+      )
 as_huxtable(tbl) # adds row and column names by default
+
+# adding rownames:
+as_hux(mtcars[1:3,], add_colnames = TRUE,
+      add_rownames = "Car")
+
 }

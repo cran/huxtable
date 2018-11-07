@@ -18,20 +18,19 @@ set_latex_float(ht, value)
 }
 \value{
 For \code{latex_float}, the \code{latex_float} property.
-For \code{set_latex_float}, the \code{ht} object.
+For \code{set_latex_float}, the modified huxtable.
 }
 \description{
 Functions to get or set the table-level \emph{float position for latex} property of a huxtable.
 }
 \details{
-Quick reference: 'h' here, 'h!' definitely here, 't' top of page, 'b' bottom of page, 'p' page of
-floats. See LaTeX documentation for more details. If you use 'H' (definitely here), you must require the
+Quick reference: "h" here, "h!" definitely here, "t" top of page, "b" bottom of page, "p" page of
+floats. See LaTeX documentation for more details. If you use "H" (definitely here), you must require the
 TeX \code{float} package.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-latex_float(ht) <-  'h'
-latex_float(ht)
+latex_float(jams) <-  "h"
+latex_float(jams)
 
 }

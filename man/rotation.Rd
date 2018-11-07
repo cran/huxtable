@@ -4,27 +4,32 @@
 \alias{rotation}
 \alias{rotation<-}
 \alias{set_rotation}
+\alias{map_rotation}
 \title{Text rotation}
 \usage{
 rotation(ht)
 rotation(ht) <- value
 set_rotation(ht, row, col, value, byrow = FALSE)
+map_rotation(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A numeric vector. Anti-clockwise from the x axis, so 0 is left to right, 90 is going up, etc. Set to \code{NA} to reset to the default, which is
-\code{0}.}
+\item{value}{A numeric vector. Anti-clockwise from the x axis, so 0 is left to right, 90 is going up, etc.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{0}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{rotation}, the \code{rotation} property.
-For \code{set_rotation}, the \code{ht} object.
+For \code{set_rotation} and \code{map_rotation}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{text rotation} property of huxtable cells.
@@ -35,18 +40,22 @@ to achieve a nice result, in both HTML and LaTeX.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-rotation(ht) <-  90
-rotation(ht)
+rotation(jams) <-  90
+rotation(jams)
 
 
-ht <- huxtable(a = 1:3, b = 3:1)
-ht2 <- set_rotation(ht, 90)
-rotation(ht2)
-ht3 <- set_rotation(ht, 1:2, 1, 90)
-rotation(ht3)
-ht4 <- set_rotation(ht, 1:2, 1:2, c(90, 270), byrow = TRUE)
-rotation(ht4)
-ht5 <- set_rotation(ht, where(ht == 1), 90)
-rotation(ht5)
+jams2 <- set_rotation(jams,
+      90)
+rotation(jams2)
+
+jams3 <- set_rotation(jams,
+      2:3, 1, 90)
+rotation(jams3)
+
+jams4 <- map_rotation(jams,
+      by_rows(
+        90,
+        270)
+      )
+rotation(jams4)
 }

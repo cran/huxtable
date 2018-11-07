@@ -26,12 +26,21 @@ NULL
 #' @seealso [insert_row()] and [insert_column()], which insert multiple values into a single row.
 #'
 #' @examples
-#' ht <- hux(Jam = c('Blackberry', 'Strawberry'), Price = c(1.90, 1.80), add_colnames = TRUE)
-#' ht2 <- hux('Gooseberry', 2.10)
+#' ht <- hux(
+#'         Jam = c("Raspberry", "Plum"),
+#'         Price = c(1.90, 1.80),
+#'         add_colnames = TRUE
+#'       )
+#'
+#' ht2 <- hux("Gooseberry", 2.10)
 #' add_rows(ht, ht2)
 #' add_rows(ht, ht2, after = 1)
-#' mx <- matrix(c('Sugar', '50%', '60%', 'Weight (g)', 300, 250), 3, 2)
-#' add_columns(ht, mx, after = 'Jam')
+#'
+#' mx <- matrix(
+#'       c("Sugar", "50%", "60%",
+#'       "Weight (g)", 300, 250),
+#'       3, 2)
+#' add_columns(ht, mx, after = "Jam")
 add_rows <- function (x, y, after = nrow(x), ...) {
   add_row_cols(x, y, after, dimno = 1, ...)
 }
@@ -39,24 +48,20 @@ add_rows <- function (x, y, after = nrow(x), ...) {
 
 #' @export
 #' @rdname add_rows
-#' @examples
-#' ht <- hux(a = 1:3, b = 1:3)
-#' ht2 <- hux(d = letters[1:3])
-#' add_columns(ht, ht2, after = "a")
 add_columns <- function (x, y, after = ncol(x), ...) {
   add_row_cols(x, y, after, dimno = 2, ...)
 }
 
 
 add_row_cols <- function (x, y, after, dimno, ...) {
-  just_a_data_frame <- function (obj) inherits(obj, 'data.frame', which = TRUE) == 1
+  just_a_data_frame <- function (obj) inherits(obj, "data.frame", which = TRUE) == 1
   if (is_hux(x) && just_a_data_frame(y)) {
     y <- as_hux(y)
-    attr(y, 'from_real_hux') <- FALSE
+    attr(y, "from_real_hux") <- FALSE
   }
   if (is_hux(y) && just_a_data_frame(x)) {
     x <- as_hux(x)
-    attr(x, 'from_real_hux') <- FALSE
+    attr(x, "from_real_hux") <- FALSE
   }
   dims <- dim(x)
   end_idx <- dims[dimno]
@@ -92,7 +97,9 @@ add_row_cols <- function (x, y, after, dimno, ...) {
 #'
 #' @examples
 #' ht <- hux(a = 1:5, b = 1:5, c = 1:5)
-#' insert_row(ht, 2.5, 2.5, 2.5, after = 2)
+#' insert_row(ht, 2.5, 2.5, 2.5,
+#'       after = 2)
+#'
 #' insert_column(ht, 5:1)
 #' insert_column(ht, 5:1, after = 3)
 #' insert_column(ht, 5:1, after = "b")
@@ -165,9 +172,13 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #'
 #' Replacement functions `$<-` and `[[<-` change the data without affecting any properties.
 #' @examples
-#' ht <- huxtable(a = 1:3, b = letters[1:3])
-#' ht[1:2,]
-#' ht[,1]
+#' ht <- huxtable(
+#'         a = 1:3,
+#'         b = letters[1:3]
+#'       )
+#'
+#' ht[1:2, ]
+#' ht[, 1]
 #' ht$a
 `[.huxtable` <- function (x, i, j, drop = FALSE) {
   ss <- as.data.frame(x)[i, j, drop = drop]
@@ -190,8 +201,8 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 
   # we don't use `colspan<-` because this immediately triggers a `check_span_shadows`
   # which will error if the `rowspan` is not yet correct
-  attr(ss, 'colspan') <- pmin(colspan(ss), 1 + ncol(ss) - col(ss))
-  attr(ss, 'rowspan') <- pmin(rowspan(ss), 1 + nrow(ss) - row(ss))
+  attr(ss, "colspan") <- pmin(colspan(ss), 1 + ncol(ss) - col(ss))
+  attr(ss, "rowspan") <- pmin(rowspan(ss), 1 + nrow(ss) - row(ss))
 
   ss <- set_attr_dimnames(ss)
   ss
@@ -209,7 +220,6 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #' bold(ht2) <- TRUE
 #' ht[2:3,] <- ht2
 #' ht
-#' bold(ht)
 #'
 `[<-.huxtable` <- function (x, i, j, value) {
   res <- as.data.frame(NextMethod())
@@ -218,16 +228,16 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
     assert_that(is.null(value))
     # could be ht[,'foo'] <- NULL or ht['foo'] <- NULL so this is safest:
     idx <- which(! colnames(x) %in% colnames(res))
-    res <- delete_props(res, idx, type = 'cols')
+    res <- delete_props(res, idx, type = "cols")
   }
   if (ncol(res) > ncol(x)) {
     # Assumption: extra columns are on the right. Note that we may ALSO have more rows
-    res <- merge_props(res, x, res[seq_len(nrow(x)), seq(ncol(x) + 1, ncol(res))], type = 'cbind')
+    res <- merge_props(res, x, res[seq_len(nrow(x)), seq(ncol(x) + 1, ncol(res))], type = "cbind")
   }
   if (nrow(res) > nrow(x)) {
     # we may have already given res the appropriate attributes above; if so use them since x has too few cols
     first <- if (ncol(res) > ncol(x)) res[seq_len(nrow(x)), ] else x
-    res <- merge_props(res, first, res[seq(nrow(x) + 1, nrow(res)), ], type = 'rbind')
+    res <- merge_props(res, first, res[seq(nrow(x) + 1, nrow(res)), ], type = "rbind")
   }
 
   if (is_huxtable(value)) {
@@ -260,10 +270,10 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
   if (ncol(res) < ncol(x)) {
     stopifnot(is.null(value))
     idx <- if (is.character(name)) match(name, colnames(x)) else name
-    res <- delete_props(res, idx, type = 'cols')
+    res <- delete_props(res, idx, type = "cols")
   }
   if (ncol(res) > ncol(x)) {
-    res <- merge_props(res, x, res[, seq(ncol(x) + 1, ncol(res))], type = 'cbind')
+    res <- merge_props(res, x, res[, seq(ncol(x) + 1, ncol(res))], type = "cbind")
   }
 
   res <- set_attr_dimnames(res)
@@ -282,14 +292,14 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
   if (ncol(res) < ncol(x)) {
     stopifnot(is.null(value))
     idx <- if (is.character(i)) match(i, colnames(x)) else i
-    res <- delete_props(res, idx, type = 'cols')
+    res <- delete_props(res, idx, type = "cols")
   }
   if (ncol(res) > ncol(x)) {
     # Assumption: extra columns are on the right
-    res <- merge_props(res, x, res[, seq(ncol(x) + 1, ncol(res))], type = 'cbind')
+    res <- merge_props(res, x, res[, seq(ncol(x) + 1, ncol(res))], type = "cbind")
   }
   if (nrow(res) > nrow(x)) {
-    res <- merge_props(res, x, res[seq(nrow(x) + 1, nrow(res)), ], type = 'rbind')
+    res <- merge_props(res, x, res[seq(nrow(x) + 1, nrow(res)), ], type = "rbind")
   }
 
   res <- set_attr_dimnames(res)
@@ -327,21 +337,23 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #'
 #' @examples
 #' ht1 <- hux(a = 1:3, b = 4:6)
-#' ht2 <- hux(d = letters[1:3], e = letters[4:6])
-#' bold(ht1)[1,] <- TRUE
+#' ht2 <- hux(
+#'         d = letters[1:3],
+#'         e = letters[4:6]
+#'       )
+#' bold(ht1)[1, ] <- TRUE
 #' bold(ht2) <- TRUE
 #' vec <- LETTERS[1:3]
 #'
-#' ht_out <- cbind(ht1, vec, ht2)
-#' ht_out
-#' bold(ht_out)
-#' bold(cbind(ht1, vec, ht2, copy_cell_props = FALSE))
+#' cbind(ht1, vec, ht2)
+#' cbind(ht1, vec, ht2,
+#'       copy_cell_props = FALSE)
 #'
 #' @export
 cbind.huxtable <- function (..., deparse.level = 1, copy_cell_props = TRUE) {
   force(copy_cell_props)
   assert_that(is.flag(copy_cell_props) || is.character(copy_cell_props))
-  bind_hux(..., type = 'cbind', copy_cell_props = copy_cell_props)
+  bind_hux(..., type = "cbind", copy_cell_props = copy_cell_props)
 }
 
 
@@ -350,14 +362,14 @@ cbind.huxtable <- function (..., deparse.level = 1, copy_cell_props = TRUE) {
 rbind.huxtable <- function (..., deparse.level = 1, copy_cell_props = TRUE) {
   force(copy_cell_props)
   assert_that(is.flag(copy_cell_props) || is.character(copy_cell_props))
-  bind_hux(..., type = 'rbind', copy_cell_props = copy_cell_props)
+  bind_hux(..., type = "rbind", copy_cell_props = copy_cell_props)
 }
 
 
 bind_hux <- function (..., type, copy_cell_props) {
   default_copy_attrs <- c(
-          setdiff(huxtable_cell_attrs, c('colspan', 'rowspan')),
-          switch(type, rbind = 'row_height', cbind = 'col_width')
+          setdiff(huxtable_cell_attrs, c("colspan", "rowspan")),
+          switch(type, rbind = "row_height", cbind = "col_width")
         )
   if (isTRUE(copy_cell_props)) copy_cell_props <- default_copy_attrs
   objs <- list(...)
@@ -368,9 +380,9 @@ bind_hux <- function (..., type, copy_cell_props) {
     if (is.vector(x) || is.factor(x)) {
       x <- as.matrix(x)
       if (! is.null(arg_names) && nzchar(arg_names[idx])) colnames(x) <- arg_names[idx]
-      if (type == 'rbind') x <- t(x)
+      if (type == "rbind") x <- t(x)
     }
-    if (is.null(attr(x, 'from_real_hux'))) attr(x, 'from_real_hux') <- is_hux(x)
+    if (is.null(attr(x, "from_real_hux"))) attr(x, "from_real_hux") <- is_hux(x)
     x
   })
 
@@ -378,17 +390,17 @@ bind_hux <- function (..., type, copy_cell_props) {
   res <- Reduce(f, objs)
 
   daddy <- Find(is_hux, objs)
-  unchanged_attrs <- switch(type, 'cbind' = huxtable_row_attrs, 'rbind' = huxtable_col_attrs)
+  unchanged_attrs <- switch(type, "cbind" = huxtable_row_attrs, "rbind" = huxtable_col_attrs)
   for (a in c(unchanged_attrs, huxtable_table_attrs)) attr(res, a) <- attr(daddy, a)
 
-  attr(res, 'from_real_hux') <- NULL
+  attr(res, "from_real_hux") <- NULL
   res
 }
 
 
 bind2_hux <- function (ht, x, type, copy_cell_props) {
-  ht_real_hux <- attr(ht, 'from_real_hux')
-  x_real_hux  <- attr(x, 'from_real_hux')
+  ht_real_hux <- attr(ht, "from_real_hux")
+  x_real_hux  <- attr(x, "from_real_hux")
 
   ht <- as_hux(ht, autoformat = FALSE, add_colnames = FALSE)
   x  <- as_hux(x, autoformat = FALSE, add_colnames = FALSE)
@@ -397,48 +409,48 @@ bind2_hux <- function (ht, x, type, copy_cell_props) {
   if (is.character(ccp)) {
     if (! x_real_hux  && nrow(x) > 0 && ncol(x) > 0) {
       for (a in ccp) {
-        attr(x, a)[] <- if (type == 'cbind') attr(ht, a)[, ncol(ht)] else
+        attr(x, a)[] <- if (type == "cbind") attr(ht, a)[, ncol(ht)] else
           matrix(attr(ht, a)[nrow(ht), ], nrow(x), ncol(x), byrow = TRUE)
       }
-      if ('row_height' %in% copy_cell_props && type == 'rbind') {
-        attr(x, 'row_height') <- attr(ht, 'row_height')[nrow(ht)]
+      if ("row_height" %in% copy_cell_props && type == "rbind") {
+        attr(x, "row_height") <- attr(ht, "row_height")[nrow(ht)]
       }
-      if ('col_width' %in% copy_cell_props && type == 'cbind') {
-        attr(x, 'col_width') <- attr(ht, 'col_width')[ncol(ht)]
+      if ("col_width" %in% copy_cell_props && type == "cbind") {
+        attr(x, "col_width") <- attr(ht, "col_width")[ncol(ht)]
       }
     }
     if (! ht_real_hux && x_real_hux && nrow(ht) > 0 && ncol(ht) > 0) {
       for (a in ccp) {
-        attr(ht, a)[] <- if (type == 'cbind') attr(x, a)[, 1] else
+        attr(ht, a)[] <- if (type == "cbind") attr(x, a)[, 1] else
           matrix(attr(x, a)[1, ], nrow(ht), ncol(ht), byrow = TRUE)
       }
-      if ('row_height' %in% copy_cell_props && type == 'rbind') {
-        attr(ht, 'row_height') <- attr(x, 'row_height')[1]
+      if ("row_height" %in% copy_cell_props && type == "rbind") {
+        attr(ht, "row_height") <- attr(x, "row_height")[1]
       }
-      if ('col_width' %in% copy_cell_props && type == 'cbind') {
-        attr(ht, 'col_width') <- attr(x, 'col_width')[1]
+      if ("col_width" %in% copy_cell_props && type == "cbind") {
+        attr(ht, "col_width") <- attr(x, "col_width")[1]
       }
     }
   }
 
-  bind_df <- switch(type, 'cbind' = cbind.data.frame, 'rbind' = function (x, y) {
-    if(ncol(x) != ncol(y)) stop('Can\'t rbind objects as they have different numbers of columns')
+  bind_df <- switch(type, "cbind" = cbind.data.frame, "rbind" = function (x, y) {
+    if(ncol(x) != ncol(y)) stop("Can't rbind objects as they have different numbers of columns")
     rbind.data.frame(x, setNames(y, names(x)), stringsAsFactors = FALSE)
   })
 
   res <- as_hux(bind_df(ht, x), autoformat = FALSE, add_colnames = FALSE)
   res <- merge_props(res, ht, x, type = type, copy_cell_props = copy_cell_props)
 
-  attr(res, 'from_real_hux') <- x_real_hux || ht_real_hux
+  attr(res, "from_real_hux") <- x_real_hux || ht_real_hux
   res
 }
 
 
-delete_props <- function (res, idx, type = c('cols', 'rows')) {
+delete_props <- function (res, idx, type = c("cols", "rows")) {
   if (is.logical(idx)) idx <- which(idx)
   type <- match.arg(type)
 
-  if (type == 'cols') {
+  if (type == "cols") {
     for (a in huxtable_col_attrs) {
       attr(res, a) <- attr(res, a)[ -idx]
     }
@@ -459,7 +471,7 @@ delete_props <- function (res, idx, type = c('cols', 'rows')) {
 
 
 # returns res with properties created from 'first' and 'second' huxtables
-merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_cell_props = FALSE) {
+merge_props <- function (res, first, second, type = c("cbind", "rbind"), copy_cell_props = FALSE) {
   type <- match.arg(type)
   # if second is not a huxtable, make it a huxtable; and if ccp is TRUE, copy properties over:
   #  - cell properties copied L-R from last col (cbind) or T-B from last row (rbind)
@@ -470,13 +482,13 @@ merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_ce
     if (is.character(copy_cell_props)) {
       ccp <- intersect(copy_cell_props, huxtable_cell_attrs)
       for (a in ccp) {
-        attr(second, a)[] <- if (type == 'cbind') attr(first, a)[, ncol(first)] else
+        attr(second, a)[] <- if (type == "cbind") attr(first, a)[, ncol(first)] else
           matrix(attr(first, a)[nrow(first), ], nrow(second), ncol(second), byrow = TRUE)
       }
-      if (type == 'rbind') for (a in huxtable_row_attrs) {
+      if (type == "rbind") for (a in huxtable_row_attrs) {
         attr(second, a) <- rep(attr(first, a)[nrow(first)], nrow(second))
       }
-      if (type == 'cbind') for (a in huxtable_col_attrs) {
+      if (type == "cbind") for (a in huxtable_col_attrs) {
         attr(second, a) <- rep(attr(first, a)[ncol(first)], ncol(second))
       }
     }
@@ -490,12 +502,12 @@ merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_ce
   for (a in huxtable_table_attrs) {
     attr(res, a) <- attr(first, a)
   }
-  bind_cells <- switch(type, 'cbind' = cbind, 'rbind' = rbind)
+  bind_cells <- switch(type, "cbind" = cbind, "rbind" = rbind)
   for (a in huxtable_cell_attrs) {
     attr(res, a) <- bind_cells(attr(first, a), attr(second, a))
   }
-  join_attrs  <- switch(type, 'cbind' = huxtable_col_attrs, 'rbind' = huxtable_row_attrs)
-  first_attrs <- switch(type, 'cbind' = huxtable_row_attrs, 'rbind' = huxtable_col_attrs)
+  join_attrs  <- switch(type, "cbind" = huxtable_col_attrs, "rbind" = huxtable_row_attrs)
+  first_attrs <- switch(type, "cbind" = huxtable_row_attrs, "rbind" = huxtable_col_attrs)
   for (a in join_attrs) {
     attr(res, a) <- c(attr(first, a), attr(second, a))
   }
@@ -504,7 +516,7 @@ merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_ce
   }
 
   # numeric row/col heights are rescaled to add to 1
-  for (rh_cw in c('row_height', 'col_width')) {
+  for (rh_cw in c("row_height", "col_width")) {
     if (is.numeric(attr(res, rh_cw))) {
       values <- attr(res, rh_cw)
       attr(res, rh_cw) <- values / sum(values)
@@ -527,7 +539,11 @@ merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_ce
 #' Other properties - in particular, alignment, vertical alignment and rotation - will be
 #' preserved.
 #' @examples
-#' ht <- huxtable(a = 1:3, b = letters[1:3], autoformat = FALSE)
+#' ht <- huxtable(
+#'         a = 1:3,
+#'         b = letters[1:3],
+#'         autoformat = FALSE
+#'       )
 #' bottom_border(ht)[3,] <- 1
 #' ht
 #' t(ht)
@@ -535,18 +551,18 @@ merge_props <- function (res, first, second, type = c('cbind', 'rbind'), copy_ce
 #' @export
 t.huxtable <- function (x) {
   res <- as_hux(NextMethod(), add_colnames = FALSE, autoformat = FALSE)
-  for (a in setdiff(huxtable_cell_attrs, c('colspan', 'rowspan', 'height', 'width',
-    'bottom_border', 'left_border', 'top_border', 'right_border'))) {
+  for (a in setdiff(huxtable_cell_attrs, c("colspan", "rowspan", "height", "width",
+    "bottom_border", "left_border", "top_border", "right_border"))) {
     attr(res, a) <- t(attr(x, a))
   }
-  attr(res, 'colspan') <- t(attr(x, 'rowspan'))
-  attr(res, 'rowspan') <- t(attr(x, 'colspan'))
-  attr(res, 'width')   <- attr(x, 'height')
-  attr(res, 'height')  <- attr(x, 'width')
-  attr(res, 'bottom_border') <- t(attr(x, 'right_border'))
-  attr(res, 'right_border')  <- t(attr(x, 'bottom_border'))
-  attr(res, 'left_border')   <- t(attr(x, 'top_border'))
-  attr(res, 'top_border')    <- t(attr(x, 'left_border'))
+  attr(res, "colspan") <- t(attr(x, "rowspan"))
+  attr(res, "rowspan") <- t(attr(x, "colspan"))
+  attr(res, "width")   <- attr(x, "height")
+  attr(res, "height")  <- attr(x, "width")
+  attr(res, "bottom_border") <- t(attr(x, "right_border"))
+  attr(res, "right_border")  <- t(attr(x, "bottom_border"))
+  attr(res, "left_border")   <- t(attr(x, "top_border"))
+  attr(res, "top_border")    <- t(attr(x, "left_border"))
   row_height(res) <- col_width(x)
   col_width(res)  <- row_height(x)
   rownames(res)   <- colnames(x)
@@ -577,15 +593,24 @@ t.huxtable <- function (x) {
 #' @return The modified object.
 #'
 #' @examples
-#' ht <- huxtable(a = 1:5, b = 1:5)
+#' ht <- huxtable(
+#'         First  = rnorm(5),
+#'         Second = rnorm(5)
+#'       )
 #' add_rownames(ht)
 #' add_colnames(ht)
-#' add_rownames(add_colnames(ht)) # Out by 1
-#' add_colnames(add_rownames(ht)) # Better
-#' add_colnames(add_rownames(ht, '')) # Alternatively
+#'
+#' # Out by 1:
+#' add_rownames(add_colnames(ht))
+#'
+#' # Better:
+#' add_colnames(add_rownames(ht))
+#'
+#' # Alternatively:
+#' add_colnames(add_rownames(ht, ""))
 #'
 #' @export
-add_colnames <- function (ht, ...) UseMethod('add_colnames')
+add_colnames <- function (ht, ...) UseMethod("add_colnames")
 
 
 #' @export
@@ -607,12 +632,12 @@ add_colnames.huxtable <- function (ht, rowname = NULL, ...) {
 
 #' @export
 #' @rdname add_colnames
-add_rownames <- function (ht, ...) UseMethod('add_rownames')
+add_rownames <- function (ht, ...) UseMethod("add_rownames")
 
 
 #' @export
 #' @rdname add_colnames
-add_rownames.huxtable <- function (ht, colname = 'rownames', preserve_rownames = TRUE, ...) {
+add_rownames.huxtable <- function (ht, colname = "rownames", preserve_rownames = TRUE, ...) {
   assert_that(is.string(colname))
   ht <- cbind(rownames(ht), ht, copy_cell_props = FALSE)
   number_format(ht)[, 1] <- NA

@@ -15,11 +15,11 @@ set_row_height(ht, row, value)
 
 \item{value}{A vector.}
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 }
 \value{
 For \code{row_height}, the \code{row_height} property.
-For \code{set_row_height}, the \code{ht} object.
+For \code{set_row_height}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{row heights} property of huxtable rows.
@@ -30,9 +30,8 @@ treated as proportions of the text height (\code{\\textheight}).
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-row_height(ht) <-  c(.2, .1, .1)
-row_height(ht)
+row_height(jams) <-  c(.2, .1, .1, .1)
+row_height(jams)
 
 }
 \seealso{

@@ -25,11 +25,12 @@ NULL
 #'
 #' @examples
 #' ht <- huxtable(a = 1:10, b = 1:10)
-#' ht <- set_background_color(ht, every(3), everywhere, 'wheat')
-#' background_color(ht)
-#' ht <- set_align(ht, evens, 1:2, 'right')
-#' ht <- set_align(ht, odds, 1:2, 'center')
-#' align(ht)
+#' set_background_color(ht,
+#'       evens, everywhere,
+#'       "grey95")
+#' set_background_color(ht,
+#'       every(3), everywhere,
+#'       "grey95")
 #'
 every <- function(n = 1, from = n) {
   assert_that(is.count(n), is.count(from))
@@ -68,12 +69,7 @@ odds  <- every(2, 1)
 #' @export
 #'
 #' @examples
-#' ht <- hux(a = 1:5, b = 1:5, d = 1:5, e = 1:5)
-#' ht <- set_align(ht, final(2), final(1), 'left')
-#' align(ht)
-#'
-#' final(3)(ht, 1) # last 3 rows
-#' final(3)(ht, 2) # last 3 columns
+#' set_bold(jams, final(2), final(1), TRUE)
 final <- function(n = 1) {
   assert_that(is.count(n))
 
@@ -109,7 +105,6 @@ final <- function(n = 1) {
 #' * Use \code{\link[=every]{every(n, from = m)}} to get every nth row/column starting at row/column m.
 #' * Use `dplyr` functions like `starts_with`, `contains` and `matches` to
 #'    specify columns (but not rows). See \code{\link[tidyselect]{select_helpers}} for a full list.
-#' * Use \code{\link[=where]{where(condition)}}, and omit the `col` argument, to get cells where `condition` is `TRUE`.
 #' * Set `byrow = TRUE` to set properties by row rather than by column.
 #'
 #' @section The gory details:
@@ -119,10 +114,6 @@ final <- function(n = 1) {
 #'
 #' * If there are two arguments (excluding `byrow`) then the second argument is taken as the
 #'     value and is set for all rows and columns.
-#' * If there are three arguments, then the third argument is taken as the value, and
-#'     `row` must be a matrix with two columns. Each row of this matrix
-#'     gives the row, column indices of a single cell. This uses R's little known feature of
-#'     subsetting with matrices - see [base::Extract()].
 #' * If there are four arguments:
 #'     * If `row` or `col` is numeric, character or logical, it is evaluated just as in standard
 #'         subsetting. `col` will be evaluated in a special context provided by [tidyselect::with_vars()]
@@ -135,44 +126,32 @@ final <- function(n = 1) {
 #' @name rowspecs
 #'
 #' @examples
-#' ht <- huxtable(a = 1:5, b = 5:1)
+#' set_bold(jams, 2:4, 1:2, TRUE)
+#' set_background_color(jams, evens, everywhere,
+#'       "grey95")
+#' set_bold(jams, everywhere,
+#'       tidyselect::matches("yp"), TRUE)
 #'
-#' set_bold(ht, 2:4, 1:2, TRUE)
-#' set_bold(ht, odds, evens, TRUE)
-#' set_bold(ht, everywhere, tidyselect::matches('[aeiou]'), TRUE)
-#'
-#' set_bold(ht, where(ht == 1), TRUE)
-#'
-#' set_text_color(ht, 2:3, 1:2, c('red', 'blue'))
-#' set_text_color(ht, 2:3, 1:2, c('red', 'blue'), byrow = TRUE)
+#' set_text_color(jams, 2:4, 1:2,
+#'       c("red", "violetred", "purple"))
 NULL
 
-#' Return array indices where expression is true
-#'
-#' This is a simple wrapper around `which(..., arr.ind = TRUE)`, for
-#' use in [row specifications][rowspecs].
-#' @param expr An R expression
-#'
-#' @export
-#'
-#' @return A matrix of row and column indices of cells where `expr` is `TRUE`.
-#'
-#' @examples
-#' ht <- hux(a = 1:3, b = 4:6, add_colnames = TRUE)
-#' where(ht > 2)
-#'
-where <- function(expr) which(expr, arr.ind = TRUE)
-
-
+#' @name where
 #' @rdname huxtable-deprecated
-#'
+#' @export
+NULL
+# documenting the NULL object stops roxygen trying to print a usage section
+# which causes R CMD check to throw a wobbly
+where <- function(expr) {
+  which(expr, arr.ind = TRUE)
+}
+
+
+#' @name is_a_number
+#' @rdname huxtable-deprecated
 #' @details To replace `is_a_number` use e.g. `! is.na(as.numeric(x))`
 #' @export
-#' @name is_a_number
 NULL
-
-# documenting the NULL object above stops roxygen trying to print a usage section
-# which causes R CMD check to throw a wobbly
 is_a_number <- function(x) {
   if (is.data.frame(x)) {
     if (nrow(x) == 0) return(matrix(FALSE, 0, ncol(x)))
@@ -187,7 +166,7 @@ get_rc_spec <- function (ht, obj, dimno) {
   dim_length <- dim(ht)[dimno]
   if (missing(obj)) return(seq_len(dim_length))
 
-  # You can't evaluate obj before running the tidyselect; otherwise functions like starts_with throw an error.
+  # You can"t evaluate obj before running the tidyselect; otherwise functions like starts_with throw an error.
   result <- if (dimno == 2) {
     tidyselect::with_vars(colnames(ht), if (is.function(obj)) obj(ht, dimno) else obj)
   } else {

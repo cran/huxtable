@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 4.2.1
+Version: 4.3.0
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -18,16 +18,16 @@ Description: Like 'xtable', creates styled tables. Export to HTML, LaTeX, 'Word'
 License: MIT + file LICENSE
 URL: https://hughjonesd.github.io/huxtable
 BugReports: https://github.com/hughjonesd/huxtable/issues
-Imports: assertthat, glue, memoise, stats, stringr (>= 1.2.0), tibble,
-        tidyselect, utils
-Suggests: broom, covr, crayon, devtools, dplyr, flextable, ggplot2,
+Imports: assertthat, broom, glue, memoise, rlang, stats, stringr (>=
+        1.2.0), tibble, tidyselect, utils
+Suggests: bookdown, covr, crayon, devtools, dplyr, flextable, ggplot2,
         httr, knitr, lazyeval, lme4, lmtest, nlme, nnet, officer,
-        openxlsx, psych, rmarkdown, testthat, tinytex
+        openxlsx, psych, rmarkdown, sandwich, scales, testthat, tinytex
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0
 NeedsCompilation: no
-Packaged: 2018-10-26 18:35:29 UTC; david
+Packaged: 2018-11-07 10:16:20 UTC; david
 Repository: CRAN
-Date/Publication: 2018-10-26 19:00:03 UTC
+Date/Publication: 2018-11-07 11:00:02 UTC

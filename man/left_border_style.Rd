@@ -4,6 +4,7 @@
 \alias{left_border_style}
 \alias{left_border_style<-}
 \alias{set_left_border_style}
+\alias{map_left_border_style}
 \alias{right_border_style}
 \alias{top_border_style}
 \alias{bottom_border_style}
@@ -13,39 +14,49 @@
 \alias{set_right_border_style}
 \alias{set_top_border_style}
 \alias{set_bottom_border_style}
+\alias{map_right_border_style}
+\alias{map_top_border_style}
+\alias{map_bottom_border_style}
 \title{Border styles}
 \usage{
 left_border_style(ht)
 left_border_style(ht) <- value
 set_left_border_style(ht, row, col, value, byrow = FALSE)
+map_left_border_style(ht, row, col, fn)
 
 right_border_style(ht)
 right_border_style(ht) <- value
 set_right_border_style(ht, row, col, value, byrow = FALSE)
+map_right_border_style(ht, row, col, fn)
 
 top_border_style(ht)
 top_border_style(ht) <- value
 set_top_border_style(ht, row, col, value, byrow = FALSE)
+map_top_border_style(ht, row, col, fn)
 
 bottom_border_style(ht)
 bottom_border_style(ht) <- value
 set_bottom_border_style(ht, row, col, value, byrow = FALSE)
+map_bottom_border_style(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A character vector or matrix of styles, which may be "solid", "double", "dashed" or "dotted". Set to \code{NA} to reset to the default, which is
-\code{"solid"}.}
+\item{value}{A character vector or matrix of styles, which may be "solid", "double", "dashed" or "dotted".
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{"solid"}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{left_border_style}, the \code{left_border_style} property.
-For \code{set_left_border_style}, the \code{ht} object.
+For \code{set_left_border_style} and \code{map_left_border_style}, the modified huxtable.
 
 Similarly for the other functions.
 }
@@ -76,22 +87,26 @@ release.
 \examples{
 ht <- huxtable(a = 1:3, b = 3:1)
 ht <- set_all_borders(ht, 1)
-set_left_border_style(ht, 'double')
-set_left_border_style(ht, 1:2, 1, 'double')
-set_left_border_style(ht, 1:2, 1:2, c('solid', 'double'), byrow = TRUE)
-set_left_border_style(ht, where(ht == 1), 'double')
+set_left_border_style(ht, "double")
+set_left_border_style(ht, 1:2, 1,
+      "double")
+
 # When cells span multiple rows:
 ht <- tribble_hux(
   ~Col1,                   ~Col2,
   "Cell 1,1 spans 2 rows", "Cell 1,2",
   "Cell 2,1 is invisible", "Cell 2,2"
 )
+
 rowspan(ht)[1, 1] <- 2
 ht
+
 bottom_border(ht)[2, ] <- 1
 bottom_border_color(ht)[2, ] <- 'red'
+
 # Cell 1, 1 does not have a border set:
 ht
+
 # Fixed:
 bottom_border(ht)[1, 1] <- 1
 bottom_border_color(ht)[1, 1] <- 'red'

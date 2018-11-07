@@ -2,6 +2,7 @@
 % Please edit documentation in R/zzz.R
 \name{huxtable-package}
 \alias{huxtable-package}
+\alias{huxtable_package}
 \title{Huxtable: simply create LaTeX and HTML tables}
 \description{
 Huxtable is a package for creating HTML and LaTeX tables. It provides similar
@@ -13,7 +14,10 @@ To create a huxtable object, use \code{\link[=huxtable]{huxtable()}} or \code{\l
 For more information, see \href{https://hughjonesd.github.io/huxtable/}{the website} or
 read the vignette with \code{vignette('huxtable')}.
 
-To report a bug, or suggest an enhancement, visit \href{https://github.com/hughjonesd/huxtable/issues}{github}.
+See \link{huxtable-FAQ} for frequently asked questions.
+
+To report a bug, or suggest an enhancement, visit
+\href{https://github.com/hughjonesd/huxtable/issues}{github}.
 }
 \seealso{
 \link{huxtable-options}

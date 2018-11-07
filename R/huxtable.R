@@ -12,7 +12,8 @@ NULL
 #' @param ... For `huxtable`, named list of values as in [data.frame()].
 #'   For `tribble_hux`, data values as in [tibble::tribble()].
 #' @param add_colnames If `TRUE`, add a first row of column names to the huxtable.
-#' @param add_rownames If `TRUE`, add a first column of row names, named 'rownames', to the huxtable.
+#' @param add_rownames If `TRUE` or a character string, add a first column of row names
+#'   to the huxtable. The string gives the name for the new column (or `"rownames"` for `TRUE`).
 #' @param autoformat If `TRUE`, automatically format columns by type. See below.
 #'
 #' @return An object of class `huxtable`.
@@ -46,12 +47,16 @@ NULL
 #' @seealso [huxtable-options]
 #'
 #' @examples
-#' ht <- huxtable(column1 = 1:5, column2 = letters[1:5])
+#' ht <- huxtable(
+#'         column1 = 1:5,
+#'         column2 = letters[1:5]
+#'       )
+#' ht
 huxtable <- function (
         ...,
         add_colnames = getOption("huxtable.add_colnames", FALSE),
         add_rownames = FALSE,
-        autoformat   = getOption('huxtable.autoformat', TRUE)
+        autoformat   = getOption("huxtable.autoformat", TRUE)
       ) {
   assert_that(is.flag(add_colnames), is.flag(add_rownames), is.flag(autoformat))
 
@@ -87,7 +92,7 @@ hux <- huxtable
 tribble_hux <- function (...,
         add_colnames = getOption("huxtable.add_colnames", FALSE),
         add_rownames = FALSE,
-        autoformat   = getOption('huxtable.autoformat', TRUE)
+        autoformat   = getOption("huxtable.autoformat", TRUE)
       ) {
   as_hux(tibble::tribble(...), add_colnames = add_colnames, add_rownames = FALSE,
         autoformat = autoformat)
@@ -108,14 +113,26 @@ tribble_hux <- function (...,
 #'
 #' @export
 #' @examples
-#' dfr <- data.frame(a = 1:5, b = letters[1:5], stringsAsFactors = FALSE)
+#' dfr <- data.frame(
+#'         a = 1:5,
+#'         b = letters[1:5],
+#'         stringsAsFactors = FALSE
+#'       )
 #' as_huxtable(dfr)
 #' mx <- matrix(letters[1:12], 4, 3)
 #' as_huxtable(mx)
 #' library(stats)
-#' tbl <- table(Wool = warpbreaks$wool, Tension = warpbreaks$tension)
+#' tbl <- table(
+#'         Wool    = warpbreaks$wool,
+#'         Tension = warpbreaks$tension
+#'       )
 #' as_huxtable(tbl) # adds row and column names by default
-as_huxtable <- function (x, ...) UseMethod('as_huxtable')
+#'
+#' # adding rownames:
+#' as_hux(mtcars[1:3,], add_colnames = TRUE,
+#'       add_rownames = "Car")
+#'
+as_huxtable <- function (x, ...) UseMethod("as_huxtable")
 
 
 #' @export
@@ -132,11 +149,15 @@ as_huxtable.default <- function (
         autoformat   = getOption("huxtable.autoformat", TRUE),
         ...
       ) {
-  assert_that(is.flag(add_colnames), is.flag(add_rownames), is.flag(autoformat))
+  assert_that(is.flag(add_colnames), is.flag(add_rownames) || is.character(add_rownames),
+        is.flag(autoformat))
+
   x <- as.data.frame(x, stringsAsFactors = FALSE)
-  for (a in setdiff(huxtable_cell_attrs, 'number_format')) {
+
+  for (a in setdiff(huxtable_cell_attrs, "number_format")) {
     attr(x, a) <- matrix(NA, nrow(x), ncol(x))
   }
+  attr(x, "number_format") <- matrix(list(NA), nrow(x), ncol(x))
   for (a in huxtable_col_attrs) {
     attr(x, a) <- rep(NA, ncol(x))
   }
@@ -146,16 +167,17 @@ as_huxtable.default <- function (
   for (a in huxtable_table_attrs) {
     attr(x, a) <- NA
   }
-  attr(x, 'number_format') <- matrix(list(NA), nrow(x), ncol(x))
+
+
   for (a in names(huxtable_env$huxtable_default_attrs)) {
     attr(x, a)[] <- huxtable_env$huxtable_default_attrs[[a]]  # [[ indexing matters here
   }
 
-  class(x) <- c('huxtable', class(x))
+  class(x) <- c("huxtable", class(x))
 
   col_classes <- sapply(x, function (col) class(col)[1])
   if (autoformat) {
-    dfn <- getOption('huxtable.autoformat_number_format', list())
+    dfn <- getOption("huxtable.autoformat_number_format", list())
     for (cn in seq_len(ncol(x))) {
       # double [[ matters for getting underlying object; also want only most specific class:
       cls <- col_classes[cn]
@@ -164,11 +186,17 @@ as_huxtable.default <- function (
   }
 
   # order matters here. We want original rownames, not anything else.
-  if (add_rownames) x <- add_rownames(x, preserve_rownames = FALSE)
+  if (is.character(add_rownames)) {
+    rownames_colname <- add_rownames
+    add_rownames <- TRUE
+  } else {
+    rownames_colname <- "rownames"
+  }
+  if (add_rownames) x <- add_rownames(x, preserve_rownames = FALSE, colname = rownames_colname)
   if (add_colnames) x <- add_colnames(x)
   # this bit comes after add_colnames so that column headers also get aligned:
   if (autoformat) {
-    dfa <- getOption('huxtable.autoformat_align', list())
+    dfa <- getOption("huxtable.autoformat_align", list())
     for (cn in seq_len(ncol(x))) {
       cls <- col_classes[cn]
       autoal <- dfa[[cls]] %||% NA
@@ -209,22 +237,27 @@ as_huxtable.ftable <- function(x, ...) {
 
 #' @export
 as_huxtable.numeric <- function (x, ...) {
-  # use default otherwise matrix has class e.g. c('matrix', 'numeric') so we recurse
+  # use default otherwise matrix has class e.g. c("matrix", "numeric") so we recurse
   as_huxtable.default(as.matrix(x), ...)
 }
+
 
 #' @export
 as_huxtable.character <- as_huxtable.numeric
 
+
 #' @export
 as_huxtable.logical   <- as_huxtable.numeric
+
 
 #' @export
 as_huxtable.complex   <- as_huxtable.numeric
 
+
 #' @export
 #' @rdname as_huxtable
-is_huxtable <- function (x) inherits(x, 'huxtable')
+is_huxtable <- function (x) inherits(x, "huxtable")
+
 
 #' @export
 #' @rdname as_huxtable

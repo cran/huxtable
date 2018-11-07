@@ -1,7 +1,33 @@
 
-
 Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major version
 increments reflect backwards-incompatible API changes, not necessarily big changes.
+
+
+# huxtable 4.3.0
+
+* More work on TeX. Tables *should* now compile when raw_attributes is not set.
+* New `map_xxx` functions to set properties variably by cell values.
+* Functions for mapping properties variably: `by_rows`, `by_values`, `by_ranges`,
+  `by_quantiles` etc.
+* Correct bookdown labels are now automatically created.
+* New grey, blue, green and orange themes.
+* New "themes" vignette.
+* New `tidy_override` function to override p values etc. in `huxreg`.
+* New `set_contents` function to change huxtable contents within dplyr pipes.
+* Enhancement: left- and right-aligned captions are now set above the table in LaTeX, using the
+  "threeparttable" package. You will need to install this using e.g. `install_latex_dependencies()` 
+  or `tlmgr` if it is not already on your system.
+* Enhancement: in `huxtable()` and friends, `add_rownames = "Colname"` now 
+  sets the name for the new column.
+* Improvements to the vignettes and help files.
+* Bugfix: to_md could hang with bold/italic cells.
+
+
+## Deprecated
+
+* The 3 argument form of `set_xxx` functions is deprecated, as is the `where` function.
+  Use `map_xxx` instead.
+* Argument `byrow` is soft-deprecated. Use `by_cols()` instead.
 
 
 # huxtable 4.2.1
@@ -17,7 +43,7 @@ increments reflect backwards-incompatible API changes, not necessarily big chang
     md_extensions: +raw_attribute
 
   to your YAML header for this to work, and you will need a recent (> 2.0.0) version of Pandoc.
-  
+
 # huxtable 4.2.0
 
 * More speedups: LaTeX 2-3x faster, as_Workbook 2-3x faster.

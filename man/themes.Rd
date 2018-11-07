@@ -5,6 +5,10 @@
 \alias{theme_plain}
 \alias{theme_basic}
 \alias{theme_striped}
+\alias{theme_grey}
+\alias{theme_blue}
+\alias{theme_orange}
+\alias{theme_green}
 \alias{theme_article}
 \alias{theme_mondrian}
 \title{Theme a huxtable}
@@ -16,6 +20,14 @@ theme_basic(ht, header_row = TRUE, header_col = TRUE)
 theme_striped(ht, stripe = grDevices::grey(0.9), header_row = TRUE,
   header_col = TRUE)
 
+theme_grey(ht, header_row = TRUE, header_col = TRUE)
+
+theme_blue(ht, header_row = TRUE, header_col = TRUE)
+
+theme_orange(ht, header_row = TRUE, header_col = TRUE)
+
+theme_green(ht, header_row = TRUE, header_col = TRUE)
+
 theme_article(ht, header_row = TRUE, header_col = TRUE)
 
 theme_mondrian(ht, prop_colored = 0.1, font = "Arial")
@@ -23,7 +35,7 @@ theme_mondrian(ht, prop_colored = 0.1, font = "Arial")
 \arguments{
 \item{ht}{A huxtable object.}
 
-\item{position}{'left', 'center' or 'right'}
+\item{position}{"left", "center" or "right"}
 
 \item{header_row}{Logical: style first row differently?}
 
@@ -51,10 +63,34 @@ These functions quickly set default styles for a huxtable.
 \code{theme_article} is similar to the style of many scientific journals.
 It sets horizontal lines above and below the table.
 
+\code{theme_grey}, \code{theme_blue}, \code{theme_orange} and \code{theme_green} use white borders and subtle
+horizontal stripes.
+
 \code{theme_mondrian} mimics the style of a Mondrian painting, with black borders and randomized
 colors.
 }
 \examples{
-ht <- huxtable(a = 1:5, b = 1:5)
-theme_striped(ht)
+
+theme_striped(jams)
+theme_plain(jams)
+theme_basic(jams)
+theme_article(jams)
+theme_mondrian(jams)
+theme_grey(jams)
+theme_blue(jams)
+theme_orange(jams)
+theme_green(jams)
+\dontrun{
+  quick_pdf(
+          theme_striped(jams),
+          theme_plain(jams),
+          theme_basic(jams),
+          theme_article(jams),
+          theme_mondrian(jams),
+          theme_grey(jams),
+          theme_blue(jams),
+          theme_orange(jams),
+          theme_green(jams)
+        )
+}
 }

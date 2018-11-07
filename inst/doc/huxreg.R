@@ -78,3 +78,13 @@ huxreg(lm1, lm3, number_format = 2)
 ## ------------------------------------------------------------------------
 huxreg(lm1, lm3, bold_signif = 0.05)
 
+## ------------------------------------------------------------------------
+library(lmtest)
+library(sandwich)
+lm_robust <- coeftest(lm1, vcov = vcovHC)
+huxreg("Normal SEs" = lm1, "Robust SEs" = lm_robust)
+
+## ------------------------------------------------------------------------
+lm_fixed <- tidy_override(lm1, p.value = c(0.5, 0.2, 0.06))
+huxreg("Normal p values" = lm1, "Supplied p values" = lm_fixed)
+

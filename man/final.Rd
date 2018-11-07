@@ -17,10 +17,5 @@ returns the last n row or column numbers of the huxtable.
 Technically, \code{final} returns a two-argument function - see \link{rowspecs} for more details.
 }
 \examples{
-ht <- hux(a = 1:5, b = 1:5, d = 1:5, e = 1:5)
-ht <- set_align(ht, final(2), final(1), 'left')
-align(ht)
-
-final(3)(ht, 1) # last 3 rows
-final(3)(ht, 2) # last 3 columns
+set_bold(jams, final(2), final(1), TRUE)
 }

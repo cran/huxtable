@@ -4,47 +4,56 @@
 \alias{font}
 \alias{font<-}
 \alias{set_font}
+\alias{map_font}
 \title{Font}
 \usage{
 font(ht)
 font(ht) <- value
 set_font(ht, row, col, value, byrow = FALSE)
+map_font(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A character vector of font names. NB that LaTeX and HTML use different font names. Set to \code{NA} to reset to the default, which is
-\code{NA}.}
+\item{value}{A character vector of font names. NB that LaTeX and HTML use different font names.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{NA}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{font}, the \code{font} property.
-For \code{set_font}, the \code{ht} object.
+For \code{set_font} and \code{map_font}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{font} property of huxtable cells.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-font(ht) <-  'times'
-font(ht)
+font(jams) <-  "times"
+font(jams)
 
 
-ht <- huxtable(a = 1:3, b = 3:1)
-ht2 <- set_font(ht, 'times')
-font(ht2)
-ht3 <- set_font(ht, 1:2, 1, 'times')
-font(ht3)
-ht4 <- set_font(ht, 1:2, 1:2, c('times', 'arial'), byrow = TRUE)
-font(ht4)
-ht5 <- set_font(ht, where(ht == 1), 'times')
-font(ht5)
+jams2 <- set_font(jams,
+      "times")
+font(jams2)
+
+jams3 <- set_font(jams,
+      2:3, 1, "times")
+font(jams3)
+
+jams4 <- map_font(jams,
+      by_rows(
+        "times",
+        "arial")
+      )
+font(jams4)
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

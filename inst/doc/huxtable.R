@@ -26,22 +26,13 @@ huxtable::hux_logo(latex = is_latex, html = ! is_latex)
 library(huxtable)
 ht <- hux(
         Employee     = c('John Smith', 'Jane Doe', 'David Hugh-Jones'), 
-        Salary       = c(50000, 50000, 40000),
+        Salary       = c(50000L, 50000L, 40000L),
         add_colnames = TRUE
       )
 
 ## ------------------------------------------------------------------------
 data(mtcars)
 car_ht <- as_hux(mtcars)
-
-## ------------------------------------------------------------------------
-tribble_hux(
-  ~Employee,          ~Salary,
-  "John Smith",       50000,
-  "Jane Doe",         50000,
-  "David Hugh-Jones", 40000,
-  add_colnames = TRUE
-)
 
 ## ---- results = 'markup'-------------------------------------------------
 print_screen(ht)     # on the R command line, you can just type "ht"
@@ -90,14 +81,12 @@ prop_hux <- hux(as.data.frame(props))                     %>%
       add_colnames                                        %>% 
       {foo <- .; foo[1,] <- gsub('_', ' ', foo[1,]); foo} %>% 
       set_font(-1, everywhere, ss_font)                   %>% 
+      set_font_size( 10)                                  %>% 
       set_bold(1, everywhere, TRUE)                       %>% 
       set_width(0.9)                                      %>% 
-      set_background_color(everywhere, evens, grey(.9))   %>% 
-      set_left_border(everywhere, 1, 1)                   %>% 
-      set_right_border(everywhere, final(), 1)            %>% 
-      set_top_border(1, everywhere, 1)                    %>% 
+      set_background_color(-1, evens, grey(.9))           %>% 
+      set_outer_borders(1)                                %>% 
       set_bottom_border(1, everywhere, 1)                 %>% 
-      set_bottom_border(final(), everywhere, 1)           %>% 
       set_top_padding(2)                                  %>% 
       set_bottom_padding(4)                               %>% 
       set_caption('Huxtable properties')                  %>% 
@@ -127,9 +116,6 @@ hux(
 italic(ht)
 position(ht)
 
-## ---- results = 'markup'-------------------------------------------------
-bottom_border(ht)[1:2,]
-
 ## ------------------------------------------------------------------------
 ht[3, 1] <- 'Jane Jones'
 ht
@@ -147,82 +133,101 @@ ht_with_roles
 rbind(ht, c("Yihui Xie", 100000))
 
 ## ------------------------------------------------------------------------
-rbind(ht, c("Yihui Xie", 100000), copy_cell_props = FALSE)
+
+to_insert <- hux(
+        Role  = c("Admin", "CEO", "Dogsbody"),
+        Hired = as.Date(c("2015-01-01", "2008-06-05", "2012-07-31")),
+        add_colnames = TRUE
+      ) %>% 
+      set_bold(1, 1:2, TRUE) %>% 
+      set_bottom_border(1, 1:2, TRUE)
+
+cbind(ht[, 1], to_insert, ht[, 2:ncol(ht)])
 
 ## ------------------------------------------------------------------------
+
+add_columns(ht, to_insert, after = 1)
+
+
+## ------------------------------------------------------------------------
+
+add_columns(ht, to_insert, after = "Employee")
+
+
+## ------------------------------------------------------------------------
+
+car_ht <- as_hux(mtcars)                
+car_ht <- huxtable::add_rownames(car_ht, "Car")
 # Select columns by name:
-cars_mpg <- car_ht[, c("mpg", "cyl", "am")] 
+car_ht <- car_ht[, c("Car", "mpg", "cyl", "am")] 
+
 # Order by number of cylinders:
-cars_mpg <- cars_mpg[order(cars_mpg$cyl),]
+car_ht <- car_ht[order(car_ht$cyl), ]
 
-cars_mpg <- cars_mpg                          %>% 
-      huxtable::add_rownames(colname = "Car") %>% 
-      huxtable::add_colnames()                %>%
-      set_right_border(0.4)                   %>% 
-      set_right_border_color("grey")
+car_ht <- huxtable::add_colnames(car_ht)
 
-# Show the first 5 rows:
-cars_mpg[1:5,]
+# Pretty output, see below: 
+theme_plain(car_ht[1:5,])
 
 ## ------------------------------------------------------------------------
+
+car_ht <- as_hux(mtcars)
+car_ht <- huxtable::add_rownames(car_ht, colname = "Car")
+
 car_ht <- car_ht                                          %>%
-      huxtable::add_rownames(colname = "Car")             %>%
       slice(1:10)                                         %>% 
       select(Car, mpg, cyl, hp)                           %>% 
       arrange(hp)                                         %>% 
       filter(cyl > 4)                                     %>% 
       rename(MPG = mpg, Cylinders = cyl, Horsepower = hp) %>% 
-      mutate(kml = MPG/2.82)                               
+      mutate(kml = MPG/2.82)                              %>% 
+      huxtable::add_colnames()                            
 
-
-car_ht <- car_ht                               %>% 
-      set_number_format(1:7, "kml", 2)         %>% 
-      set_col_width(c(.35, .15, .15, .15, .2)) %>% 
-      set_width(.6)                            %>% 
-      huxtable::add_colnames()                 %>% 
-      set_right_border(0.4)                    %>% 
-      set_right_border_color("grey")
-
-car_ht
+theme_plain(car_ht)
 
 ## ------------------------------------------------------------------------
-ht <- insert_row(ht, "Hadley Wickham", "100000", after = 3)
-ht <- add_footnote(ht, "DHJ deserves a pay rise")
-ht
+htn <- hux(c(
+        "Some numbers...", 
+        11.003, 
+        300, 
+        12.02, 
+        "12.1 **", 
+        "mean 11.7 (se 2.3)"
+      )) 
+
+number_format(htn) <- 3
+theme_plain(htn)
 
 ## ------------------------------------------------------------------------
-pointy_ht <- hux(c("Column heading", 11.003, 300, 12.02, "12.1 **", "mean 11.7 (se 2.3)")) %>% 
-    set_all_borders(1)
+align(htn)[2:6, ] <- "." # not the first row
 
-number_format(pointy_ht) <- 3
-pointy_ht
-
-## ------------------------------------------------------------------------
-align(pointy_ht)[2:5, ] <- "." # not the first row
-pointy_ht
+theme_plain(htn)
 
 ## ------------------------------------------------------------------------
 
 my_data <- data.frame(
-        Employee           = c("John Smith", "Jane Doe", "David Hugh-Jones"), 
-        Salary             = c(50000L, 50000L, 40000L),
-        Performance_rating = c(8.9, 9.2, 7.8)  
+        Employee    = c("John Smith", "Jane Doe", "David Hugh-Jones"), 
+        Salary      = c(50000L, 50000L, 40000L),
+        Performance = c(8.9, 9.2, 7.8)  
       )
-as_huxtable(my_data, add_colnames = TRUE) # with automatic formatting
 
-as_huxtable(my_data, add_colnames = TRUE, autoformat = FALSE) # no automatic formatting
+as_hux(my_data, add_colnames = TRUE) # with automatic formatting
+
+as_hux(my_data, add_colnames = TRUE, autoformat = FALSE) # no automatic formatting
 
 ## ------------------------------------------------------------------------
 code_ht <- if (is_latex) hux(c("Some maths", "$a^b$")) else 
       hux(c("Copyright symbol", "&copy;"))
-code_ht
+
+theme_plain(code_ht)
 
 ## ------------------------------------------------------------------------
 escape_contents(code_ht)[2, 1] <- FALSE
-code_ht
+
+theme_plain(code_ht)
 
 ## ------------------------------------------------------------------------
-width(ht) <- 0.35
+width(ht) <- 0.4
 col_width(ht) <- c(.7, .3)
 ht
 
@@ -238,98 +243,68 @@ as_hux(mtcars[1:4, 1:4])                           %>%
       huxtable::add_colnames()
 
 ## ------------------------------------------------------------------------
-cars_mpg <- cbind(cylinders = cars_mpg$cyl, cars_mpg)
-cars_mpg$cylinders[1]   <- ""
-cars_mpg$cylinders[2]   <- "Four cylinders"
-cars_mpg$cylinders[13]  <- "Six cylinders"
-cars_mpg$cylinders[20]  <- "Eight cylinders"
 
-cars_mpg <- cars_mpg %>%  
+car_ht <- as_hux(mtcars)
+car_ht <- huxtable::add_rownames(car_ht, colname = "Car")
+car_ht <- car_ht %>% arrange(cyl) %>% select(1:4)
+car_ht <- huxtable::add_colnames(car_ht)
+
+car_ht <- cbind(cylinders = car_ht$cyl, car_ht)
+car_ht$cylinders[1]   <- ""
+car_ht$cylinders[2]   <- "Four cylinders"
+car_ht$cylinders[13]  <- "Six cylinders"
+car_ht$cylinders[20]  <- "Eight cylinders"
+
+car_ht <- car_ht %>%  
   merge_cells(2:12, 1) %>% 
   merge_cells(13:19, 1) %>% 
   merge_cells(20:33, 1)
 
-cars_mpg <- rbind(c("List of cars", "", "", "", ""), cars_mpg)
-cars_mpg <- merge_cells(cars_mpg, 1, 1:5)
-align(cars_mpg)[1, 1] <- "center"
+
+car_ht <- rbind(c("List of cars", "", "", "", ""), car_ht)
+car_ht <- merge_cells(car_ht, 1, 1:5)
+align(car_ht)[1, 1] <- "center"
 
 # a little more formatting:
 
-cars_mpg <- set_all_padding(cars_mpg, 2)
-cars_mpg <- set_all_borders(cars_mpg, 1)
-valign(cars_mpg)[1,] <- "top"
-col_width(cars_mpg) <- c(.4 , .3 , .1, .1, .1)
-number_format(cars_mpg)[, 4:5] <- 0
-bold(cars_mpg)[1:2, ] <- TRUE
-bold(cars_mpg)[, 1] <- TRUE
-if (is_latex) font_size(cars_mpg) <- 10
-cars_mpg
+# car_ht <- set_all_padding(car_ht, 2)
+# car_ht <- set_all_borders(car_ht, 1)
+# valign(car_ht)[1,] <- "top"
+# col_width(car_ht) <- c(.4 , .3 , .1, .1, .1)
+# number_format(car_ht)[, 4:5] <- 0
+# bold(car_ht)[1:2, ] <- TRUE
+# bold(car_ht)[, 1] <- TRUE
+# if (is_latex) font_size(car_ht) <- 10
 
-## ---- eval = FALSE-------------------------------------------------------
-#  colspan(cars_mpg)[1, 1] <- 5
-
-## ------------------------------------------------------------------------
-theme_plain(car_ht)
+car_ht <- theme_plain(car_ht)
+right_border(car_ht)[1, 1] <- 0.4
+bottom_border(car_ht)[21, 1] <- 0.4
+car_ht
 
 ## ------------------------------------------------------------------------
-car_ht                                                 %>% 
-      set_background_color(evens, everywhere, "wheat") %>% 
-      set_background_color(odds, everywhere, grey(.9)) %>% 
-      set_bold(1, everywhere, TRUE)
+theme_mondrian(ht)
 
 ## ------------------------------------------------------------------------
-car_ht %>% set_background_color(everywhere, starts_with("C"), "orange")
-car_ht %>% set_italic(everywhere, dplyr::matches("[aeiou]"), TRUE)
+ht %>% set_background_color(everywhere, starts_with("S"), "orange")
 
 ## ------------------------------------------------------------------------
-library(psych)
-data(attitude)
-att_corr <- corr.test(as.matrix(attitude))
-
-att_hux <- as_hux(att_corr$r)                                           %>% 
-      # selects cells with p < 0.05:
-      set_background_color(where(att_corr$p < 0.05), "yellow")          %>% 
-      # selects cells with p < 0.01:
-      set_background_color(where(att_corr$p < 0.01), "orange")          %>% 
-      set_text_color(where(row(att_corr$r) == col(att_corr$r)), "grey") 
-
-
-att_hux <- att_hux                                                      %>% 
-      huxtable::add_rownames()                                          %>% 
-      huxtable::add_colnames()                                          %>%
-      set_caption('Correlations in attitudes among 30 departments')     %>% 
-      set_bold(1, everywhere, TRUE)                                     %>% 
-      set_bold(everywhere, 1, TRUE)                                     %>% 
-      set_all_borders(1)                                                %>%
-      set_number_format(2)                                              %>% 
-      set_position('left')
-
-att_hux
-
-
-## ------------------------------------------------------------------------
-m <- matrix(c('dog', 'cat', 'dog', 'dog', 'cat', 'cat', 'cat', 'dog'), 4, 2)
-m
-where(m == 'dog') # m is equal to 'dog' in cells (1, 1), (3, 1), (4, 1) and (4, 2):
+ht %>% map_background_color(by_rows("grey90", "grey95"))
 
 ## ------------------------------------------------------------------------
 
-color_demo <- matrix('text', 7, 7)
-rainbow <- c('red', 'orange', 'yellow', 'green', 'blue', 'turquoise', 'violet')
-color_demo <- as_hux(color_demo)                  %>% 
-      set_text_color(rainbow)                     %>% # text rainbow down columns
-      set_background_color(rainbow, byrow = TRUE) %>% # background color rainbow along rows
-      set_all_borders(1)                          %>% 
-      set_all_border_colors('white')
-color_demo
+car_ht %>% map_text_color(everywhere, 3, 
+        by_ranges(c(15, 25), c("red", "darkgreen", "green"))
+      )
 
 
 ## ------------------------------------------------------------------------
-data(diamonds, package = 'ggplot2')
+ht %>% map_bold(by_regex('Jones' = TRUE))
 
-lm1 <- lm(price ~ carat, diamonds)
-lm2 <- lm(price ~ depth, diamonds)
-lm3 <- lm(price ~ carat + depth, diamonds)
+## ------------------------------------------------------------------------
+
+lm1 <- lm(mpg ~ cyl, mtcars)
+lm2 <- lm(mpg ~ hp, mtcars)
+lm3 <- lm(mpg ~ cyl + hp, mtcars)
 
 huxreg(lm1, lm2, lm3)
 
@@ -344,6 +319,7 @@ options(huxtable.knit_print_df = FALSE)
 
 head(mtcars) # back to normal
 
+## ---- include = FALSE----------------------------------------------------
 options(huxtable.knit_print_df = TRUE)
 
 ## ---- results = 'markup'-------------------------------------------------
@@ -351,14 +327,12 @@ print_screen(ht)
 
 ## ---- echo = FALSE-------------------------------------------------------
 quick_commands <- hux(
-        Command = paste0("<code>", 
-          c("quick_pdf", "quick_docx", "quick_html", "quick_xlsx", "quick_pptx", "quick_rtf"), 
-          "</code>"),
+        Command = c("quick_pdf", "quick_docx", "quick_html", "quick_xlsx", "quick_pptx", "quick_rtf"), 
         Output = c("PDF document", "Word document", "HTML web page", "Excel spreadsheet", 
           "Powerpoint presentation", "RTF document"),
         add_colnames = TRUE
       )
-escape_contents(quick_commands) <- FALSE
+font(quick_commands)[, 1] <- if (is_latex) 'cmtt' else 'Courier'
 
 theme_plain(quick_commands)
 

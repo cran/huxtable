@@ -4,6 +4,7 @@
 \alias{left_border_color}
 \alias{left_border_color<-}
 \alias{set_left_border_color}
+\alias{map_left_border_color}
 \alias{right_border_color}
 \alias{top_border_color}
 \alias{bottom_border_color}
@@ -13,39 +14,49 @@
 \alias{set_right_border_color}
 \alias{set_top_border_color}
 \alias{set_bottom_border_color}
+\alias{map_right_border_color}
+\alias{map_top_border_color}
+\alias{map_bottom_border_color}
 \title{Border colors}
 \usage{
 left_border_color(ht)
 left_border_color(ht) <- value
 set_left_border_color(ht, row, col, value, byrow = FALSE)
+map_left_border_color(ht, row, col, fn)
 
 right_border_color(ht)
 right_border_color(ht) <- value
 set_right_border_color(ht, row, col, value, byrow = FALSE)
+map_right_border_color(ht, row, col, fn)
 
 top_border_color(ht)
 top_border_color(ht) <- value
 set_top_border_color(ht, row, col, value, byrow = FALSE)
+map_top_border_color(ht, row, col, fn)
 
 bottom_border_color(ht)
 bottom_border_color(ht) <- value
 set_bottom_border_color(ht, row, col, value, byrow = FALSE)
+map_bottom_border_color(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A vector or matrix of colors. Set to \code{NA} to reset to the default, which is
-\code{NA}.}
+\item{value}{A vector or matrix of colors.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{NA}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{left_border_color}, the \code{left_border_color} property.
-For \code{set_left_border_color}, the \code{ht} object.
+For \code{set_left_border_color} and \code{map_left_border_color}, the modified huxtable.
 
 Similarly for the other functions.
 }
@@ -66,22 +77,26 @@ release.
 \examples{
 ht <- huxtable(a = 1:3, b = 3:1)
 ht <- set_all_borders(ht, 1)
-set_left_border_color(ht, 'red')
-set_left_border_color(ht, 1:2, 1, 'red')
-set_left_border_color(ht, 1:2, 1:2, c('red', 'blue'), byrow = TRUE)
-set_left_border_color(ht, where(ht == 1), 'red')
+set_left_border_color(ht, "red")
+set_left_border_color(ht,
+      1:2, 1, "red")
+
 # When cells span multiple rows:
 ht <- tribble_hux(
   ~Col1,                   ~Col2,
   "Cell 1,1 spans 2 rows", "Cell 1,2",
   "Cell 2,1 is invisible", "Cell 2,2"
 )
+
 rowspan(ht)[1, 1] <- 2
 ht
+
 bottom_border(ht)[2, ] <- 1
 bottom_border_color(ht)[2, ] <- 'red'
+
 # Cell 1, 1 does not have a border set:
 ht
+
 # Fixed:
 bottom_border(ht)[1, 1] <- 1
 bottom_border_color(ht)[1, 1] <- 'red'

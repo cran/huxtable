@@ -4,27 +4,32 @@
 \alias{align}
 \alias{align<-}
 \alias{set_align}
+\alias{map_align}
 \title{Alignment}
 \usage{
 align(ht)
 align(ht) <- value
 set_align(ht, row, col, value, byrow = FALSE)
+map_align(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A character vector or matrix which may be 'left', 'center', 'right' , \code{NA} or a single character. Set to \code{NA} to reset to the default, which is
-\code{"left"}.}
+\item{value}{A character vector or matrix which may be "left", "center", "right" , \code{NA} or a single character.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{"left"}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{align}, the \code{align} property.
-For \code{set_align}, the \code{ht} object.
+For \code{set_align} and \code{map_align}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{alignment} property of huxtable cells.
@@ -35,14 +40,13 @@ a decimal point), then the cell is aligned on this character.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-align(ht) <-  'right'
-align(ht)
+align(jams) <-  "right"
+align(jams)
 
 
-ht <- huxtable(a = 1:3, b = 3:1)
-set_align(ht, 'right')
-set_align(ht, 1:2, 1, 'right')
-set_align(ht, 1:2, 1:2, c('right', 'left'), byrow = TRUE)
-set_align(ht, where(ht == 1), 'right')
+set_align(jams, "right")
+set_align(jams,
+      2:3, 1, "right")
+map_align(jams,
+      by_rows("right", "left"))
 }

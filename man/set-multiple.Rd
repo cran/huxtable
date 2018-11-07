@@ -2,33 +2,48 @@
 % Please edit documentation in R/get-set-convenience.R
 \name{set-multiple}
 \alias{set-multiple}
+\alias{set_multiple}
 \alias{set_all_borders}
+\alias{map_all_borders}
 \alias{set_all_border_colors}
+\alias{map_all_border_colors}
 \alias{set_all_border_styles}
+\alias{map_all_border_styles}
 \alias{set_all_padding}
+\alias{map_all_padding}
 \alias{set_outer_borders}
 \title{Set left, right, top and bottom properties}
 \usage{
 set_all_borders(ht, row, col, value, byrow = FALSE)
 
+map_all_borders(ht, row, col, fn)
+
 set_all_border_colors(ht, row, col, value, byrow = FALSE)
+
+map_all_border_colors(ht, row, col, fn)
 
 set_all_border_styles(ht, row, col, value, byrow = FALSE)
 
+map_all_border_styles(ht, row, col, fn)
+
 set_all_padding(ht, row, col, value, byrow = FALSE)
+
+map_all_padding(ht, row, col, fn)
 
 set_outer_borders(ht, row, col, value)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
 \item{value}{Value(s) to set. Set to \code{NA} to reset to the default.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
+
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
 }
 \value{
 The modified huxtable.
@@ -44,8 +59,8 @@ of cells. Behaviour is undefined unless \code{row} and \code{col} specify contig
 \examples{
 ht <- huxtable(a = 1:3, b = 1:3)
 set_all_borders(ht, 1:3, 1:2, 1)
-ht <- set_all_border_colors(ht, 'red')
-ht <- set_all_border_styles(ht, 'double')
+ht <- set_all_border_colors(ht, "red")
+ht <- set_all_border_styles(ht, "double")
 ht <- set_all_padding(ht, 1:3, 1:2, "20px")
 ht2 <- huxtable(a = 1:3, b = 1:3)
 set_outer_borders(ht2, 1)

@@ -37,10 +37,10 @@ quick_rtf(..., file = confirm("huxtable-output.rtf"), borders = 0.4,
 
 \item{open}{Logical. Automatically open the resulting file?}
 
-\item{width}{String passed to the LaTeX \code{geometry} package's \code{paperwidth} option. Use \code{NULL} for
+\item{width}{String passed to the LaTeX \code{geometry} package"s \code{paperwidth} option. Use \code{NULL} for
 the default width.}
 
-\item{height}{String passed to \code{geometry}'s \code{paperheight} option. Use \code{NULL} for the default
+\item{height}{String passed to \code{geometry}"s \code{paperheight} option. Use \code{NULL} for the default
 height.}
 }
 \value{
@@ -59,12 +59,13 @@ if this already exists, you will be asked to confirm manually before proceeding.
 }
 \examples{
 \dontrun{
-m <- matrix(1:4, 2, 2)
-dfr <- data.frame(a = 1:5, b = 1:5)
-quick_pdf(m, dfr)
-quick_html(m, dfr)
-quick_docx(m, dfr)
-quick_xlsx(m, dfr)
-quick_pptx(m, dfr)
+  m <- matrix(1:4, 2, 2)
+
+  quick_pdf(m, jams)
+  quick_html(m, jams)
+  quick_docx(m, jams)
+  quick_xlsx(m, jams)
+  quick_pptx(m, jams)
+  quick_rtf(m, jams)
 }
 }

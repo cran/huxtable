@@ -4,42 +4,60 @@
 \alias{escape_contents}
 \alias{escape_contents<-}
 \alias{set_escape_contents}
+\alias{map_escape_contents}
 \title{Escape cell contents}
 \usage{
 escape_contents(ht)
 escape_contents(ht) <- value
 set_escape_contents(ht, row, col, value, byrow = FALSE)
+map_escape_contents(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A logical vector or matrix. If \code{TRUE}, cell contents will be HTML or LaTeX escaped. Set to \code{NA} to reset to the default, which is
-\code{TRUE}.}
+\item{value}{A logical vector or matrix. If \code{TRUE}, cell contents will be HTML or LaTeX escaped.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{TRUE}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{escape_contents}, the \code{escape_contents} property.
-For \code{set_escape_contents}, the \code{ht} object.
+For \code{set_escape_contents} and \code{map_escape_contents}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{escape cell contents} property of huxtable cells.
 }
 \examples{
-ht <- huxtable(Exponent = 2:4, Example = paste0('$x^', 2:4, '$'))
+ht <- huxtable(
+        Exponent = 2:4,
+        Example  = paste0("$x^", 2:4, "$"),
+        add_colnames = TRUE
+      )
 escape_contents(ht)[,2] <- FALSE
+\dontrun{
+  quick_pdf(ht)
+}
 
-ht <- huxtable(a = 1:3, b = 3:1)
-ht2 <- set_escape_contents(ht, TRUE)
-escape_contents(ht2)
-ht3 <- set_escape_contents(ht, 1:2, 1, TRUE)
-escape_contents(ht3)
-ht4 <- set_escape_contents(ht, 1:2, 1:2, c(TRUE, FALSE), byrow = TRUE)
-escape_contents(ht4)
-ht5 <- set_escape_contents(ht, where(ht == 1), TRUE)
-escape_contents(ht5)
+
+jams2 <- set_escape_contents(jams,
+      TRUE)
+escape_contents(jams2)
+
+jams3 <- set_escape_contents(jams,
+      2:3, 1, TRUE)
+escape_contents(jams3)
+
+jams4 <- map_escape_contents(jams,
+      by_rows(
+        TRUE,
+        FALSE)
+      )
+escape_contents(jams4)
 }

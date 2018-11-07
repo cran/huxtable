@@ -4,27 +4,32 @@
 \alias{valign}
 \alias{valign<-}
 \alias{set_valign}
+\alias{map_valign}
 \title{Vertical alignment}
 \usage{
 valign(ht)
 valign(ht) <- value
 set_valign(ht, row, col, value, byrow = FALSE)
+map_valign(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A character vector or matrix which may be 'top', 'middle', 'bottom' or \code{NA}. Set to \code{NA} to reset to the default, which is
-\code{"top"}.}
+\item{value}{A character vector or matrix which may be "top", "middle", "bottom" or \code{NA}.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{"top"}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{valign}, the \code{valign} property.
-For \code{set_valign}, the \code{ht} object.
+For \code{set_valign} and \code{map_valign}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{vertical alignment} property of huxtable cells.
@@ -35,18 +40,22 @@ may help.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-valign(ht) <-  'bottom'
-valign(ht)
+valign(jams) <-  "bottom"
+valign(jams)
 
 
-ht <- huxtable(a = 1:3, b = 3:1)
-ht2 <- set_valign(ht, 'bottom')
-valign(ht2)
-ht3 <- set_valign(ht, 1:2, 1, 'bottom')
-valign(ht3)
-ht4 <- set_valign(ht, 1:2, 1:2, c('bottom', 'bottom'), byrow = TRUE)
-valign(ht4)
-ht5 <- set_valign(ht, where(ht == 1), 'bottom')
-valign(ht5)
+jams2 <- set_valign(jams,
+      "bottom")
+valign(jams2)
+
+jams3 <- set_valign(jams,
+      2:3, 1, "bottom")
+valign(jams3)
+
+jams4 <- map_valign(jams,
+      by_rows(
+        "bottom",
+        "bottom")
+      )
+valign(jams4)
 }

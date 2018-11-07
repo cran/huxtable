@@ -4,34 +4,41 @@
 \alias{rowspan}
 \alias{rowspan<-}
 \alias{set_rowspan}
+\alias{map_rowspan}
 \alias{colspan}
 \alias{colspan<-}
 \alias{set_colspan}
+\alias{map_colspan}
 \title{Row and column span}
 \usage{
 rowspan(ht)
 rowspan(ht) <- value
 set_rowspan(ht, row, col, value, byrow = FALSE)
+map_rowspan(ht, row, col, fn)
 
 colspan(ht)
 colspan(ht) <- value
 set_colspan(ht, row, col, value, byrow = FALSE)
+map_colspan(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{An integer vector or matrix. Set to \code{NA} to reset to the default, which is
-\code{1}.}
+\item{value}{An integer vector or matrix.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{1}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{rowspan}, the \code{rowspan} property.
-For \code{set_rowspan}, the \code{ht} object.
+For \code{set_rowspan} and \code{map_rowspan}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{row and column span} property of huxtable cells.
@@ -43,9 +50,8 @@ and colspan of 2 covers a 2 x 2 square, hiding three other cells.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-rowspan(ht)[1, 1] <-  2
-rowspan(ht)
-ht <- set_all_borders(ht, 1) 
-ht
+rowspan(jams)[1, 1] <-  2
+rowspan(jams)
+jams <- set_all_borders(jams, 1) 
+jams
 }

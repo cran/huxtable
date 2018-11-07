@@ -4,6 +4,7 @@
 \alias{left_border}
 \alias{left_border<-}
 \alias{set_left_border}
+\alias{map_left_border}
 \alias{right_border}
 \alias{top_border}
 \alias{bottom_border}
@@ -13,39 +14,49 @@
 \alias{set_right_border}
 \alias{set_top_border}
 \alias{set_bottom_border}
+\alias{map_right_border}
+\alias{map_top_border}
+\alias{map_bottom_border}
 \title{Borders}
 \usage{
 left_border(ht)
 left_border(ht) <- value
 set_left_border(ht, row, col, value, byrow = FALSE)
+map_left_border(ht, row, col, fn)
 
 right_border(ht)
 right_border(ht) <- value
 set_right_border(ht, row, col, value, byrow = FALSE)
+map_right_border(ht, row, col, fn)
 
 top_border(ht)
 top_border(ht) <- value
 set_top_border(ht, row, col, value, byrow = FALSE)
+map_top_border(ht, row, col, fn)
 
 bottom_border(ht)
 bottom_border(ht) <- value
 set_bottom_border(ht, row, col, value, byrow = FALSE)
+map_bottom_border(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A numeric vector or matrix giving border widths in points. Set to 0 for no border. Set to \code{NA} to reset to the default, which is
-\code{0}.}
+\item{value}{A numeric vector or matrix giving border widths in points. Set to 0 for no border.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{0}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{left_border}, the \code{left_border} property.
-For \code{set_left_border}, the \code{ht} object.
+For \code{set_left_border} and \code{map_left_border}, the modified huxtable.
 
 Similarly for the other functions.
 }
@@ -65,28 +76,31 @@ release.
 
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-left_border(ht) <-  1
-left_border(ht)
-print_screen(ht)
+left_border(jams) <-  1
+left_border(jams)
+jams
 
-ht <- huxtable(a = 1:3, b = 3:1)
-set_left_border(ht, 1)
-set_left_border(ht, 1:2, 1, 1)
-set_left_border(ht, 1:2, 1:2, c(1, 2), byrow = TRUE)
-set_left_border(ht, where(ht == 1), 1)
+set_left_border(jams, 1)
+set_left_border(jams,
+      2:3, 1, 1)
+map_left_border(jams,
+      by_rows(1, 0))
 # When cells span multiple rows:
 ht <- tribble_hux(
   ~Col1,                   ~Col2,
   "Cell 1,1 spans 2 rows", "Cell 1,2",
   "Cell 2,1 is invisible", "Cell 2,2"
 )
+
 rowspan(ht)[1, 1] <- 2
 ht
+
 bottom_border(ht)[2, ] <- 1
 bottom_border_color(ht)[2, ] <- 'red'
+
 # Cell 1, 1 does not have a border set:
 ht
+
 # Fixed:
 bottom_border(ht)[1, 1] <- 1
 bottom_border_color(ht)[1, 1] <- 'red'

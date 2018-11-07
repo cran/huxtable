@@ -18,16 +18,15 @@ set_height(ht, value)
 }
 \value{
 For \code{height}, the \code{height} property.
-For \code{set_height}, the \code{ht} object.
+For \code{set_height}, the modified huxtable.
 }
 \description{
 Functions to get or set the table-level \emph{table height} property of a huxtable.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-height(ht) <-  0.4
-height(ht)
+height(jams) <-  0.4
+height(jams)
 
 }
 \seealso{

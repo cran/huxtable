@@ -15,11 +15,11 @@ set_col_width(ht, col, value)
 
 \item{value}{A vector. If numeric, they are treated as proportions of the table width. If character, they must be valid CSS or LaTeX lengths.}
 
-\item{col}{A col specifier. See \code{\link{rowspecs}} for details.}
+\item{col}{A col specifier. See \link{rowspecs} for details.}
 }
 \value{
 For \code{col_width}, the \code{col_width} property.
-For \code{set_col_width}, the \code{ht} object.
+For \code{set_col_width}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{column widths} property of huxtable cols.
@@ -31,9 +31,8 @@ The workaround is to adjust the width, so that your cells no longer overrun.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-col_width(ht) <-  c(.2, .8)
-col_width(ht)
+col_width(jams) <-  c(.2, .8)
+col_width(jams)
 
 }
 \seealso{

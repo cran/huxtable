@@ -4,27 +4,32 @@
 \alias{number_format}
 \alias{number_format<-}
 \alias{set_number_format}
+\alias{map_number_format}
 \title{Number format}
 \usage{
 number_format(ht)
 number_format(ht) <- value
 set_number_format(ht, row, col, value, byrow = FALSE)
+map_number_format(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+\item{value}{A character or integer vector, or a list containing a function, or \code{NA}.
+
+Note that setting to \code{NA} does not reset to the default.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
 
-\item{value}{A character or integer vector, or a list containing a function, or \code{NA}. Note
-that setting to \code{NA} does not reset to the default.}
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{number_format}, the \code{number_format} property.
-For \code{set_number_format}, the \code{ht} object.
+For \code{set_number_format} and \code{map_number_format}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{number format} property of huxtable cells.
@@ -58,36 +63,55 @@ numbers in their entirety. The default value was "\%5.2f".
 }
 \examples{
 ht <- huxtable(
-  number_format = c("Default", "NA", "2", "\\"\%5.2f\\"", "Pretty", "Sign"),
-  a = rep(1000, 6),
-  b = rep(1000.005, 6),
-  c = rep(0.0001, 6),
-  d = rep(-1, 6),
-  e = rep("3.2 (s.e. 1.4)", 6),
-  add_colnames = TRUE
-)
+        number_format = c(
+          "Default",
+          "NA",
+          "2",
+          "\\"\%5.2f\\"",
+          "Pretty",
+          "Sign"
+        ),
+        a = rep(1000, 6),
+        b = rep(1000.005, 6),
+        c = rep(0.0001, 6),
+        d = rep(-1, 6),
+        e = rep("3.2 (s.e. 1.4)", 6),
+        add_colnames = TRUE
+      )
+
 number_format(ht)[3, -1] <- NA
 number_format(ht)[4, -1] <- 2
-number_format(ht)[5, -1] <- '\%5.2f'
-number_format(ht)[6, -1] <- list(function(x) prettyNum(x, big.mark = ',', scientific = FALSE))
-number_format(ht)[7, -1] <- list(function(x) if(x>0) '+' else '-')
+number_format(ht)[5, -1] <- "\%5.2f"
+
+number_format(ht)[6, -1] <- list(
+        function(x)
+          prettyNum(x, big.mark = ",",
+                scientific = FALSE)
+      )
+
+number_format(ht)[7, -1] <- list(
+        function(x) if (x > 0) "+" else "-"
+      )
+
 right_border(ht) <- 1
 bottom_border(ht)[1, ] <- 1
+
 ht
 
 ht_bands <- huxtable("10000 Maniacs", autoformat = FALSE)
 # probably not what you want:
 ht_bands
-number_format(ht_bands) <- NA
-ht_bands
+# fixed:
+set_number_format(ht_bands, NA)
 # alternatively:
 huxtable("10000 Maniacs", autoformat = TRUE)
 
-ht <- huxtable(a = 1:3, b = 3:1)
-set_number_format(ht, 2)
-set_number_format(ht, 1:2, 1, 2)
-set_number_format(ht, 1:2, 1:2, c(2, 3), byrow = TRUE)
-set_number_format(ht, where(ht == 1), 2)
+
+set_number_format(jams, 2)
+set_number_format(jams,
+      2:3, 1, 2)
+map_number_format(jams,
+      by_rows(2, 3))
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

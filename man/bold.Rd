@@ -4,34 +4,41 @@
 \alias{bold}
 \alias{bold<-}
 \alias{set_bold}
+\alias{map_bold}
 \alias{italic}
 \alias{italic<-}
 \alias{set_italic}
+\alias{map_italic}
 \title{Cell text style}
 \usage{
 bold(ht)
 bold(ht) <- value
 set_bold(ht, row, col, value, byrow = FALSE)
+map_bold(ht, row, col, fn)
 
 italic(ht)
 italic(ht) <- value
 set_italic(ht, row, col, value, byrow = FALSE)
+map_italic(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A logical vector or matrix Set to \code{NA} to reset to the default, which is
-\code{FALSE}.}
+\item{value}{A logical vector or matrix. \code{TRUE} for bold/italic.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{FALSE}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{bold}, the \code{bold} property.
-For \code{set_bold}, the \code{ht} object.
+For \code{set_bold} and \code{map_bold}, the modified huxtable.
 
 Similarly for \code{italic} and friends.
 }
@@ -40,16 +47,15 @@ Functions to get or set the \emph{cell text style} property of huxtable cells.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-bold(ht) <-  TRUE
-bold(ht)
-print_screen(ht)
+bold(jams) <-  TRUE
+bold(jams)
 
-ht <- huxtable(a = 1:3, b = 3:1)
-set_bold(ht, TRUE)
-set_bold(ht, 1:2, 1, TRUE)
-set_bold(ht, 1:2, 1:2, c(TRUE, FALSE), byrow = TRUE)
-set_bold(ht, where(ht == 1), TRUE)
+
+set_bold(jams, TRUE)
+set_bold(jams,
+      2:3, 1, TRUE)
+map_bold(jams,
+      by_rows(TRUE, FALSE))
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

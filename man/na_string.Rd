@@ -4,48 +4,57 @@
 \alias{na_string}
 \alias{na_string<-}
 \alias{set_na_string}
+\alias{map_na_string}
 \title{NA string}
 \usage{
 na_string(ht)
 na_string(ht) <- value
 set_na_string(ht, row, col, value, byrow = FALSE)
+map_na_string(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A character string. This will be used to replace NA values in the display. Set to \code{NA} to reset to the default, which is
-\code{""}.}
+\item{value}{A character string. This will be used to replace NA values in the display.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{""}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{na_string}, the \code{na_string} property.
-For \code{set_na_string}, the \code{ht} object.
+For \code{set_na_string} and \code{map_na_string}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{na string} property of huxtable cells.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-na_string(ht) <-  '--'
-na_string(ht)
-ht[2,2] <- NA 
-print_screen(ht)
+na_string(jams) <-  "--"
+na_string(jams)
+jams[2,2] <- NA 
+jams
 
-ht <- huxtable(a = 1:3, b = 3:1)
-ht2 <- set_na_string(ht, '--')
-na_string(ht2)
-ht3 <- set_na_string(ht, 1:2, 1, '--')
-na_string(ht3)
-ht4 <- set_na_string(ht, 1:2, 1:2, c('--', ''), byrow = TRUE)
-na_string(ht4)
-ht5 <- set_na_string(ht, where(ht == 1), '--')
-na_string(ht5)
+jams2 <- set_na_string(jams,
+      "--")
+na_string(jams2)
+
+jams3 <- set_na_string(jams,
+      2:3, 1, "--")
+na_string(jams3)
+
+jams4 <- map_na_string(jams,
+      by_rows(
+        "--",
+        "")
+      )
+na_string(jams4)
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

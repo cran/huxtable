@@ -18,7 +18,7 @@ set_caption(ht, value)
 }
 \value{
 For \code{caption}, the \code{caption} property.
-For \code{set_caption}, the \code{ht} object.
+For \code{set_caption}, the modified huxtable.
 }
 \description{
 Functions to get or set the table-level \emph{caption} property of a huxtable.
@@ -28,12 +28,14 @@ Captions are not escaped. See the example for a workaround.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-caption(ht) <-  'An example table'
-caption(ht)
-print_screen(ht)
-ht <- hux(a = 1:2, b = 1:2)
-caption(ht) <- sanitize('Make $$$ with us', type = 'latex') # escape caption characters
+caption(jams) <-  "An example table"
+caption(jams)
+jams
+
+# escape caption characters:
+caption(jams) <- sanitize(
+      "Make $$$ with jam",
+      type = "latex")
 }
 \seealso{
 \code{\link[=caption_pos]{caption_pos()}}

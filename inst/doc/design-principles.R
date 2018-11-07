@@ -43,8 +43,9 @@ if (is_latex) {
   caption(ch1) <- 'Comparison table, part 1'
   caption(ch2) <- 'Comparison table, part 2'
 } else {
+  width(ch) <- '700pt'
   row_height(ch) <- c('80pt', rep('14pt', nrow(ch) - 1))
-  col_width(ch) <- c('60pt', rep('20pt', ncol(ch) - 1))
+  col_width(ch) <- c('60pt', rep('30pt', ncol(ch) - 1))
 }
 
 if (! is_latex) ch

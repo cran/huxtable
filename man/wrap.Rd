@@ -4,43 +4,59 @@
 \alias{wrap}
 \alias{wrap<-}
 \alias{set_wrap}
+\alias{map_wrap}
 \title{Text wrapping}
 \usage{
 wrap(ht)
 wrap(ht) <- value
 set_wrap(ht, row, col, value, byrow = FALSE)
+map_wrap(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A logical vector or matrix. If \code{TRUE}, long cell contents will be wrapped into multiple lines. Set to \code{NA} for the default. Set to \code{NA} to reset to the default, which is
-\code{FALSE}.}
+\item{value}{A logical vector or matrix. If \code{TRUE}, long cell contents will be wrapped into multiple lines.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{FALSE}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{wrap}, the \code{wrap} property.
-For \code{set_wrap}, the \code{ht} object.
+For \code{set_wrap} and \code{map_wrap}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{text wrapping} property of huxtable cells.
 }
 \examples{
-ht <- huxtable(a = rep('Some long text', 2))
-wrap(ht)[1,] <- TRUE
-print_html(ht)
+ht <- huxtable(paste(
+      rep("Some long text.", 20),
+      collapse = " "))
+width(ht) <- 0.2
+wrap(ht) <- TRUE
+\dontrun{
+  quick_html(ht)
+}
 
-ht <- huxtable(a = 1:3, b = 3:1)
-ht2 <- set_wrap(ht, TRUE)
-wrap(ht2)
-ht3 <- set_wrap(ht, 1:2, 1, TRUE)
-wrap(ht3)
-ht4 <- set_wrap(ht, 1:2, 1:2, c(TRUE, FALSE), byrow = TRUE)
-wrap(ht4)
-ht5 <- set_wrap(ht, where(ht == 1), TRUE)
-wrap(ht5)
+
+jams2 <- set_wrap(jams,
+      TRUE)
+wrap(jams2)
+
+jams3 <- set_wrap(jams,
+      2:3, 1, TRUE)
+wrap(jams3)
+
+jams4 <- map_wrap(jams,
+      by_rows(
+        TRUE,
+        FALSE)
+      )
+wrap(jams4)
 }

@@ -4,27 +4,32 @@
 \alias{text_color}
 \alias{text_color<-}
 \alias{set_text_color}
+\alias{map_text_color}
 \title{Text color}
 \usage{
 text_color(ht)
 text_color(ht) <- value
 set_text_color(ht, row, col, value, byrow = FALSE)
+map_text_color(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A character vector or matrix of valid R colors. Set to \code{NA} to reset to the default, which is
-\code{NA}.}
+\item{value}{A character vector or matrix of valid R colors.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{NA}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{text_color}, the \code{text_color} property.
-For \code{set_text_color}, the \code{ht} object.
+For \code{set_text_color} and \code{map_text_color}, the modified huxtable.
 }
 \description{
 Functions to get or set the \emph{text color} property of huxtable cells.
@@ -34,16 +39,15 @@ Colors can be in any format understood by R, e.g. \code{"red"}, \code{"#FF0000"}
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-text_color(ht) <-  'blue'
-text_color(ht)
+text_color(jams) <-  "blue"
+text_color(jams)
 
 
-ht <- huxtable(a = 1:3, b = 3:1)
-set_text_color(ht, 'blue')
-set_text_color(ht, 1:2, 1, 'blue')
-set_text_color(ht, 1:2, 1:2, c('blue', 'red'), byrow = TRUE)
-set_text_color(ht, where(ht == 1), 'blue')
+set_text_color(jams, "blue")
+set_text_color(jams,
+      2:3, 1, "blue")
+map_text_color(jams,
+      by_rows("blue", "red"))
 }
 \seealso{
 Other formatting functions: \code{\link{background_color}},

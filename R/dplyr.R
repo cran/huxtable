@@ -25,19 +25,19 @@ mutate_.huxtable <- function (.data, ..., .dots) {
     copy_cell_props <- if (utils::packageVersion("dplyr") > "0.5.0") {
       .dots$copy_cell_props
     } else {
-    if (! requireNamespace('lazyeval', quietly = TRUE)) stop(
-          'Using huxtable with dplyr 0.5.0 or less requires the lazyeval package.\n',
-          'Either type `install.packages("lazyeval")` or update dplyr to a more recent version.')
+    if (! requireNamespace("lazyeval", quietly = TRUE)) stop(
+         "Using huxtable with dplyr 0.5.0 or less requires the lazyeval package. ",
+         "Either type `install.packages(\"lazyeval\")` or update dplyr to a more recent version.")
       lazyeval::lazy_eval(.dots$copy_cell_props)
     }
   }
-  .dots <- .dots[setdiff(names(.dots), 'copy_cell_props')]
+  .dots <- .dots[setdiff(names(.dots), "copy_cell_props")]
   result <- NextMethod()
   result <- as_hux(result, autoformat = FALSE)
 
   for (a in c(huxtable_row_attrs, huxtable_table_attrs)) attr(result, a) <- attr(ht, a)
 
-  # unlike in extract-methods we can't assume that new columns are on the right: transmute can reorder them
+  # unlike in extract-methods we can't assume new columns are on right: transmute can reorder them
   # columns may even be reordered by e.g. a=NULL,...,a=new_value
   # so: all columns with an old name get the old attributes. New columns get copied attributes maybe.
   match_cols <- match(colnames(result), colnames(ht))
@@ -82,7 +82,8 @@ mutate_.huxtable <- function (.data, ..., .dots) {
 #' ht3 <- dplyr::mutate(ht, x = a + b)
 #' ht3
 #' bold(ht3)
-#' ht4 <- dplyr::mutate(ht, x = a + b, copy_cell_props = FALSE)
+#' ht4 <- dplyr::mutate(ht, x = a + b,
+#'       copy_cell_props = FALSE)
 #' bold(ht4)
 mutate.huxtable <- function (.data, ..., copy_cell_props = TRUE) {
   ht <- .data

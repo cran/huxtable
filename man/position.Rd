@@ -13,12 +13,12 @@ set_position(ht, value)
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A length-one character vector which may be 'left', 'center' or 'right'. Set to \code{NA} to reset to the default, which is
+\item{value}{A length-one character vector which may be "left", "center" or "right". Set to \code{NA} to reset to the default, which is
 \code{"center"}.}
 }
 \value{
 For \code{position}, the \code{position} property.
-For \code{set_position}, the \code{ht} object.
+For \code{set_position}, the modified huxtable.
 }
 \description{
 Functions to get or set the table-level \emph{table position} property of a huxtable.
@@ -29,8 +29,7 @@ explicitly.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-position(ht) <-  'right'
-position(ht)
+position(jams) <-  "right"
+position(jams)
 
 }

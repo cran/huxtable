@@ -4,6 +4,7 @@
 \alias{left_padding}
 \alias{left_padding<-}
 \alias{set_left_padding}
+\alias{map_left_padding}
 \alias{right_padding}
 \alias{top_padding}
 \alias{bottom_padding}
@@ -13,39 +14,49 @@
 \alias{set_right_padding}
 \alias{set_top_padding}
 \alias{set_bottom_padding}
+\alias{map_right_padding}
+\alias{map_top_padding}
+\alias{map_bottom_padding}
 \title{Cell padding}
 \usage{
 left_padding(ht)
 left_padding(ht) <- value
 set_left_padding(ht, row, col, value, byrow = FALSE)
+map_left_padding(ht, row, col, fn)
 
 right_padding(ht)
 right_padding(ht) <- value
 set_right_padding(ht, row, col, value, byrow = FALSE)
-
-bottom_padding(ht)
-bottom_padding(ht) <- value
-set_bottom_padding(ht, row, col, value, byrow = FALSE)
+map_right_padding(ht, row, col, fn)
 
 top_padding(ht)
 top_padding(ht) <- value
 set_top_padding(ht, row, col, value, byrow = FALSE)
+map_top_padding(ht, row, col, fn)
+
+bottom_padding(ht)
+bottom_padding(ht) <- value
+set_bottom_padding(ht, row, col, value, byrow = FALSE)
+map_bottom_padding(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
 
-\item{value}{A vector or matrix. Characters must be valid CSS or LaTeX lengths. Numbers will be interpreted as lengths in points. Set to \code{NA} to reset to the default, which is
-\code{4}.}
+\item{value}{A vector or matrix. Characters must be valid CSS or LaTeX lengths. Numbers will be interpreted as lengths in points.
 
-\item{row}{A row specifier. See \code{\link{rowspecs}} for details.}
+Set to \code{NA} to reset to the default, which is \code{4}.}
+
+\item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
-\item{byrow}{If \code{TRUE}, fill in values by row rather than by column.}
+\item{fn}{A mapping function. See \link{mapping-functions} for details.}
+
+\item{byrow}{Deprecated. Use \code{\link[=by_cols]{by_cols()}} instead.}
 }
 \value{
 For \code{left_padding}, the \code{left_padding} property.
-For \code{set_left_padding}, the \code{ht} object.
+For \code{set_left_padding} and \code{map_left_padding}, the modified huxtable.
 
 Similarly for the other functions.
 }
@@ -54,18 +65,22 @@ Functions to get or set the \emph{cell padding} property of huxtable cells.
 }
 \examples{
 
-ht <- huxtable(a = 1:3, b = 1:3)
-left_padding(ht) <-  20
-left_padding(ht)
+left_padding(jams) <-  20
+left_padding(jams)
 
 
-ht <- huxtable(a = 1:3, b = 3:1)
-ht2 <- set_left_padding(ht, 20)
-left_padding(ht2)
-ht3 <- set_left_padding(ht, 1:2, 1, 20)
-left_padding(ht3)
-ht4 <- set_left_padding(ht, 1:2, 1:2, c(20, 10), byrow = TRUE)
-left_padding(ht4)
-ht5 <- set_left_padding(ht, where(ht == 1), 20)
-left_padding(ht5)
+jams2 <- set_left_padding(jams,
+      20)
+left_padding(jams2)
+
+jams3 <- set_left_padding(jams,
+      2:3, 1, 20)
+left_padding(jams3)
+
+jams4 <- map_left_padding(jams,
+      by_rows(
+        20,
+        10)
+      )
+left_padding(jams4)
 }

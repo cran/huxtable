@@ -17,9 +17,9 @@ huxreg(..., error_format = "({std.error})", error_style = c("stderr",
 
 \item{error_format}{How to display uncertainty in estimates. See below.}
 
-\item{error_style}{Deprecated. One or more of 'stderr', 'ci' (confidence interval), 'statistic' or 'pvalue'.}
+\item{error_style}{Deprecated. One or more of "stderr", "ci" (confidence interval), "statistic" or "pvalue".}
 
-\item{error_pos}{Display uncertainty 'below', to the 'right' of, or in the 'same' cell as estimates.}
+\item{error_pos}{Display uncertainty "below", to the "right" of, or in the "same" cell as estimates.}
 
 \item{number_format}{Format for numbering. See \code{\link[=number_format]{number_format()}} for details.}
 
@@ -44,9 +44,12 @@ this behaviour.}
 \item{note}{Footnote for bottom cell, which spans all columns. \code{{stars}} will be replaced by a note about
 significance stars. Set to \code{NULL} for no footnote.}
 
-\item{statistics}{Summary statistics to display. Set to \code{NULL} to show all available statistics.}
+\item{statistics}{A vector of summary statistics to display. Set to \code{NULL} to show all available
+statistics. To change display names, name the \code{statistics} vector:
+\code{c("Displayed title" = "statistic_name", ...)}}
 
-\item{coefs}{Display only these coefficients. Overrules \code{omit_coefs}.}
+\item{coefs}{A vector of coefficients to display. Overrules \code{omit_coefs}. To change display names,
+name the \code{coef} vector: \code{c("Displayed title" = "coefficient_name", ...)}}
 
 \item{omit_coefs}{Omit these coefficients.}
 }
@@ -57,31 +60,42 @@ A huxtable object.
 Create a huxtable to display model output
 }
 \details{
-Models must have a \code{\link[broom:tidy]{broom::tidy()}} method defined, which should return 'term', 'estimate', 'std.error',
-'statistic' and 'p.value'. If the \code{tidy} method does not have a \code{conf.int} option, \code{huxreg} will
+Models must have a \code{\link[broom:tidy]{broom::tidy()}} method defined, which should return "term", "estimate", "std.error",
+"statistic" and "p.value". If the \code{tidy} method does not have a \code{conf.int} option, \code{huxreg} will
 calculate confidence intervals itself, using a normal approximation.
 
-If \code{...} has names or contains a single named list, the names will be used for column headings. Otherwise column
-headings will be automatically created. If the \code{coef} and/or \code{statistics} vectors have names, these will be
-used for row headings. If different values of \code{coef} have the same name, the corresponding rows will be merged
-in the output.
+If \code{...} has names or contains a single named list, the names will be used for column headings.
+Otherwise column headings will be automatically created.
 
-Each element of \code{statistics} should be a column name from \code{\link[broom:glance]{broom::glance()}}. You can also
-use 'nobs' for the number of observations. If \code{statistics} is \code{NULL} then all columns from \code{glance}
-will be used. To use no columns, set \code{statistics = character(0)}.
+If the \code{coef} and/or \code{statistics} vectors have names, these will be used for row headings. If
+different values of \code{coef} have the same name, the corresponding rows will be merged in the
+output.
+
+\code{statistics} should be column names from \code{\link[broom:glance]{broom::glance()}}. You can also use \code{"nobs"} for the
+number of observations. If \code{statistics} is \code{NULL} then all columns from \code{glance} will be used. To
+use no columns, set \code{statistics = character(0)}.
 
 \code{error_format} is a string to be interpreted by \code{\link[glue:glue]{glue::glue()}}. Terms in parentheses will be
 replaced by computed values. You can use any columns returned
 by \code{tidy}: typical columns include \code{statistic}, \code{p.value}, \code{std.error}, as well as \code{conf.low}
 and \code{conf.high} if you have set \code{ci_level}. For example, to show confidence intervals, you
-could do \code{error_format = "{conf.low} to {conf.high}"}
+could write \code{error_format = "{conf.low} to {conf.high}"}.
 }
+\section{Fixing p values manually}{
+
+
+If you wish to use e.g. robust standard errors, you can pass results from e.g.
+\code{\link[lmtest:coeftest]{lmtest::coeftest()}} into \code{huxreg}, since these objects have \code{tidy} methods.
+Alternatively, to manually insert your own statistics, see \code{\link[=tidy_override]{tidy_override()}}.
+}
+
 \examples{
-set.seed(27101975)
-dfr <- data.frame(a = rnorm(100), b = rnorm(100))
-dfr$y <- dfr$a + rnorm(100)
-lm1 <- lm(y ~ a, dfr)
-lm2 <- lm(y ~ a + b, dfr)
-glm1 <- glm(I(y > 0) ~ a, dfr, family = binomial)
+
+lm1 <- lm(mpg ~ cyl, mtcars)
+lm2 <- lm(mpg ~ cyl + hp, mtcars)
+glm1 <- glm(I(mpg > 20) ~ cyl, mtcars,
+      family = binomial)
+
 huxreg(lm1, lm2, glm1)
+
 }
