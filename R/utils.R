@@ -22,20 +22,6 @@ blank_where <- function (text, cond) {
 }
 
 
-recall_ltrb <- function(ht, template) {
-  call <- sys.call(sys.parent(1))
-  call_names <- parse(text = paste0("huxtable::",
-        sprintf(template, c("left", "top", "right", "bottom"))))
-  for (cn in call_names) {
-    call[[1]] <- cn
-    call[[2]] <- quote(ht)
-    ht <- eval(call, list(ht = ht), parent.frame(2L)) # = sys.frame(sys.parent(1)) i.e. caller of orig
-  }
-
-  ht
-}
-
-
 # pinched from HMS. Registers the method or sets a hook to register it on load of other package
 register_s3_method <- function (pkg, generic, class = "huxtable") {
   assert_that(is.string(pkg), is.string(generic))
@@ -313,9 +299,18 @@ display_cells <- function (ht, all = TRUE, new_rowspan = rowspan(ht), new_colspa
 
 get_caption_hpos <- function (ht) {
   hpos <- sub(".*(left|center|right)", "\\1", caption_pos(ht))
-  if (! hpos %in% c("left", "center", "right")) hpos <- position(ht)
+  if (! hpos %in% c("left", "center", "right")) hpos <- position_no_wrap(ht)
 
   hpos
+}
+
+
+position_no_wrap <- function (ht) {
+  switch(position(ht),
+          "wrapleft"  = "left",
+          "wrapright" = "right",
+          position(ht)
+        )
 }
 
 

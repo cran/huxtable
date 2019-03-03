@@ -30,14 +30,14 @@ validate_markdown <- function(md_string, output_format = "html_document") {
 }
 
 
-test_render <- function(path, format) {
+test_render <- function(path, format, output_dir = "temp-artefacts") {
   output <- ""
+  force(output_dir)
   on.exit(if (file.exists(output)) try(file.remove(output), silent = TRUE))
   expect_error(output <- rmarkdown::render(path,
           output_format     = format,
           quiet             = TRUE,
-          run_pandoc        = FALSE,
-          output_dir        = "temp-artefacts",
+          output_dir        = output_dir,
           intermediates_dir = "temp-artefacts"
         ),
     regexp = NA,
@@ -104,6 +104,11 @@ test_that("Row heights do not screw up LaTeX multicol", {
 })
 
 
+test_that("echo = TRUE does not cause option clash", {
+  test_render("echo-true-latex-test.Rmd", NULL)
+})
+
+
 test_that("Various Rmd files render without errors", {
   skip_on_cran()
   skip_if_not_installed("flextable") # skips on travis no-suggests where no vignettes
@@ -116,16 +121,32 @@ test_that("Various Rmd files render without errors", {
   for (path in rmd_paths) {
     test_render_all(path)
   }
-  test_render("bookdown-test.Rmd", "bookdown::pdf_book")
-  test_render("bookdown-test.Rmd", "bookdown::html_book")
 
-  rmd_filenames <- c("huxtable.Rmd", "huxreg.Rmd") # design-principles needs a CSV file, so we skip
+  # design-principles needs a CSV file, so we skip:
+  rmd_filenames <- c("huxtable.Rmd", "huxreg.Rmd", "themes.Rmd")
   # this system.file may be devtools' patched version; these file paths are used in devtools::test:
   rmd_paths <- system.file("vignettes", rmd_filenames, package = "huxtable")
   if (! utils::file_test("-f", rmd_paths[1])) rmd_paths <-
          base::system.file("doc", rmd_filenames, package = "huxtable")
   if (! utils::file_test("-f", rmd_paths[1])) skip("Couldn't find vignettes...")
   for (path in rmd_paths) {
-    test_render_all(path)
+    file.copy(path, ".", overwrite = TRUE) # copy here so we can get the placeins-header.tex
+    test_render_all(basename(path))
+    file.remove(basename(path))
   }
+})
+
+
+test_that("Bookdown files", {
+  skip_if_not_installed("dplyr")
+  skip_if_not_installed("bookdown")
+  test_render("bookdown-test.Rmd", "bookdown::pdf_book")
+  test_render("bookdown-test.Rmd", "bookdown::html_book", output_dir = ".") # workaround a bug
+})
+
+
+test_that("Word files", {
+  skip_if_not_installed("flextable")
+  skip_if_not(rmarkdown::pandoc_available("2.0.0"))
+  test_render("word-test.Rmd", "word_document")
 })
