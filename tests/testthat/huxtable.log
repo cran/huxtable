@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.11.14)  12 FEB 2019 11:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.11.14)  14 MAR 2019 16:08
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1133,48 +1133,42 @@ Underfull \hbox (badness 10000) in alignment at lines 918--918
  []
 
 [5]
-Underfull \hbox (badness 10000) in alignment at lines 1046--1046
+Underfull \hbox (badness 10000) in alignment at lines 1047--1047
 [][] 
  []
-
-
-Underfull \hbox (badness 10000) in alignment at lines 1112--1112
-[][][] 
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
 
 [6]
-Underfull \hbox (badness 10000) in alignment at lines 1183--1183
+Underfull \hbox (badness 10000) in alignment at lines 1113--1113
 [][][] 
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 1250--1250
+Underfull \hbox (badness 10000) in alignment at lines 1184--1184
+[][][] 
+ []
+
+
+Underfull \hbox (badness 10000) in alignment at lines 1251--1251
 [][] 
  []
 
-
-Overfull \hbox (21.42856pt too wide) in alignment at lines 1331--1331
-[][][][] 
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
 [7]
-Overfull \hbox (21.42856pt too wide) in alignment at lines 1399--1399
+Overfull \hbox (21.42856pt too wide) in alignment at lines 1332--1332
 [][][][] 
  []
 
 
-Overfull \hbox (21.42856pt too wide) in alignment at lines 1468--1468
+Overfull \hbox (21.42856pt too wide) in alignment at lines 1400--1400
 [][][][] 
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 1561--1561
+Overfull \hbox (21.42856pt too wide) in alignment at lines 1469--1469
+[][][][] 
+ []
+
+
+Underfull \hbox (badness 10000) in alignment at lines 1562--1562
 [][][][] 
  []
 
@@ -1182,45 +1176,45 @@ Underfull \hbox (badness 10000) in alignment at lines 1561--1561
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [8]
-Overfull \hbox (63.225pt too wide) in alignment at lines 1687--1687
+Overfull \hbox (63.225pt too wide) in alignment at lines 1688--1688
 [][][][][] 
  []
 
 [9]
-Underfull \hbox (badness 10000) in alignment at lines 1775--1775
+Underfull \hbox (badness 10000) in alignment at lines 1776--1776
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 1844--1844
+Underfull \hbox (badness 10000) in alignment at lines 1845--1845
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 1926--1926
+Underfull \hbox (badness 10000) in alignment at lines 1927--1927
 [][][] 
  []
 
 [10]
-Underfull \hbox (badness 10000) in alignment at lines 1984--1984
+Underfull \hbox (badness 10000) in alignment at lines 1985--1985
 [][][] 
  []
 
 
-LaTeX Warning: \verb may be unreliable inside tabularx on input line 2032.
+LaTeX Warning: \verb may be unreliable inside tabularx on input line 2033.
 
 
-Underfull \hbox (badness 10000) in alignment at lines 2032--2032
+Underfull \hbox (badness 10000) in alignment at lines 2033--2033
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 2077--2077
+Underfull \hbox (badness 10000) in alignment at lines 2078--2078
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 2147--2147
+Underfull \hbox (badness 10000) in alignment at lines 2148--2148
 [][] 
  []
 
@@ -1228,32 +1222,32 @@ Underfull \hbox (badness 10000) in alignment at lines 2147--2147
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [11]
-Overfull \hbox (1.40945pt too wide) in paragraph at lines 2222--2222
+Overfull \hbox (1.40945pt too wide) in paragraph at lines 2223--2223
  [][]\T1/lmr/m/n/10 50000.00[]
  []
 
 
-Overfull \hbox (1.40945pt too wide) in paragraph at lines 2222--2222
+Overfull \hbox (1.40945pt too wide) in paragraph at lines 2223--2223
  [][]\T1/lmr/m/n/10 50000.00[]
  []
 
 
-Overfull \hbox (1.40945pt too wide) in paragraph at lines 2222--2222
+Overfull \hbox (1.40945pt too wide) in paragraph at lines 2223--2223
  [][]\T1/lmr/m/n/10 40000.00[]
  []
 
 
-Overfull \hbox (23.99998pt too wide) in alignment at lines 2222--2222
+Overfull \hbox (23.99998pt too wide) in alignment at lines 2223--2223
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 2312--2312
+Underfull \hbox (badness 10000) in alignment at lines 2313--2313
 [][][][][] 
  []
 
 [12]
-Overfull \hbox (31.56111pt too wide) in alignment at lines 2719--2719
+Overfull \hbox (31.56111pt too wide) in alignment at lines 2720--2720
 [][][][][] 
  []
 
@@ -1261,22 +1255,22 @@ Overfull \hbox (31.56111pt too wide) in alignment at lines 2719--2719
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [13]
-Underfull \hbox (badness 10000) in alignment at lines 2784--2784
+Underfull \hbox (badness 10000) in alignment at lines 2785--2785
 [][] 
  []
 
 [14]
-Underfull \hbox (badness 10000) in alignment at lines 2862--2862
+Underfull \hbox (badness 10000) in alignment at lines 2863--2863
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in alignment at lines 2932--2932
+Underfull \hbox (badness 10000) in alignment at lines 2933--2933
 [][] 
  []
 
 
-Overfull \hbox (31.56111pt too wide) in alignment at lines 3301--3301
+Overfull \hbox (31.56111pt too wide) in alignment at lines 3302--3302
 [][][][][] 
  []
 
@@ -1284,7 +1278,7 @@ Overfull \hbox (31.56111pt too wide) in alignment at lines 3301--3301
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [15]
-Underfull \hbox (badness 10000) in alignment at lines 3383--3383
+Underfull \hbox (badness 10000) in alignment at lines 3384--3384
 [][] 
  []
 
@@ -1292,16 +1286,16 @@ Underfull \hbox (badness 10000) in alignment at lines 3383--3383
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [16]
-Overfull \hbox (48.0pt too wide) in alignment at lines 3529--3529
+Overfull \hbox (48.0pt too wide) in alignment at lines 3530--3530
 [][][][] 
  []
 
 
 Package tabularx Warning: X Columns too narrow (table too wide)
-(tabularx)                 on input line 3682.
+(tabularx)                 on input line 3683.
 
 
-Overfull \hbox (182.11028pt too wide) in alignment at lines 3682--3682
+Overfull \hbox (182.11028pt too wide) in alignment at lines 3683--3683
 [][][][][][][][][][][] 
  []
 
@@ -1309,24 +1303,24 @@ Overfull \hbox (182.11028pt too wide) in alignment at lines 3682--3682
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [17]
-Underfull \hbox (badness 10000) in alignment at lines 3834--3834
+Underfull \hbox (badness 10000) in alignment at lines 3840--3840
 [][] 
  []
 
 [18]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 3868.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 3872.
 [19]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 3868.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 3872.
 (./huxtable.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 3868.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 3868.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 3872.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 3872.
 
 Package rerunfilecheck Info: File `huxtable.out' has not changed.
 (rerunfilecheck)             Checksum: 5CF3211C25DA3ABAFEE451228CD02C2E;4961.
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 3868.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 3872.
  ) 
 Here is how much of TeX's memory you used:
  24581 strings out of 494585
@@ -1353,7 +1347,7 @@ m/lmri10.pfb></Users/david/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr
 i12.pfb></Users/david/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtk10.p
 fb></Users/david/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></
 Users/david/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtti10.pfb>
-Output written on huxtable.pdf (19 pages, 299871 bytes).
+Output written on huxtable.pdf (19 pages, 300244 bytes).
 PDF statistics:
  510 PDF objects out of 1000 (max. 8388607)
  411 compressed objects within 5 object streams

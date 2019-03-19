@@ -1,7 +1,13 @@
 
-
 Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major 
 version increments reflect backwards-incompatible API changes, not necessarily big changes.
+
+# huxtable 4.5.0
+
+* Add `quick_latex()` function.
+* The `texreg` package now includes a `huxtablereg` function, analogous
+  to `huxreg`, which outputs a huxtable from a list of regressions. This will
+  be available from the next version of `texreg`.
 
 # huxtable 4.4.0
 

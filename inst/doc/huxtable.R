@@ -316,9 +316,10 @@ print_screen(ht)
 
 ## ---- echo = FALSE-------------------------------------------------------
 quick_commands <- hux(
-        Command = c("quick_pdf", "quick_docx", "quick_html", "quick_xlsx", "quick_pptx", "quick_rtf"), 
+        Command = c("quick_pdf", "quick_docx", "quick_html", "quick_xlsx", "quick_pptx", 
+          "quick_rtf", "quick_latex"), 
         Output = c("PDF document", "Word document", "HTML web page", "Excel spreadsheet", 
-          "Powerpoint presentation", "RTF document"),
+          "Powerpoint presentation", "RTF document", "LaTeX document"),
         add_colnames = TRUE
       )
 font(quick_commands)[, 1] <- if (is_latex) 'cmtt' else 'Courier'
