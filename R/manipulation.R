@@ -71,12 +71,20 @@ add_row_cols <- function (x, y, after, dimno, ...) {
   }
   assert_that(is.number(after), after >= 0, after <= end_idx)
 
+  first_idxes <- seq_len(after)
   second_idxes <- if (after < end_idx) seq(after + 1, end_idx) else integer(0)
   # for some reason `fn <- if (dimno==1) rbind else cbind` causes trouble...
+
+  has_dims <- function (x) if (is.vector(x)) length(x) > 0 else
+        (nrow(x) > 0 && ncol(x) > 0)
   if (dimno == 1) {
-    rbind(x[seq_len(after), ], y, x[second_idxes, ], ...)
+    objs <- list(x[first_idxes, ], y, x[second_idxes, ])
+    objs <- Filter(has_dims, objs)
+    do.call(rbind, c(objs, ...))
   } else {
-    cbind(x[, seq_len(after)], y, x[, second_idxes], ...)
+    objs <- list(x[, first_idxes], y, x[, second_idxes])
+    objs <- Filter(has_dims, objs)
+    do.call(cbind, c(objs, ...))
   }
 }
 
@@ -170,16 +178,12 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #' will be copied into the replaced columns of `x`, and if it fills up an entire row, then
 #' row properties will be copied into the replaced rows of `x`.
 #'
-#' Replacement functions `$<-` and `[[<-` change the data without affecting any properties.
+#' Replacement functions `$<-` and `[[<-` replace existing data without affecting any properties.
 #' @examples
-#' ht <- huxtable(
-#'         a = 1:3,
-#'         b = letters[1:3]
-#'       )
-#'
-#' ht[1:2, ]
-#' ht[, 1]
-#' ht$a
+#' jams[1:3, ]
+#' class(jams[1:3, ])
+#' jams[, 1]
+#' jams$Type
 `[.huxtable` <- function (x, i, j, drop = FALSE) {
   ss <- as.data.frame(x)[i, j, drop = drop]
   if (! missing(i) && is.character(i)) i <- which(rownames(x) %in% i)
@@ -215,12 +219,15 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #' @export
 #'
 #' @examples
-#' ht <- huxtable(a = 1:3, b = 1:3)
-#' ht2 <- huxtable(10:11, 12:13)
-#' bold(ht2) <- TRUE
-#' ht[2:3,] <- ht2
-#' ht
+#' prices <- huxtable(c("Price", 1.70, 2.00, 2.20))
+#' number_format(prices) <- 2
+#' bold(prices) <- TRUE
+#' jams[, 2] <- prices
+#' jams
 #'
+#' data(jams)
+#' jams$price <- c("Price", 1.70, 2.00, 2.20)
+#' jams
 `[<-.huxtable` <- function (x, i, j, value) {
   res <- as.data.frame(NextMethod())
 
@@ -245,7 +252,12 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
     if (! missing(j)) j <- if (is.character(j)) which(colnames(res) %in% j) else if (is.logical(j)) which(j) else j
     for (a in huxtable_cell_attrs) {
       val <- attr(value, a)
-      val <- matrix(val, nrow(res[i, j, drop = FALSE]), ncol(res[i, j, drop = FALSE]), byrow = TRUE)
+      val <- matrix(val,
+              nrow(res[i, j, drop = FALSE]),
+              ncol(res[i, j, drop = FALSE]),
+              byrow = (nrow(val) == 1)
+            )
+
       attr(res, a)[i, j] <- val
     }
     if (missing(i) || identical(i, seq_len(nrow(res)))) {
@@ -413,10 +425,10 @@ bind2_hux <- function (ht, x, type, copy_cell_props) {
           matrix(attr(ht, a)[nrow(ht), ], nrow(x), ncol(x), byrow = TRUE)
       }
       if ("row_height" %in% copy_cell_props && type == "rbind") {
-        attr(x, "row_height") <- attr(ht, "row_height")[nrow(ht)]
+        attr(x, "row_height")[seq_len(nrow(x))] <- attr(ht, "row_height")[nrow(ht)]
       }
       if ("col_width" %in% copy_cell_props && type == "cbind") {
-        attr(x, "col_width") <- attr(ht, "col_width")[ncol(ht)]
+        attr(x, "col_width")[seq_len(ncol(x))] <- attr(ht, "col_width")[ncol(ht)]
       }
     }
     if (! ht_real_hux && x_real_hux && nrow(ht) > 0 && ncol(ht) > 0) {
@@ -425,10 +437,10 @@ bind2_hux <- function (ht, x, type, copy_cell_props) {
           matrix(attr(x, a)[1, ], nrow(ht), ncol(ht), byrow = TRUE)
       }
       if ("row_height" %in% copy_cell_props && type == "rbind") {
-        attr(ht, "row_height") <- attr(x, "row_height")[1]
+        attr(ht, "row_height")[seq_len(nrow(ht))] <- attr(x, "row_height")[1]
       }
       if ("col_width" %in% copy_cell_props && type == "cbind") {
-        attr(ht, "col_width") <- attr(x, "col_width")[1]
+        attr(ht, "col_width")[seq_len(ncol(ht))] <- attr(x, "col_width")[1]
       }
     }
   }

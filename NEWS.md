@@ -2,6 +2,15 @@
 Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major 
 version increments reflect backwards-incompatible API changes, not necessarily big changes.
 
+
+# huxtable 4.6.0
+
+* Set `options('huxtable.latex_use_fontspec')` to `TRUE` to use portable font 
+  names in TeX documents, with the LaTeX "fontspec" package.
+* Bugfix: attributes were being copied wrongly in subset assignment of huxtables.
+* Bugfix: text colors in `hux_logo()`.
+* Bugfix: rbind of huxtable and matrix wasn't setting `row_height` correctly.
+
 # huxtable 4.5.0
 
 * Add `quick_latex()` function.
