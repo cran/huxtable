@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.11.14)  11 JUN 2019 11:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.11.14)  6 AUG 2019 08:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1334,7 +1334,7 @@ public/lm/lmri10.pfb></Users/david/Library/TinyTeX/texmf-dist/fonts/type1/publi
 c/lm/lmri12.pfb></Users/david/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/
 lmss10.pfb></Users/david/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt1
 0.pfb>
-Output written on table-tester-2.pdf (11 pages, 255253 bytes).
+Output written on table-tester-2.pdf (11 pages, 255264 bytes).
 PDF statistics:
  378 PDF objects out of 1000 (max. 8388607)
  342 compressed objects within 4 object streams
