@@ -5,9 +5,11 @@
 \alias{insert_row}
 \title{Insert a row or column}
 \usage{
-insert_column(ht, ..., after = 0, copy_cell_props = TRUE)
+insert_column(ht, ..., after = 0, fill = NULL, rowspan = 1,
+  copy_cell_props = TRUE)
 
-insert_row(ht, ..., after = 0, copy_cell_props = TRUE)
+insert_row(ht, ..., after = 0, fill = NULL, colspan = 1,
+  copy_cell_props = TRUE)
 }
 \arguments{
 \item{ht}{A huxtable.}
@@ -16,26 +18,50 @@ insert_row(ht, ..., after = 0, copy_cell_props = TRUE)
 
 \item{after}{Insert the row/column after this position. 0 (the default) inserts as the first row/column.}
 
+\item{fill}{String. If \code{...} contains fewer elements than there are columns/rows to
+fill, the remaining cells will be filled with this.}
+
+\item{rowspan, colspan}{Scalar integer. Sets the rowspan or colspan of the \emph{first} cell only.
+this. The default \code{NULL} throws an error if there are too few elements.}
+
 \item{copy_cell_props}{Copy cell properties from the previous row or column (if after > 0). See \code{\link[=cbind.huxtable]{cbind.huxtable()}}.}
 }
 \value{
 The modified huxtable
 }
 \description{
-These convenience functions wrap \code{cbind} or \code{rbind} for huxtables to insert
-a single row.
+These convenience functions wrap \code{cbind} or \code{rbind} for huxtables, to insert
+a single row or column.
 }
 \details{
 In \code{insert_column} only, you can use a column name for \code{after}.
+
+Even if \code{colspan} or \code{rowspan} are greater than 1, you must still provide
+values for the hidden cells. Use \code{fill = ""} for this.
 }
 \examples{
-ht <- hux(a = 1:5, b = 1:5, c = 1:5)
-insert_row(ht, 2.5, 2.5, 2.5,
-      after = 2)
+insert_row(jams,
+        c("Gooseberry", 2.15),
+        after = 1
+      )
 
-insert_column(ht, 5:1)
-insert_column(ht, 5:1, after = 3)
-insert_column(ht, 5:1, after = "b")
+insert_column(jams,
+        c("Sugar", "50\%", "60\%", "40\%"),
+        after = "Price"
+      )
+
+insert_column(jams,
+        "Sugar",
+        after = "Price",
+        fill = "50\%"
+      )
+
+# don't forget to use `fill`:
+insert_row(jams,
+        "Jams and prices",
+        fill = "",
+        colspan = 2
+      )
 }
 \seealso{
 \code{\link[=add_rows]{add_rows()}} and \code{\link[=add_columns]{add_columns()}}, which insert multiple rows/columns at once.

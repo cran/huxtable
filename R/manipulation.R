@@ -26,21 +26,16 @@ NULL
 #' @seealso [insert_row()] and [insert_column()], which insert multiple values into a single row.
 #'
 #' @examples
-#' ht <- hux(
-#'         Jam = c("Raspberry", "Plum"),
-#'         Price = c(1.90, 1.80),
-#'         add_colnames = TRUE
-#'       )
 #'
-#' ht2 <- hux("Gooseberry", 2.10)
-#' add_rows(ht, ht2)
-#' add_rows(ht, ht2, after = 1)
+#' ht <- hux("Gooseberry", 2.15)
+#' add_rows(jams, ht)
+#' add_rows(jams, ht, after = 1)
 #'
 #' mx <- matrix(
-#'       c("Sugar", "50%", "60%",
-#'       "Weight (g)", 300, 250),
-#'       3, 2)
-#' add_columns(ht, mx, after = "Jam")
+#'       c("Sugar", "50%", "60%", "40%",
+#'       "Weight (g)", 300, 250, 300),
+#'       4, 2)
+#' add_columns(jams, mx)
 add_rows <- function (x, y, after = nrow(x), ...) {
   add_row_cols(x, y, after, dimno = 1, ...)
 }
@@ -67,7 +62,9 @@ add_row_cols <- function (x, y, after, dimno, ...) {
   end_idx <- dims[dimno]
   assert_that(is.numeric(dims))
   if (is.character(after)) {
-    after <- match(after, dimnames(x)[[dimno]])
+    after_n <- match(after, dimnames(x)[[dimno]])
+    if (is.na(after_n)) stop("Could not find column name \"", after, "\" in huxtable")
+    after <- after_n
   }
   assert_that(is.number(after), after >= 0, after <= end_idx)
 
@@ -91,29 +88,59 @@ add_row_cols <- function (x, y, after, dimno, ...) {
 
 #' Insert a row or column
 #'
-#' These convenience functions wrap `cbind` or `rbind` for huxtables to insert
-#' a single row.
+#' These convenience functions wrap `cbind` or `rbind` for huxtables, to insert
+#' a single row or column.
+#'
 #' @param ht A huxtable.
 #' @param ... Cell contents.
 #' @param after Insert the row/column after this position. 0 (the default) inserts as the first row/column.
+#' @param fill String. If `...` contains fewer elements than there are columns/rows to
+#' fill, the remaining cells will be filled with this.
+#' @param rowspan,colspan Scalar integer. Sets the rowspan or colspan of the *first* cell only.
+#' this. The default `NULL` throws an error if there are too few elements.
 #' @param copy_cell_props Copy cell properties from the previous row or column (if after > 0). See [cbind.huxtable()].
 #' @details
 #' In `insert_column` only, you can use a column name for `after`.
+#'
+#' Even if `colspan` or `rowspan` are greater than 1, you must still provide
+#' values for the hidden cells. Use `fill = ""` for this.
+#'
 #' @return The modified huxtable
 #' @seealso [add_rows()] and [add_columns()], which insert multiple rows/columns at once.
 #' @export
 #'
 #' @examples
-#' ht <- hux(a = 1:5, b = 1:5, c = 1:5)
-#' insert_row(ht, 2.5, 2.5, 2.5,
-#'       after = 2)
+#' insert_row(jams,
+#'         c("Gooseberry", 2.15),
+#'         after = 1
+#'       )
 #'
-#' insert_column(ht, 5:1)
-#' insert_column(ht, 5:1, after = 3)
-#' insert_column(ht, 5:1, after = "b")
-insert_column <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
+#' insert_column(jams,
+#'         c("Sugar", "50%", "60%", "40%"),
+#'         after = "Price"
+#'       )
+#'
+#' insert_column(jams,
+#'         "Sugar",
+#'         after = "Price",
+#'         fill = "50%"
+#'       )
+#'
+#' # don't forget to use `fill`:
+#' insert_row(jams,
+#'         "Jams and prices",
+#'         fill = "",
+#'         colspan = 2
+#'       )
+insert_column <- function (ht, ..., after = 0, fill = NULL, rowspan = 1,
+      copy_cell_props = TRUE) {
   # is.count would complain about 0
-  assert_that(is.scalar(after), is.number(after) || is.string(after))
+  assert_that(
+          is.scalar(after),
+          is.number(after) || is.string(after),
+          is.null(fill) || is.scalar(fill),
+          is.count(rowspan)
+        )
   if (is.number(after)) assert_that(after >= 0, after <= ncol(ht))
   if (is.string(after)) {
     assert_that(has_name(ht, after))
@@ -129,8 +156,13 @@ insert_column <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
     ht2 <- ht[, seq(after + 1, ncol(ht), 1)]
   }
   to_insert <- c(...)
+  if (length(to_insert) < nrow(ht)) {
+    to_insert <- c(to_insert, rep(fill, nrow(ht) - length(to_insert)))
+  }
   res <- if (! is.null(ht1)) cbind(ht1, to_insert, copy_cell_props = copy_cell_props) else to_insert
   res <- if (! is.null(ht2)) cbind(res, ht2) else res
+
+  rowspan(res)[1, after + 1] <- rowspan
 
   res
 }
@@ -139,9 +171,15 @@ insert_column <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
 #' @rdname insert_column
 #'
 #' @export
-insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
-  # is.count would complain about 0
-  assert_that(is.scalar(after), is.number(after), after >= 0, after <= nrow(ht))
+insert_row <- function (ht, ..., after = 0, fill = NULL, colspan = 1, copy_cell_props = TRUE) {
+  assert_that(
+          is.scalar(after),
+          is.number(after),
+          after >= 0,
+          after <= nrow(ht),
+          is.null(fill) || is.scalar(fill),
+          is.count(colspan)
+        )
 
   ht1 <- NULL
   ht2 <- NULL
@@ -152,8 +190,13 @@ insert_row <- function (ht, ..., after = 0, copy_cell_props = TRUE) {
     ht2 <- ht[seq(after + 1, nrow(ht), 1), ]
   }
   to_insert <- c(...)
+  if (length(to_insert) < ncol(ht)) {
+    to_insert <- c(to_insert, rep(fill, ncol(ht) - length(to_insert)))
+  }
   res <- if (! is.null(ht1)) rbind(ht1, to_insert, copy_cell_props = copy_cell_props) else to_insert
   res <- if (! is.null(ht2)) rbind(res, ht2) else res
+
+  colspan(res)[after + 1, 1] <- colspan
 
   res
 }
