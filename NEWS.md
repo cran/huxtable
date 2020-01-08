@@ -1,8 +1,16 @@
 
 
-
 Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major 
 version increments reflect backwards-incompatible API changes, not necessarily big changes.
+
+# huxtable 4.7.1
+
+* The [expss](https://github.com/gdemin/expss) package now supports export to
+  huxtables.
+* `by_quantiles()`, `by_equal_groups()` and `by_colorspace()` have gained a `colwise`
+  argument, which calculates quantiles or colors separately for each column.
+* Add caption support for `as_flextable()` (thanks @sjewo).
+
 
 # huxtable 4.7.0
 

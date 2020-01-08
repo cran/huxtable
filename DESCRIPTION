@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 4.7.0
+Version: 4.7.1
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -29,6 +29,6 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2019-10-02 22:13:18 UTC; david
+Packaged: 2020-01-07 11:19:25 UTC; david
 Repository: CRAN
-Date/Publication: 2019-10-03 05:00:10 UTC
+Date/Publication: 2020-01-08 23:01:17 UTC

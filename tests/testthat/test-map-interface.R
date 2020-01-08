@@ -38,6 +38,19 @@ test_that("Standard map_xxx", {
 
   test_map(by_equal_groups(3, c("left", "centre", "right")), "lllcrl", 1:3, 2)
   test_map(by_quantiles(0.75, c("centre", "right")), "lllcrc", 1:3, 2)
+
+  ht_2col <- hux(1:3, 4:6)
+  expect_equivalent(
+          align(map_align(ht_2col,
+            by_equal_groups(3, c("left", "center", "right"), colwise = TRUE))),
+          matrix(rep(c("left", "center", "right"), 2), 3, 2)
+        )
+  expect_equivalent(
+    align(map_align(ht_2col,
+      by_quantiles(c(.1, .9), c("left", "center", "right"), colwise = TRUE))),
+    matrix(rep(c("left", "center", "right"), 2), 3, 2)
+  )
+
   test_map(by_ranges(c(1.85, 2.05), c("left", "centre", "right")), "lllcrl", 1:3, 2)
 
   skip_if_not_installed("dplyr")
@@ -50,6 +63,11 @@ test_that("Standard map_xxx", {
   expect_silent(ht2 <- map_text_color(ht, by_colorspace("red", "yellow", na_color = "green")))
   expect_equivalent(text_color(ht2)[, 1], rep("green", 3))
   expect_silent(col2rgb(text_color(ht2)))
+
+  expect_equivalent(
+    text_color(map_text_color(ht_2col, by_colorspace("red", "white", "blue", colwise = TRUE))),
+    matrix(rep(c("#FF0000", "#FFFFFF", "#0000FF"), 2), 3, 2)
+  )
 })
 
 

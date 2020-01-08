@@ -1,4 +1,4 @@
-## ---- echo = FALSE-------------------------------------------------------
+## ---- echo = FALSE------------------------------------------------------------
 
 suppressPackageStartupMessages(library(huxtable))
 is_latex <- guess_knitr_output_format() == 'latex'
