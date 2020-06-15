@@ -2,11 +2,6 @@
 context("huxtable creation")
 
 
-test_that("Object creation examples unchanged", {
-  test_ex_same("huxtable")
-})
-
-
 test_that("create huxtable using hux[table]()", {
   expect_silent(ht <- huxtable(a = 1:3, b = 1:3))
   expect_silent(ht2 <- hux(a = 1:3, b = 1:3))
@@ -14,6 +9,34 @@ test_that("create huxtable using hux[table]()", {
   expect_equal(ncol(ht), 2)
   expect_equal(nrow(ht), 3)
   expect_identical(ht, ht2)
+})
+
+
+test_that("add_colnames", {
+  expect_silent(ht <- huxtable(a = 1:3, b = 1:3, add_colnames = TRUE))
+  expect_equal(nrow(ht), 4)
+  expect_silent(ht <- huxtable(a = 1:3, b = 1:3, add_colnames = FALSE))
+  expect_equal(nrow(ht), 3)
+})
+
+
+test_that("add_rownames", {
+  expect_silent(ht <- huxtable(a = 1:3, b = 1:3, add_rownames = TRUE))
+  expect_equal(ncol(ht), 3)
+  expect_equivalent(colnames(ht), c("rownames", "a", "b"))
+  expect_silent(ht <- huxtable(a = 1:3, b = 1:3, add_rownames = FALSE))
+  expect_equal(ncol(ht), 2)
+  expect_silent(ht <- huxtable(a = 1:3, b = 1:3, add_rownames = "foo"))
+  expect_equal(ncol(ht), 3)
+  expect_equivalent(colnames(ht), c("foo", "a", "b"))
+})
+
+
+test_that("add_colnames with as_huxtable.matrix", {
+  mat <- matrix(1:4, 2, 2, dimnames = list(letters[1:2], LETTERS[1:2]))
+  ht <- as_hux(mat, add_colnames = TRUE, add_rownames = TRUE)
+  expect_equivalent(ht[1, 2:3], colnames(mat))
+  expect_equivalent(ht$rownames[2:3], rownames(mat))
 })
 
 

@@ -19,3 +19,17 @@ make_exports <- function (properties, with_map = FALSE) {
 
   paste0("export(", funs ,")")
 }
+
+
+make_border_aliases <- function (suffix) {
+  lrtb <- c("left", "right", "top", "bottom")
+  fns <- outer(
+    c("map", "set"),
+    lrtb,
+    FUN = paste,
+    suffix,
+    sep = "_"
+  )
+  fns <- c(fns, paste0(lrtb, "_", suffix, "<-"))
+  paste("@aliases", paste(fns, collapse = " "))
+}

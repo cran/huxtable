@@ -32,8 +32,8 @@ print_rtf <- function(ht, fc_tables = rtf_fc_tables(ht), ...) {
 #'
 #' @section Limitations:
 #'
-#' * rmarkdown"s `rtf_document` can"t yet print out customized color tables, so custom fonts
-#'   and colors won"t work in this context.
+#' * rmarkdown"s `rtf_document` can"t yet print out customized color tables, so
+#'  custom fonts and colors won"t work in this context.
 #' * [col_width()] and [width()] can only be numeric or "pt".
 #' * [wrap()] has no effect: cell contents always wrap.
 #' * [rotation()] can only be 90 or 270, i.e. text going up or down.
@@ -56,12 +56,14 @@ to_rtf.huxtable <- function (ht, fc_tables = rtf_fc_tables(ht), ...) {
   assert_that(inherits(fc_tables, "rtfFCTables"))
   color_index <- function (color) {
     res <- match(color, fc_tables$colors)
-    if (any(is.na(res) & ! is.na(color))) warning("Color not found in color table.\n",
-          "(Did you change colors after calling `rtf_fc_tables`?)")
+    if (any(is.na(res) & ! is.na(color))) {
+      warning("Color not found in color table.\n",
+              "(Did you change colors after calling `rtf_fc_tables`?)")
+    }
     res
   }
 
-  cb  <- collapsed_borders(ht)
+  cb  <- get_visible_borders(ht)
   cbc <- collapsed_border_colors(ht)
   cbs <- collapsed_border_styles(ht)
   bgc <- background_color(ht)
@@ -132,23 +134,28 @@ to_rtf.huxtable <- function (ht, fc_tables = rtf_fc_tables(ht), ...) {
         right_padding(ht)  * 20)
 
   table_width <- width(ht)
-  col_width <- col_width(ht)
-
-  col_width <- if (is.numeric(col_width)) {
-    col_width
-  } else if (all(grepl("pt", col_width))) {
-    as.numeric(sub("((\\d|\\.)+).*", "\\1", col_width)) * 20
-  } else {
-    if (! all(is.na(col_width))) warning("to_rtf can only handle numeric or \"pt\" col_width")
-    rep(1/ncol(ht), ncol(ht))
-  }
-
+  if (is.na(table_width)) table_width <- 0.5
   if (! is.numeric(table_width)) {
     warning("to_rtf can only handle numeric table width")
-    table_width <- get_default_properties("width")[[1]]
+    table_width <- 0.5
   }
-  text_width_twips <- 6 * 72 * 20 # assumed 6 inches wide, 1 inch = 72 pt, 1 pt = 20 twips
-  col_width <- col_width * text_width_twips * table_width
+
+  col_width <- col_width(ht)
+  # if it's pt, make it numeric and use it as is (in twips)
+  if (all(grepl("pt", col_width, fixed = TRUE))) {
+    col_width <- as.numeric(sub("((\\d|\\.)+).*", "\\1", col_width)) * 20
+  } else {
+    if (! is.numeric(col_width)) {
+      warning("to_rtf can only handle numeric or \"pt\" col_width")
+    }
+    if (anyNA(col_width) || ! is.numeric(col_width)) {
+      col_width <- rep(1/ncol(ht), ncol(ht))
+    }
+    # assumed 6 inches wide, 1 inch = 72 pt, 1 pt = 20 twips:
+    text_width_twips <- 6 * 72 * 20
+    col_width <- col_width * text_width_twips * table_width
+  }
+
   # \cellx specifies the position of the RH cell edge:
   right_edges <- ceiling(cumsum(col_width))
 
@@ -213,8 +220,21 @@ to_rtf.huxtable <- function (ht, fc_tables = rtf_fc_tables(ht), ...) {
 
   caption <- caption(ht)
   cap_align <- align_map[get_caption_hpos(ht)]
-  caption_par <- if (is.na(caption)) "" else sprintf("{\\pard %s {%s} \\par}", cap_align, caption)
-
+  cap_width <- caption_width(ht)
+  cap_width <- if (is.na(cap_width)) "" else {
+    if (! is.numeric(cap_width)) {
+      warning("to_rtf can only handle numeric caption width.")
+      ""
+    } else {
+      # for frames we need a different alignment
+      posx_map <- c("left" = "\\posxl", "center" = "\\posxc", "right" = "\\posxr")
+      cap_align <- posx_map[get_caption_hpos(ht)]
+      sprintf("\\absw%s \\nowrap", cap_width * 6 * 20 * 72)
+    }
+  }
+  caption_par <- if (is.na(caption)) "" else sprintf("{\\pard %s %s {%s} \\par}", cap_align, cap_width, caption)
+# \ri<twips> and \li<twips> are indents
+# or use a "frame", \absw<twips> and \nowrap to stop text wrapping around it
 
   ## PASTE EVERYTHING TOGETHER ----
   result <- paste(rows, collapse = "\n")

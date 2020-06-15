@@ -1,29 +1,5 @@
 
-context("Attributes")
-
-
 ht <- huxtable(a = 1:5, b = letters[1:5], d = 1:5)
-
-
-for (attr in huxtable_cell_attrs) {
-  if (attr == "pad_decimal") next
-  test_that(paste("Cell property attr", attr, "examples unchanged"), {
-    test_ex_same(attr)
-  })
-}
-
-for (attr in c(huxtable_col_attrs, huxtable_row_attrs)) {
-  test_that(paste("Row/col property", attr, "examples unchanged"), {
-    test_ex_same(attr)
-  })
-}
-
-
-for (attr in huxtable_table_attrs) {
-    test_that(paste("Table property", attr, "examples unchanged"), {
-    test_ex_same(attr)
-  })
-}
 
 
 test_that("Can refer to properties by colnames", {
@@ -152,11 +128,10 @@ test_that("Decimal padding works", {
 })
 
 
-test_that("Can pad with align; pad_decimal gives warning", {
+test_that("Can pad with align", {
   ht <- hux(a = c("1.5", "2.5"))
   ht2 <- ht
   expect_silent(align(ht) <- ".")
-  expect_warning(pad_decimal(ht2) <- ".", "deprecated")
   expect_identical(huxtable:::clean_contents(ht), huxtable:::clean_contents(ht2))
 })
 
@@ -170,37 +145,19 @@ test_that("Can set attributes to NA", {
 })
 
 
-test_that("Can set default properties", {
+test_that("set_default_properties", {
   old <- set_default_properties(bold = TRUE)
   expect_equivalent(bold(hux(a = 1)), matrix(TRUE, 1, 1))
   set_default_properties(old)
   expect_equivalent(bold(hux(a = 1)), matrix(FALSE, 1, 1))
+
+  expect_error(set_default_properties(unknown = 1))
 })
 
 
-test_that("Can get default properties", {
+test_that("get_default_properties", {
   expect_equivalent(get_default_properties("bold"), FALSE)
-})
-
-
-test_that("collapsed_borders works", {
-  ht <- hux(a = 1:2, b = 1:2)
-  left_border(ht)[1, 2] <- 2
-  right_border(ht)[1, 1] <- 3
-  top_border(ht)[2, 1] <- 2
-  bottom_border(ht)[1, 1] <- 3
-  cb <- huxtable:::collapsed_borders(ht)
-  expect_type(cb, "list")
-  expect_equivalent(cb$vert, matrix(c(0, 3, 0, 0, 0, 0), 2, 3, byrow = TRUE))
-  expect_equivalent(cb$horiz, matrix(c(0, 0, 3, 0, 0, 0), 3, 2, byrow = TRUE))
-  colspan(ht)[1, 1] <- 2
-  cb <- huxtable:::collapsed_borders(ht)
-  expect_equivalent(cb$vert, matrix(c(0, 0, 3, 0, 0, 0), 2, 3, byrow = TRUE))
-  expect_equivalent(cb$horiz, matrix(c(0, 0, 3, 3, 0, 0), 3, 2, byrow = TRUE))
-  rowspan(ht)[1, 1] <- 2
-  cb <- huxtable:::collapsed_borders(ht)
-  expect_equivalent(cb$vert, matrix(c(0, 0, 3, 0, 0, 3), 2, 3, byrow = TRUE))
-  expect_equivalent(cb$horiz, matrix(c(0, 0, 0, 0, 3, 3), 3, 2, byrow = TRUE))
+  expect_error(get_default_properties("unknown"))
 })
 
 
@@ -217,14 +174,6 @@ test_that("collapsed_border_colors works", {
   cbc <- huxtable:::collapsed_border_colors(ht)
   expect_equivalent(cbc$vert, matrix(c(NA, "blue", NA, NA, NA, NA), 2, 3, byrow = TRUE))
   expect_equivalent(cbc$horiz, matrix(c(NA, NA, "purple", NA, NA, NA), 3, 2, byrow = TRUE))
-  colspan(ht)[1, 1] <- 2
-  cbc <- huxtable:::collapsed_border_colors(ht)
-  expect_equivalent(cbc$vert, matrix(c(NA, NA, "blue", NA, NA, NA), 2, 3, byrow = TRUE))
-  expect_equivalent(cbc$horiz, matrix(c(NA, NA, "purple", "purple", NA, NA), 3, 2, byrow = TRUE))
-  rowspan(ht)[1, 1] <- 2
-  cbc <- huxtable:::collapsed_border_colors(ht)
-  expect_equivalent(cbc$vert, matrix(c(NA, NA, "blue", NA, NA, "blue"), 2, 3, byrow = TRUE))
-  expect_equivalent(cbc$horiz, matrix(c(NA, NA, NA, NA, "purple", "purple"), 3, 2, byrow = TRUE))
 })
 
 
@@ -254,4 +203,14 @@ test_that("align, position and caption_pos change \"centre\" to \"center\"", {
   expect_equivalent(caption_pos(ht), "topcenter")
   caption_pos(ht) <- "bottomcentre"
   expect_equivalent(caption_pos(ht), "bottomcenter")
+})
+
+
+test_that("rowspan and colspan error when overlapping", {
+  ht <- hux(1:4, 1:4)
+  rowspan(ht)[1, 2] <- 3
+  expect_error(rowspan(ht)[2, 2] <- 2)
+  expect_error(rowspan(ht)[3, 2] <- 2)
+  expect_error(colspan(ht)[1, 1] <- 2)
+  expect_error(colspan(ht)[1, 2] <- 2)
 })

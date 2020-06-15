@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 4.7.1
+Version: 5.0.0
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -9,8 +9,8 @@ Authors@R:
            email = "davidhughjones@gmail.com")
 Author: David Hugh-Jones [aut, cre]
 Maintainer: David Hugh-Jones <davidhughjones@gmail.com>
-Description: Like 'xtable', creates styled tables. Export to HTML, LaTeX, 'Word', 
-  'Excel', 'PowerPoint' and RTF. Simple, modern interface to manipulate 
+Description: Creates styled tables for data presentation. Export to HTML, LaTeX,
+  RTF, 'Word', 'Excel', and 'PowerPoint'. Simple, modern interface to manipulate 
   borders, size, position, captions, colours, text styles and number formatting.
   Table cells can span multiple rows and/or columns.
   Includes  a 'huxreg' function for creation of regression tables, and 'quick_*' 
@@ -19,16 +19,20 @@ License: MIT + file LICENSE
 URL: https://hughjonesd.github.io/huxtable
 BugReports: https://github.com/hughjonesd/huxtable/issues
 Imports: assertthat, generics, glue, memoise, rlang, stats, stringr (>=
-        1.2.0), tibble, tidyselect, utils
+        1.2.0), tidyselect, utils, commonmark
 Suggests: bookdown, broom (>= 0.5.1), broom.mixed, covr, crayon,
-        devtools, dplyr, flextable, ggplot2, httr, knitr, lazyeval,
-        lme4, lmtest, nlme, nnet, officer, openxlsx, psych, rmarkdown,
-        sandwich, scales, testthat, tinytex
+        devtools, dplyr (>= 0.7.0), flextable (>= 0.5.5), ggplot2,
+        httr, knitr, lme4, lmtest, nlme, nnet, officer, openxlsx,
+        psych, rmarkdown, sandwich, scales, testthat, tibble, tinytex
+SystemRequirements: LaTeX packages: adjustbox, array, calc, caption,
+        colortbl, fontspec, graphicx, hhline, multirow, siunitx,
+        tabularx, threeparttable, ulem, wrapfig
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
+Depends: R (>= 2.10)
 NeedsCompilation: no
-Packaged: 2020-01-07 11:19:25 UTC; david
+Packaged: 2020-06-15 14:37:38 UTC; david
 Repository: CRAN
-Date/Publication: 2020-01-08 23:01:17 UTC
+Date/Publication: 2020-06-15 23:50:06 UTC

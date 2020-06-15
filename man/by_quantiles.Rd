@@ -5,8 +5,14 @@
 \alias{by_equal_groups}
 \title{Map numeric quantiles to cell properties}
 \usage{
-by_quantiles(quantiles, values, right = FALSE, extend = TRUE,
-  ignore_na = TRUE, colwise = FALSE)
+by_quantiles(
+  quantiles,
+  values,
+  right = FALSE,
+  extend = TRUE,
+  ignore_na = TRUE,
+  colwise = FALSE
+)
 
 by_equal_groups(n, values, ignore_na = TRUE, colwise = FALSE)
 }
@@ -23,7 +29,8 @@ values go in the higher group. \code{FALSE} by default.}
 \item{extend}{Extend \code{breaks} to \code{c(-Inf, breaks, Inf)}, i.e. include numbers below and above the
 outermost breaks. \code{TRUE} by default.}
 
-\item{ignore_na}{If \code{TRUE}, \code{NA} values in the result will be left unchanged. Otherwise, \code{NA}
+\item{ignore_na}{If \code{TRUE}, \code{NA} values in the result will be left unchanged
+from their previous values. Otherwise, \code{NA}
 normally resets to the default.}
 
 \item{colwise}{Logical. Calculate breaks separately within each column?}
@@ -31,7 +38,7 @@ normally resets to the default.}
 \item{n}{Number of equal-sized groups. \code{length(values)} should equal \code{n}.}
 }
 \value{
-A function for use in \code{map_***} functions.
+A function for use in \verb{map_***} functions.
 }
 \description{
 These functions split cell values by quantiles. Non-numeric cells are ignored.
@@ -65,9 +72,13 @@ map_background_color(ht,
 \seealso{
 \link{mapping-functions}
 
-Other mapping functions: \code{\link{by_cases}},
-  \code{\link{by_colorspace}}, \code{\link{by_function}},
-  \code{\link{by_ranges}}, \code{\link{by_regex}},
-  \code{\link{by_rows}}, \code{\link{by_values}}
+Other mapping functions: 
+\code{\link{by_cases}()},
+\code{\link{by_colorspace}()},
+\code{\link{by_function}()},
+\code{\link{by_ranges}()},
+\code{\link{by_regex}()},
+\code{\link{by_rows}()},
+\code{\link{by_values}()}
 }
 \concept{mapping functions}

@@ -1,12 +1,5 @@
 
-
-context("huxreg")
 skip_if_not_installed("broom")
-
-
-test_that("huxreg examples unchanged", {
-  test_ex_same("huxreg")
-})
 
 
 test_that("has_builtin_ci works", {
@@ -61,14 +54,6 @@ test_that("huxreg confidence intervals work when tidy c.i.s not available", {
           regexp = NA
         )
 
-})
-
-
-test_that("huxreg error_style usage", {
-  lm1 <- lm(Sepal.Width ~ Sepal.Length, iris)
-  expect_warning(hr <- huxreg(lm1, error_style = "stderr"), "`error_style` is deprecated")
-  hr2 <- huxreg(lm1, error_format = "({std.error})")
-  expect_identical(hr, hr2)
 })
 
 
@@ -135,11 +120,15 @@ test_that("huxreg borders argument works", {
   lm1 <- lm(y ~ a, dfr)
   lm2 <- lm(y ~ b, dfr)
   hr <- huxreg(lm1, lm2, borders = .7, outer_borders = .8)
-  expect_equivalent(unname(bottom_border(hr)[, 2]), c(.7, rep(0, 5), .7, rep(0, nrow(hr) - 9), .8, 0))
-  expect_equivalent(unname(top_border(hr)[, 2]), c(.8, rep(0, 11)))
+  expect_equivalent(unname(brdr_thickness(bottom_border(hr))[, 2]),
+          c(.7, rep(0, 5), .7, rep(0, nrow(hr) - 9), .8, 0))
+  expect_equivalent(unname(brdr_thickness(top_border(hr))[1, ]),
+        matrix(0.8, 1, 3))
   hr2 <- huxreg(lm1, lm2, borders = 0, outer_borders = 0)
-  expect_equivalent(unname(bottom_border(hr2)), matrix(0, nrow(hr2), ncol(hr2)))
-  expect_equivalent(unname(top_border(hr2)), matrix(0, nrow(hr2), ncol(hr2)))
+  expect_equivalent(unname(brdr_thickness(bottom_border(hr2)[])),
+        matrix(0, nrow(hr2), ncol(hr2)))
+  expect_equivalent(unname(brdr_thickness(top_border(hr2)[])),
+        matrix(0, nrow(hr2), ncol(hr2)))
 })
 
 
@@ -201,7 +190,6 @@ test_that("can pass generics::tidy arguments to huxreg", {
 
 test_that("tidy_override", {
   skip_if_not_installed("broom")
-  library(broom)
 
   lm1 <-  lm(Sepal.Width ~ Sepal.Length, data = iris)
 
@@ -220,6 +208,20 @@ test_that("tidy_override", {
 
   expect_error(tidy_override(lm1, foo = 1:2, bar = 1:3),
         info = "Unequal length tidy_override columns should throw an error")
+})
+
+
+test_that("tidy_replace", {
+  skip_if_not_installed("broom")
+  skip_if_not_installed("nnet")
+
+  mnl <- nnet::multinom(gear ~ mpg, mtcars)
+  tidied <- broom::tidy(mnl)
+  mnl4 <- tidy_replace(mnl, tidied[tidied$y.level == 4, ])
+
+  expect_equivalent(nrow(broom::tidy(mnl4)), 2)
+  expect_identical(broom::glance(mnl4), broom::glance(mnl))
+  expect_silent(huxreg(mnl4, statistics = "nobs"))
 })
 
 

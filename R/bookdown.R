@@ -5,8 +5,8 @@
 in_bookdown <- function () {
   if (! is.null(book_opt <- getOption("huxtable.bookdown", NULL))) return(book_opt)
 
-  if (! requireNamespace("knitr")) return(FALSE)
-  if (! requireNamespace("rmarkdown")) return(FALSE)
+  if (! requireNamespace("knitr", quietly = TRUE)) return(FALSE)
+  if (! requireNamespace("rmarkdown", quietly = TRUE)) return(FALSE)
   input_path <- knitr::current_input(dir = TRUE)
   if (is.null(input_path)) return(FALSE)
   rmd_of <- rmarkdown::default_output_format(input_path)$name
@@ -14,11 +14,10 @@ in_bookdown <- function () {
   return(grepl("bookdown", rmd_of))
 }
 
-make_caption <- function(ht, format = c("html", "latex", "md")) {
+make_caption <- function(ht, label, format = c("html", "latex", "md")) {
   format <- match.arg(format)
 
   raw_cap <- caption(ht)
-  label <- label(ht)
 
   if (is.na(label) || label == "") {
     return(raw_cap)
@@ -37,5 +36,7 @@ make_caption <- function(ht, format = c("html", "latex", "md")) {
           sprintf("(#%s) %s", label, raw_cap)
         }
 
+  # quick hack for LaTeX!
+  attr(cap_with_label, "has_label") <- TRUE
   return(cap_with_label)
 }

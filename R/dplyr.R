@@ -20,17 +20,7 @@ body(filter.huxtable) <- body(filter_.huxtable)
 mutate_.huxtable <- function (.data, ..., .dots) {
   ht <- .data
   .data <- as.data.frame(.data)
-  copy_cell_props <- TRUE
-  if (! is.null(.dots$copy_cell_props)) {
-    copy_cell_props <- if (utils::packageVersion("dplyr") > "0.5.0") {
-      .dots$copy_cell_props
-    } else {
-    if (! requireNamespace("lazyeval", quietly = TRUE)) stop(
-         "Using huxtable with dplyr 0.5.0 or less requires the lazyeval package. ",
-         "Either type `install.packages(\"lazyeval\")` or update dplyr to a more recent version.")
-      lazyeval::lazy_eval(.dots$copy_cell_props)
-    }
-  }
+  copy_cell_props <- if (! is.null(.dots$copy_cell_props)) .dots$copy_cell_props else TRUE
   .dots <- .dots[setdiff(names(.dots), "copy_cell_props")]
   result <- NextMethod()
   result <- as_hux(result, autoformat = FALSE)
@@ -56,24 +46,27 @@ mutate_.huxtable <- function (.data, ..., .dots) {
 #' Dplyr verbs for huxtable
 #'
 #' Huxtable can be used with dplyr verbs [dplyr::select()], [dplyr::rename()],
-#' [dplyr::slice()], [dplyr::arrange()], [dplyr::mutate()] and
-#' [dplyr::transmute()]. These will return huxtables. Other verbs like [dplyr::summarize()] will
-#' simply return data frames as normal; [dplyr::pull()] will return a vector. `mutate` has an extra
-#' option, detailed below.
+#' `dplyr::relocate()`, [dplyr::slice()], [dplyr::arrange()], [dplyr::mutate()]
+#' and [`dplyr::transmute()`][dplyr::mutate]. These will return huxtables. Other verbs like
+#' [dplyr::summarise()] will simply return data frames as normal;
+#' [dplyr::pull()] will return a vector. `mutate` has an extra option, detailed
+#' below.
 #'
 #' @param .data A huxtable.
 #' @param ... Arguments passed to [dplyr::mutate()].
-#' @param copy_cell_props Logical: copy cell and column properties from existing columns.
+#' @param copy_cell_props Logical: copy cell and column properties from existing
+#'   columns.
 #'
-#' @details
-#' If `mutate` creates new columns, and the argument `copy_cell_props` is missing or `TRUE`, then cell
-#' and column properties will be copied from existing columns to their left, if there are any. Otherwise, they will be the
-#' standard defaults. Row and table properties, and properties of cells in existing columns, remain unchanged.
+#' @details If `mutate` creates new columns, and the argument `copy_cell_props`
+#' is missing or `TRUE`, then cell and column properties will be copied from
+#' existing columns to their left, if there are any. Otherwise, they will be the
+#' standard defaults. Row and table properties, and properties of cells in
+#' existing columns, remain unchanged.
 #'
 #' @rdname dplyr-verbs
 #' @aliases mutate dplyr-verbs
 #' @examples
-#' ht <- hux(a = 1:5, b = 1:5, c = 1:5, d = 1:5)
+#' ht <- hux(a = 1:5, b = 1:5, c = 1:5, d = 1:5, add_colnames = FALSE)
 #' bold(ht)[c(1, 3), ] <- TRUE
 #' bold(ht)[, 1] <- TRUE
 #' ht2 <- dplyr::select(ht, b:c)
@@ -94,7 +87,7 @@ mutate.huxtable <- function (.data, ..., copy_cell_props = TRUE) {
           "transmute" = dplyr::transmute(.data, ...),
           stop("Unrecognized function ", .Generic)
         )
-  result <- as_hux(result, autoformat = FALSE)
+  result <- as_hux(result, autoformat = FALSE, add_colnames = FALSE)
 
   for (a in c(huxtable_row_attrs, huxtable_table_attrs)) attr(result, a) <- attr(ht, a)
 
@@ -141,6 +134,11 @@ slice_.huxtable <- function (.data, ..., .dots) {
 slice.huxtable <- function (.data, ...) {}
 body(slice.huxtable) <- body(slice_.huxtable)
 
+
+# The following functions will only be registered with dplyr if
+# packageVersion("dplyr") <= "0.8.5".
+# After that, we can just use the dplyr builtins. (Until they break
+# subclasses again....)
 
 select_.huxtable <- function (.data, ..., .dots) {
   ht <- .data

@@ -7,10 +7,10 @@ NULL
 #'
 #' This is a convenience function to use in row or column specifications.
 #' In this context,
-#' `every(n, from)` will return `from, from + n, ...,` up to the number of rows
+#' `stripe(n, from)` will return `from, from + n, ...,` up to the number of rows
 #' or columns of the huxtable. `evens` and `odds` return even and odd
-#' numbers, i.e. they are equivalent to `every(2, 2)` and `every(2, 1)` respectively.
-#' `everywhere` returns all rows or columns, equivalently to `every(1)`.
+#' numbers, i.e. they are equivalent to `stripe(2, 2)` and `stripe(2, 1)` respectively.
+#' `everywhere` returns all rows or columns, equivalently to `stripe(1)`.
 #'
 #' @param n A number (at least 1)
 #' @param from A number (at least 1)
@@ -18,10 +18,15 @@ NULL
 #' @param dimension Number of the dimension to use.
 #'
 #' @details
-#' Technically, `every` returns a 2-argument function which can be called like
+#' Technically, `stripe` returns a 2-argument function which can be called like
 #' `f(ht, dimension)`. See [rowspecs] for details.
 #'
+#' Until huxtable 5.0.0, `stripe` was called `every`. It was renamed to
+#' avoid a clash with `purrr::every`.
+#'
 #' @export
+#'
+#' @aliases every
 #'
 #' @examples
 #' ht <- huxtable(a = 1:10, b = 1:10)
@@ -29,10 +34,10 @@ NULL
 #'       evens, everywhere,
 #'       "grey95")
 #' set_background_color(ht,
-#'       every(3), everywhere,
+#'       stripe(3), everywhere,
 #'       "grey95")
 #'
-every <- function(n = 1, from = n) {
+stripe <- function(n = 1, from = n) {
   assert_that(is.count(n), is.count(from))
 
   return(
@@ -44,17 +49,17 @@ every <- function(n = 1, from = n) {
   )
 }
 
-#' @rdname every
+#' @rdname stripe
 #' @export
-everywhere <- every(1, 1)
+everywhere <- stripe(1, 1)
 
-#' @rdname every
+#' @rdname stripe
 #' @export
-evens <- every(2, 2)
+evens <- stripe(2, 2)
 
-#' @rdname every
+#' @rdname stripe
 #' @export
-odds  <- every(2, 1)
+odds  <- stripe(2, 1)
 
 #' Return the last n rows or columns
 #'
@@ -89,7 +94,7 @@ final <- function(n = 1) {
 #' @section The basics:
 #'
 #' The `set_*` functions for cell properties all have arguments like this:
-#' `set_property(ht, row, col, value, byrow = FALSE)`.
+#' `set_property(ht, row, col, value)`.
 #'
 #' You can treat `row` and `col` arguments like arguments for
 #' \link[=[.data.frame]{data frame subsetting}. For example, you can use `row = 1:3` to get the
@@ -102,25 +107,26 @@ final <- function(n = 1) {
 #' * Use `everywhere` to refer to all rows or all columns.
 #' * Use `final(n)` to refer to the last n rows or columns.
 #' * Use `evens` to get only even rows/columns and `odds` for only odd ones.
-#' * Use \code{\link[=every]{every(n, from = m)}} to get every nth row/column starting at row/column m.
+#' * Use \code{\link[=stripe]{stripe(n, from = m)}} to get every nth row/column starting at row/column m.
 #' * Use `dplyr` functions like `starts_with`, `contains` and `matches` to
-#'    specify columns (but not rows). See \code{\link[tidyselect]{select_helpers}} for a full list.
-#' * Set `byrow = TRUE` to set properties by row rather than by column.
+#'    specify columns (but not rows). See [tidyselect::language]
+#'    for a full list.
 #'
 #' @section The gory details:
 #'
 #' How the row and col arguments are parsed depends on the number of arguments passed to the `set_*`
 #' function.
 #'
-#' * If there are two arguments (excluding `byrow`) then the second argument is taken as the
+#' * If there are two arguments then the second argument is taken as the
 #'     value and is set for all rows and columns.
 #' * If there are four arguments:
 #'     * If `row` or `col` is numeric, character or logical, it is evaluated just as in standard
-#'         subsetting. `col` will be evaluated in a special context provided by [tidyselect::with_vars()]
+#'         subsetting. `col` will be evaluated in a special context provided by
+#'         [`tidyselect::with_vars()`][tidyselect::poke_vars]
 #'         to allow the use of dplyr functions.
 #'     * If `row` or `col` is a function,it is called with two arguments: the huxtable,
 #'        and the dimension number being evaluated, i.e. 1 for rows, 2 for columns. It must return a vector
-#'        of column indices. [evens()], [odds()], [every()] and [final()]
+#'        of column indices. [evens()], [odds()], [stripe()] and [final()]
 #'        return functions for this purpose.
 #'
 #' @name rowspecs
@@ -135,31 +141,6 @@ final <- function(n = 1) {
 #' set_text_color(jams, 2:4, 1:2,
 #'       c("red", "violetred", "purple"))
 NULL
-
-#' @name where
-#' @rdname huxtable-deprecated
-#' @export
-NULL
-# documenting the NULL object stops roxygen trying to print a usage section
-# which causes R CMD check to throw a wobbly
-where <- function(expr) {
-  which(expr, arr.ind = TRUE)
-}
-
-
-#' @name is_a_number
-#' @rdname huxtable-deprecated
-#' @details To replace `is_a_number` use e.g. `! is.na(as.numeric(x))`
-#' @export
-NULL
-is_a_number <- function(x) {
-  if (is.data.frame(x)) {
-    if (nrow(x) == 0) return(matrix(FALSE, 0, ncol(x)))
-    res <- sapply(x, is_a_number)
-    dim(res) <- dim(x)
-    return(res)
-  } else return(! is.na(suppressWarnings(as.numeric(x))))
-}
 
 
 get_rc_spec <- function (ht, obj, dimno) {

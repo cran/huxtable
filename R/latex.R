@@ -49,10 +49,12 @@ to_latex.huxtable <- function (ht, tabular_only = FALSE, ...){
   commands <- "
   \\providecommand{\\huxb}[2]{\\arrayrulecolor[RGB]{#1}\\global\\arrayrulewidth=#2pt}
   \\providecommand{\\huxvb}[2]{\\color[RGB]{#1}\\vrule width #2pt}
-  \\providecommand{\\huxtpad}[1]{\\rule{0pt}{\\baselineskip+#1}}
+  \\providecommand{\\huxtpad}[1]{\\rule{0pt}{#1}}
   \\providecommand{\\huxbpad}[1]{\\rule[-#1]{0pt}{#1}}\n"
 
   if (tabular_only) return(maybe_markdown_fence(paste0(commands, tabular)))
+
+  tabular <- paste0("\\setlength{\\tabcolsep}{0pt}\n", tabular)
 
   resize_box <- if (is.na(height <- height(ht))) c("", "") else {
     if (is.numeric(height)) height <- sprintf("%.3g\\textheight", height)
@@ -64,48 +66,81 @@ to_latex.huxtable <- function (ht, tabular_only = FALSE, ...){
           "wrapright" = c("\\begin{wraptable}{r}{%s}", "\\end{wraptable}"),
           c(sprintf("\\begin{table}[%s]", latex_float(ht)), "\\end{table}")
         )
-  table_env[1] <- sprintf(table_env[1], latex_table_width(ht)) # no-op except for wraptable
+  # no-op except for wraptable:
+  wraptable_width <- latex_table_width(ht)
+  if (is.na(wraptable_width)) wraptable_width <- "0.25\\textwidth"
+  table_env[1] <- sprintf(table_env[1], wraptable_width)
   table_env <- paste0("\n", table_env, "\n")
 
-  cap <- if (is.na(cap <- make_caption(ht, "latex"))) "" else {
-    hpos <- get_caption_hpos(ht)
-    cap_setup <- switch(hpos,
-      left   = "raggedright",
-      center = "centering",
-      right  = "raggedleft"
-    )
-    sprintf("\\captionsetup{justification=%s,singlelinecheck=off}\n\\caption{%s}\n", cap_setup, cap)
-  }
-  lab <- if (is.na(lab <- label(ht))) "" else sprintf("\\label{%s}\n", lab)
-  if (nzchar(lab) && ! nzchar(cap)) warning("No caption set: LaTeX table labels may not work as expected.")
+  cap <- build_latex_caption(ht)
 
   pos_text <- switch(position(ht),
     wrapleft = ,
-    left   = c("\\begin{raggedright}", "\\par\\end{raggedright}\n"),
-    center = c("\\centering",   "\n"),
+    left   = c("\\begin{raggedright}\n", "\\par\\end{raggedright}\n"),
+    center = c("\\begin{centerbox}\n",   "\\par\\end{centerbox}\n"),
     wrapright = ,
-    right  = c("\\begin{raggedleft}",  "\\par\\end{raggedleft}\n")
+    right  = c("\\begin{raggedleft}\n",  "\\par\\end{raggedleft}\n")
   )
 
-  res <- if (grepl("top", caption_pos(ht))) paste0(cap, lab, tabular) else paste0(tabular, cap, lab)
-  res <- paste0(
-          commands,
-          table_env[1],
-          pos_text[1],
-          resize_box[1],
-          "\n\\begin{threeparttable}\n",
-          res,
-          "\\end{threeparttable}\n",
-          resize_box[2],
-          pos_text[2],
-          table_env[2]
-        )
+  cap_top <- grepl("top", caption_pos(ht))
+  cap <- if (cap_top) c(cap, "") else c("", cap)
+
+  tpt <- c("\\begin{threeparttable}\n", "\n\\end{threeparttable}")
+
+  res <- if (is.na(caption_width(ht))) {
+    nest_strings(table_env, pos_text, tpt, cap, tabular)
+  } else {
+    nest_strings(table_env, cap, pos_text, tabular)
+  }
+  res <- paste0(commands, res)
 
   return(maybe_markdown_fence(res))
 }
 
 
-build_tabular <- function(ht) {
+build_latex_caption <- function (ht, lab) {
+  lab <- make_label(ht)
+  cap_has_label <- FALSE
+
+  if (is.na(cap <- make_caption(ht, lab, "latex"))) {
+    cap <- ""
+  } else {
+    cap_has_label <- ! is.null(attr(cap, "has_label"))
+    hpos <- get_caption_hpos(ht)
+    cap_just <- switch(hpos,
+      left   = "raggedright",
+      center = "centering",
+      right  = "raggedleft"
+    )
+    cap_width <- caption_width(ht)
+    if (is.na(cap_width)) {
+      cap_margins <- ""
+    } else {
+      if (! is.na(suppressWarnings(as.numeric(cap_width)))) {
+        cap_width <- sprintf("%s\\textwidth", cap_width)
+      }
+      cap_margin_width <- paste("\\textwidth - ", cap_width)
+      cap_margins <- switch(hpos,
+        right = c(cap_margin_width, "0pt"),
+        center = rep(paste0("(", cap_margin_width, ")/2"), 2),
+        left  = c("0pt", cap_margin_width)
+      )
+      cap_margins <- sprintf("margin={%s,%s},", cap_margins[1], cap_margins[2])
+    }
+
+    cap <- sprintf(
+            "\\captionsetup{justification=%s,%ssinglelinecheck=off}\n\\caption{%s}\n",
+            cap_just, cap_margins, cap)
+  }
+
+  lab <- if (is.na(lab) || cap_has_label) "" else sprintf("\\label{%s}\n", lab)
+  cap <- paste(cap, lab)
+
+  return(cap)
+}
+
+
+build_tabular <- function (ht) {
   if (! check_positive_dims(ht)) return("")
 
   ## PREPARE EMPTY PARTS -------
@@ -117,7 +152,7 @@ build_tabular <- function(ht) {
   # Could speed this up by doing it only for display cells.
   start_end_cols <- as.matrix(display_cells[, c("display_col", "end_col")])
   width_spec <- apply(start_end_cols, 1, function (x) compute_width(ht, x[1], x[2]))
-  cb <- collapsed_borders(ht)
+  cb <- get_visible_borders(ht)
   cbc <- collapsed_border_colors(ht)
   cbs <- collapsed_border_styles(ht)
 
@@ -218,7 +253,7 @@ build_tabular <- function(ht) {
   ## CELL CONTENTS -------------
   ## inner_cell is empty except for the *bottom* left of a 'display area' (including 1x1)
   ## this avoids a problem with later cells overpainting borders etc.
-  ## - inner_cell has padding, alignment, wrap and row_height TeX added
+  ## inner_cell has padding, alignment, wrap and row_height TeX added
   ## inner_cell data comes from the 'display cell' at the top left of the display area
 
   inner_cell_bldc <- clean_contents(ht, type = "latex")[bl_dc]
@@ -262,20 +297,25 @@ build_tabular <- function(ht) {
   pad_bldc$bottom <- bottom_padding(ht)[bl_dc]
   align_bldc      <- real_align[bl_dc]
   valign_bldc     <- valign(ht)[bl_dc]
-  wrap_bldc       <- wrap(ht)[bl_dc]
+  wrap_bldc       <- wrap(ht)[bl_dc] & ! is.na(width(ht)) # tables without width turn wrapping off
 
   has_pad_bldc <- lapply(pad_bldc, Negate(is.na))
   pad_bldc <- lapply(pad_bldc, function (x) if (is.numeric(x)) sprintf("%.4gpt", x) else x)
   tpad_tex_bldc <- rep("", length(pad_bldc$top))
-  # tpad_tex_bldc[has_pad_bldc$top] <- sprintf("\\rule{0pt}{\\baselineskip+%s}",
-  #       pad_bldc$top[has_pad_bldc$top])
-  tpad_tex_bldc[has_pad_bldc$top] <- sprintf("\\huxtpad{%s}", pad_bldc$top[has_pad_bldc$top])
+
+  tpad_tex_bldc[has_pad_bldc$top] <- sprintf("\\huxtpad{%s + 1em}",
+        pad_bldc$top[has_pad_bldc$top])
   bpad_tex_bldc <- rep("", length(pad_bldc$bottom))
   bpad_vals_bldc <- pad_bldc$bottom[has_pad_bldc$bottom]
   bpad_tex_bldc[has_pad_bldc$bottom] <- sprintf("\\huxbpad{%s}", bpad_vals_bldc)
   align_tex_key <- c("left" = "\\raggedright ", "right" = "\\raggedleft ", "center" = "\\centering ")
   align_tex_bldc <- align_tex_key[align_bldc]
-  inner_cell_bldc <- paste0(tpad_tex_bldc, align_tex_bldc, inner_cell_bldc, bpad_tex_bldc)
+  lpad_tex_bldc  <- ifelse(has_pad_bldc$left & ! wrap_bldc,
+        sprintf("\\hspace{%s} ", pad_bldc$left), "")
+  rpad_tex_bldc  <- ifelse(has_pad_bldc$right & ! wrap_bldc,
+        sprintf(" \\hspace{%s}", pad_bldc$right), "")
+  inner_cell_bldc <- paste0(tpad_tex_bldc, align_tex_bldc, lpad_tex_bldc, inner_cell_bldc,
+        rpad_tex_bldc, bpad_tex_bldc)
 
   if (any(wrap_bldc)) {
     # reverse of what you think. "b" aligns the *bottom* of the text with the baseline
@@ -284,9 +324,11 @@ build_tabular <- function(ht) {
     valign_bldc <- valign_tex_key[valign_bldc]
     # XXX should be a way to speed up by only doing dc_idx cells. but we run again at some point...
     width_spec_bldc <- width_spec[bl_dc]
+    left_pad_bldc <- ifelse(has_pad_bldc$left, sprintf("\\hspace{%s}", pad_bldc$left), "")
     hpad_loss_left_bldc  <- ifelse(has_pad_bldc$left,  paste0("-", pad_bldc$left),  "")
     hpad_loss_right_bldc <- ifelse(has_pad_bldc$right, paste0("-", pad_bldc$right), "")
-    inner_cell_bldc[wrap_bldc] <- sprintf("\\parbox[%s]{%s%s%s}{%s}",
+    inner_cell_bldc[wrap_bldc] <- sprintf("%s\\parbox[%s]{%s%s%s}{%s}",
+            left_pad_bldc[wrap_bldc],
             valign_bldc[wrap_bldc],
             width_spec_bldc[wrap_bldc],
             hpad_loss_left_bldc[wrap_bldc],
@@ -335,7 +377,7 @@ build_tabular <- function(ht) {
   ## left borders are blank, except for the first row; we collapse borders into right border position
 
   colspan_lhdc    <- colspan(ht)[lh_dc]
-  wrap_lhdc       <- wrap(ht)[lh_dc]
+  wrap_lhdc       <- wrap(ht)[lh_dc] & ! is.na(width(ht))
   valign_lhdc     <- valign(ht)[lh_dc]
   real_align_lhdc <- real_align[lh_dc]
   colspec_tex_key <- c("left" = "l", "center" = "c", "right" = "r")
@@ -356,12 +398,10 @@ build_tabular <- function(ht) {
   bord <- cb$vert
   bcol <- cbc$vert
   has_bord <- ! is.na(bord)
-  has_bcol <- ! is.na(bcol) # if *defined* as black, then we print it. Otherwise not.
   bs_double <- cbs$vert == "double"
   bcol <- format_color(bcol, default = "black")
   bord_tex <- rep("", length(bord))
 
-  # bord_tex[has_bord] <- sprintf("!{%s\\vrule width %.4gpt}", bcol_tex[has_bord], bord[has_bord])
   bord_tex[has_bord] <- sprintf("!{\\huxvb{%s}{%.4g}}", bcol[has_bord], bord[has_bord])
   bord_tex[bs_double] <- paste0(bord_tex[bs_double], bord_tex[bs_double])
   dim(bord_tex) <- dim(cb$vert)
@@ -388,9 +428,17 @@ build_tabular <- function(ht) {
 
   ## MULTIROW ---------------------
   rowspan_blm <- rowspan(ht)[dc_map][blm_idx]
+  valign_blm  <- valign(ht)[dc_map][blm_idx]
+  valign_multirow_key <- c(
+          "top"    = "t",
+          "middle" = "c",
+          "bottom" = "b"
+        )
+  valign_blm <- valign_multirow_key[valign_blm]
   vert_adj_blm <- sprintf("%dex", 0) # start printing on the top row
   # * is "standard width", could be more specific?
-  multirow_blm_tex <- sprintf("\\multirow{-%s}{*}[%s]{", rowspan_blm, vert_adj_blm)
+  multirow_blm_tex <- sprintf("\\multirow[%s]{-%s}{*}[%s]{", valign_blm,
+        rowspan_blm, vert_adj_blm)
   multirow[blm_idx] <- multirow_blm_tex
 
   ## FINAL ASSEMBLY----------------
@@ -416,6 +464,7 @@ build_tabular <- function(ht) {
   table_body <- paste(hhlines[1], table_body, sep = "\n")
 
   tenv <- tabular_environment(ht)
+  if (is.na(tenv)) tenv <- if (is.na(width(ht))) "tabular" else "tabularx"
   tenv_tex <- paste0(c("\\begin{", "\\end{"), tenv, "}")
   width_spec <- if (tenv %in% c("tabularx", "tabular*", "tabulary")) {
     tw <- latex_table_width(ht)
@@ -424,9 +473,13 @@ build_tabular <- function(ht) {
     ""
   }
 
-  colspec_top <- sapply(seq_len(ncol(ht)), function (mycol) {
+  colspec_top <- if (is.na(width(ht))) {
+    rep("l", ncol(ht))
+  } else {
+    sapply(seq_len(ncol(ht)), function (mycol) {
           sprintf("p{%s}", compute_width(ht, mycol, mycol))
         })
+  }
   colspec_top <- paste0(colspec_top, collapse = " ")
   colspec_top <- sprintf("{%s}\n", colspec_top)
 
@@ -437,13 +490,16 @@ build_tabular <- function(ht) {
 
 latex_table_width <- function (ht) {
   tw <- width(ht)
-  if (is.numeric(tw)) tw <- paste0(tw, default_table_width_unit)
+  if (is.numeric(tw) && ! is.na(tw)) {
+    tw <- paste0(tw, default_table_width_unit)
+  }
+
   return(tw)
 }
 
 
 compute_width <- function (ht, start_col, end_col) {
-  table_width <- width(ht) # always defined, default is 0.5 (of \\textwidth)
+  table_width <- width(ht)
   if (is.numeric(table_width)) {
     table_unit  <- default_table_width_unit
     table_width <- as.numeric(table_width)

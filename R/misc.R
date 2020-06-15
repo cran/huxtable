@@ -1,5 +1,4 @@
 
-# miscellaneous public tools------------------------------------------------------------------------
 
 #' @import assertthat
 NULL
@@ -11,7 +10,8 @@ NULL
 #' all table columns and has an optional border above.
 #' @param ht A huxtable.
 #' @param text Text for the footnote.
-#' @param border Width of the footnote's top border. Set to 0 for no border.
+#' @param border Width of the footnote's top border. Set to 0 for no border, or
+#'   `NULL` to leave the border unchanged.
 #' @param ... Other properties, passed to [set_cell_properties()] for the footnote cell.
 #'
 #' @return The modified huxtable
@@ -30,7 +30,7 @@ add_footnote <- function(ht, text, border = 0.8, ...) {
   ht <- set_left_border(ht, nr, 1, 0)
   ht <- set_right_border(ht, nr, 1, 0)
   ht <- set_bottom_border(ht, nr, 1, 0)
-  ht <- set_top_border(ht, nr, 1, border)
+  if (! is.null(border)) ht <- set_top_border(ht, nr, everywhere, border)
   wrap(ht)[nr, 1] <- TRUE
   if (! missing(...)) ht <- set_cell_properties(ht, nr, 1, ...)
 
@@ -62,6 +62,7 @@ sanitize <- function (str, type = c("latex", "html", "rtf")) {
 
   if (type == "latex") {
     result <- gsub("\\\\", "SANITIZE.BACKSLASH", result)
+    result <- gsub("\n", " \\newline ", result, fixed = TRUE)
     result <- gsub("$", "\\$", result, fixed = TRUE)
     result <- gsub(">", "$>$", result, fixed = TRUE)
     result <- gsub("<", "$<$", result, fixed = TRUE)
@@ -75,16 +76,18 @@ sanitize <- function (str, type = c("latex", "html", "rtf")) {
     result <- gsub("^", "\\verb|^|", result, fixed = TRUE)
     result <- gsub("~", "\\~{}", result, fixed = TRUE)
     result <- gsub("SANITIZE.BACKSLASH", "$\\backslash$",
-      result, fixed = TRUE)
+                result, fixed = TRUE)
   }
   else if (type == "html"){
-    result <- gsub("&", "&amp;", result, fixed = TRUE)
-    result <- gsub(">", "&gt;", result, fixed = TRUE)
-    result <- gsub("<", "&lt;", result, fixed = TRUE)
-  } else {
-    result <- gsub("\\", "\\\\", result, fixed = TRUE)
-    result <- gsub("{", "\\{", result, fixed = TRUE)
-    result <- gsub("}", "\\}", result, fixed = TRUE)
+    result <- gsub("&",  "&amp;", result, fixed = TRUE)
+    result <- gsub(">",  "&gt;",  result, fixed = TRUE)
+    result <- gsub("<",  "&lt;",  result, fixed = TRUE)
+    result <- gsub("\n", "<br>",  result, fixed = TRUE)
+  } else if (type == "rtf") {
+    result <- gsub("\\", "\\\\",   result, fixed = TRUE)
+    result <- gsub("{",  "\\{",    result, fixed = TRUE)
+    result <- gsub("}",  "\\}",    result, fixed = TRUE)
+    result <- gsub("\n", "\\line ", result, fixed = TRUE)
   }
 
   return(result)
@@ -106,7 +109,7 @@ sanitize <- function (str, type = c("latex", "html", "rtf")) {
 hux_logo <- function(latex = FALSE, html = FALSE) {
   assert_that(is.flag(latex))
 
-  blank <- if (html) "&nbsp;" else ""
+  blank <- if (html) "&nbsp;" else if (latex) "~" else ""
   squares <- rep(blank, 36)
   letter_squares <- sort(sample(36, 8))
   squares[letter_squares] <- strsplit("huxtable", "")[[1]]
@@ -114,11 +117,13 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
   letter_squares <- which(mx != blank) # back in vertical space
   h_square <- which(mx == "h")
 
-  mondrian <- as_hux(mx)
+  mondrian <- as_hux(mx, add_colnames = FALSE)
   escape_contents(mondrian) <- FALSE
   align(mondrian) <- "centre"
-  font(mondrian) <- "Arial"
-  if (latex) font(mondrian) <- "cmss"
+  font(mondrian) <- "DejaVu Sans"
+  if (latex && ! getOption("huxtable.latex_use_fontspec", FALSE)) {
+    font(mondrian) <- "cmss"
+  }
   mondrian <- set_all_borders(mondrian, if (html) 2 else 1.2)
   mondrian <- set_all_padding(mondrian, 0)
   mondrian <- set_all_border_colors(mondrian, "black")
@@ -155,22 +160,11 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
     col_width(mondrian)  <- "20pt"
     row_height(mondrian) <- "20pt"
   }
+  if (latex) {
+    wrap(mondrian) <- TRUE
+  }
 
   mondrian
-}
-
-
-#' @export
-#' @rdname huxtable-deprecated
-hux_hex <- function () {
-  .Deprecated("hex_hux")
-}
-
-
-#' @export
-#' @rdname huxtable-deprecated
-hex_hux <- function () {
-  .Deprecated("hux_hex")
 }
 
 

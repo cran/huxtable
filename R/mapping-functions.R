@@ -6,7 +6,9 @@ NULL
 
 #' How to set cell properties variably by cell contents
 #'
-#' This help page explains how to set properties differently for cells, depending on their contents.
+#' @description
+#' This help page explains how to set properties differently for cells,
+#' depending on their contents.
 #'
 #' For example, in a table of p-values, you could bold cells where p < 0.05:
 #'
@@ -20,67 +22,51 @@ NULL
 #'   hxtbl %>% map_text_color(by_values("Warning" = "red"))
 #' ```
 #'
-#' There is a `map_xxx` function for each huxtable cell property. The syntax is:
+#' There is a `map_...` function for each huxtable cell property. The syntax is:
 #'
 #' ```
-#'   map_xxx(ht, row, col, fn)
+#'   map_property(ht, row, col, fn)
 #' ```
 #'
-#' where `xxx` is the property name.
+#' where `property` is the property name.
 #'
-#' `row` and `col` specify ranges of rows and columns. See [rowspecs] for details. To set properties
-#' for the whole table, you can omit `row` and `col`:
+#' `row` and `col` specify ranges of rows and columns. See [rowspecs] for
+#' details. To set properties for the whole table, omit `row` and `col`:
 #'
 #' ```
-#'   map_xxx(ht, fn)
+#'   map_property(ht, fn)
 #' ```
 #'
-#' The `fn` argument is a *mapping function* which maps cell contents to property values.
+#' The `fn` argument is a *mapping function* which maps cell contents to
+#' property values.
 #'
-#' * To set property values in "stripes" by rows or by columns, use [by_rows()] and [by_cols()].
+#' * To set property values in "stripes" by rows or by columns, use [by_rows()]
+#'   and [by_cols()].
 #' * To set property values for cells with specific contents, use [by_values()].
 #' * To set property values for cells within a numeric range, use [by_ranges()].
-#' * To set property values for cells by quantiles, use [by_quantiles()] or [by_equal_groups()].
-#' * To set property values for cells that match a string or regular expression, use [by_regex()].
+#' * To set property values for cells by quantiles, use [by_quantiles()] or
+#'   [by_equal_groups()].
+#' * To set property values for cells that match a string or regular expression,
+#'   use [by_regex()].
 #' * To map numeric values to a colorspace, use [by_colorspace()].
 #' * For a more general solution, use [by_function()] or [by_cases()].
 #'
 #' @section Caveat:
 #'
-#' Most functions convert the huxtable to a matrix using [as.matrix()]. This can have
-#' unexpected results if you mix character and numeric data. See the example.
+#' Most functions convert the huxtable to a matrix using [as.matrix()]. This can
+#' have unexpected results if you mix character and numeric data. See the
+#' example.
 #'
 #'
 #' @section Technical details:
 #'
-#' `fn` must be a function taking four arguments: the (entire) original huxtable `ht`, a numeric
-#' vector of `rows`, a numeric vector of `cols`, and the `current` property values for `ht[rows,
-#' cols]`, as a matrix. It should return the new property values for `ht[rows, cols]`, as a matrix.
-#'
-#' Here's an example. Suppose we want to highlight cells
-#' of a correlation matrix with low p values:
-#'
-#' ```
-#'   data(attitudes)
-#'   att_corr <- psych::corr.test(attitudes)
-#'   # att_corr has components r (correlations) and p (p values)
-#'
-#'   corr_hux <- as_hux(att_corr$r)
-#'   by_p_value <- function (ht, rows, cols, current) {
-#'      result <- current
-#'      pvals <- att_corr$p[rows, cols]
-#'      result[pvals < 0.01] <- "red"
-#'      result[pvals < 0.05] <- "orange"
-#'      result
-#'   }
-#   map_background_color(corr_hux, by_p_value)
-#' ```
-#'
-#'
-#' @return The modified huxtable.
+#' `fn` takes four arguments: the entire original huxtable
+#' `ht`, a numeric vector of `rows`, a numeric vector of `cols`, and the
+#' `current` property values for `ht[rows, cols]`, as a matrix. It should return
+#' the new property values for `ht[rows, cols]`, as a matrix.
 #'
 #' @examples
-#' ht <- hux(c("OK", "Warning", "Error"))
+#' ht <- hux(Condition = c("OK", "Warning", "Error"))
 #' ht <- map_text_color(ht, by_values(
 #'         OK      = "green",
 #'         Warning = "orange",
@@ -96,7 +82,7 @@ NULL
 #' map_text_color(ht, by_values(
 #'       "OK" = "blue", NA, ignore_na = FALSE))
 #'
-#' ht <- hux(rnorm(5), rnorm(5), rnorm(5))
+#' ht <- as_hux(matrix(rnorm(15), 5, 3))
 #' map_background_color(ht, by_ranges(
 #'         c(-1, 1),
 #'         c("blue", "yellow", "red")
@@ -135,7 +121,8 @@ NULL
 #'   values go in the higher group. `FALSE` by default.
 #' @param extend Extend `breaks` to `c(-Inf, breaks, Inf)`, i.e. include numbers below and above the
 #'   outermost breaks. `TRUE` by default.
-#' @param ignore_na If `TRUE`, `NA` values in the result will be left unchanged. Otherwise, `NA`
+#' @param ignore_na If `TRUE`, `NA` values in the result will be left unchanged
+#'   from their previous values. Otherwise, `NA`
 #'   normally resets to the default.
 #' @param colwise Logical. Calculate breaks separately within each column?
 #' @name mapping-params
@@ -164,12 +151,13 @@ NULL
 #'       by_values(a = "red", c = "yellow", "green"))
 by_values <- function (..., ignore_na = TRUE) {
   assert_that(is.flag(ignore_na))
-  vals <- c(...)
+  vals <- list_or_c(...)
   named_vals <- vals[names(vals) != ""]
   targets <- names(named_vals)
   default <- vals[names(vals) == ""]
   if (is.null(names(vals))) default <- vals
   if (length(default) > 1) stop("At most one element of `...` can be unnamed")
+  if (length(default) > 0) default <- default[[1]]
 
   values_fn <- function (ht, rows, cols, current) {
     res <- current
@@ -177,6 +165,7 @@ by_values <- function (..., ignore_na = TRUE) {
     for (tg in targets) {
       res[ ht[rows, cols] == tg ] <- named_vals[[tg]]
     }
+
     res <- maybe_ignore_na(res, current, ignore_na)
     res
   }
@@ -205,13 +194,17 @@ by_values <- function (..., ignore_na = TRUE) {
 #' map_background_color(ht,
 #'       by_cols("green", "grey"))
 by_rows <- function (..., from = 1, ignore_na = TRUE) {
-  vals <- c(...)
+  vals <- list_or_c(...)
   assert_that(is.count(from), is.flag(ignore_na))
 
   row_fn <- function (ht, rows, cols, current) {
     res <- current
     assert_that(from <= nrow(res))
-    res[seq(from, nrow(res)), ] <- rep(vals, length.out = nrow(res) - from + 1)
+    lout <- nrow(res) - from + 1
+    # prevents a warning:
+    if (ncol(res) == 0) lout <- 0
+    vals <- matrix(rep(vals, length.out = lout), nrow = lout, ncol = ncol(res))
+    res[seq(from, nrow(res)), ] <- vals
     res <- maybe_ignore_na(res, current, ignore_na)
     res
   }
@@ -223,14 +216,17 @@ by_rows <- function (..., from = 1, ignore_na = TRUE) {
 #' @export
 #' @rdname by_rows
 by_cols <- function (..., from = 1, ignore_na = TRUE) {
-  vals <- c(...)
+  vals <- list_or_c(...)
   assert_that(is.count(from), is.flag(ignore_na))
 
   col_fn <- function (ht, rows, cols, current) {
     res <- current
     assert_that(from <= ncol(res))
     lout <- ncol(res) - from + 1
-    vals <- matrix(rep(vals, length.out = lout), ncol = lout, nrow = nrow(res), byrow = TRUE)
+    # prevents a warning
+    if (nrow(res) == 0) lout <- 0
+    vals <- matrix(rep(vals, length.out = lout), ncol = lout, nrow = nrow(res),
+            byrow = TRUE)
     res[, seq(from, ncol(res))] <- vals
     res <- maybe_ignore_na(res, current, ignore_na)
     res
@@ -419,18 +415,18 @@ by_equal_groups <- function (n, values, ignore_na = TRUE, colwise = FALSE) {
 by_regex <- function(..., .grepl_args = list(), ignore_na = TRUE) {
   assert_that(is.flag(ignore_na), is.list(.grepl_args))
 
-  vals <- c(...)
+  vals <- list_or_c(...)
   named_vals <- vals[names(vals) != ""]
   patterns <- names(named_vals)
   default <- vals[names(vals) == ""]
   if (is.null(names(vals))) default <- vals
   if (length(default) > 1) stop("At most one element of `...` can be unnamed")
-
   matching_fn <- function (ht, rows, cols, current) {
     res <- current
     if (length(default) > 0) res[] <- default
     my_args <- .grepl_args
-    ht_submatrix <- as.matrix(ht)[rows, cols]
+    # drop = FALSE not strictly necessary but let's be clean
+    ht_submatrix <- as.matrix(ht)[rows, cols, drop = FALSE]
     my_args$x <- ht_submatrix
     any_matched <- rep(FALSE, length(ht_submatrix))
     for (pt in patterns) {
@@ -540,11 +536,14 @@ by_function <- function (inner_fn, ignore_na = TRUE) {
 #' @inherit mapping-params params
 #'
 #' @details
-#' Within the formulas, the variable `.` will refer to the content of `ht[rows, cols]` (converted
-#' by `as.matrix`).
+#' Within the formulas, the variable `.` will refer to the content of
+#' `ht[rows, cols]`, after conversion by [as.matrix()].
 #'
-#' `case_when` returns `NA` when no formula LHS is matched. To avoid this, set a default in the last
-#' formula: `TRUE ~ default`.
+#' `case_when` returns `NA` when no formula LHS is matched. To avoid this, set a
+#' default in the last formula: `TRUE ~ default`.
+#'
+#' `case_when` can't deal with [brdr()] objects, so you cannot use
+#' these in `by_cases()`.
 #'
 #' @family mapping functions
 #' @seealso [mapping-functions]
@@ -588,4 +587,13 @@ maybe_ignore_na <- function(res, old, ignore_na) {
   if (isTRUE(ignore_na)) res[is.na(res)] <- old[is.na(res)]
 
   return(res)
+}
+
+
+list_or_c <- function (...) {
+  if (all(sapply(list(...), is.atomic))) {
+    c(...)
+  } else {
+    list(...)
+  }
 }

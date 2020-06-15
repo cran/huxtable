@@ -16,28 +16,35 @@ generics::glance
 
 #' Create a huxtable to display model output
 #'
-#' @param ... Models, or a single list of models. Names will be used as column headings.
+#' @param ... Models, or a single list of models. Names will be used as column
+#'   headings.
 #' @param error_format How to display uncertainty in estimates. See below.
-#' @param error_style Deprecated. One or more of "stderr", "ci" (confidence interval), "statistic" or "pvalue".
-#' @param error_pos Display uncertainty "below", to the "right" of, or in the "same" cell as estimates.
+#' @param error_pos Display uncertainty "below", to the "right" of, or in the
+#'   "same" cell as estimates.
 #' @param number_format Format for numbering. See [number_format()] for details.
-#' @param align Alignment for table cells. Set to a single character to align on this character.
-#' @param pad_decimal Deprecated in favour of `align`.
-#' @param ci_level Confidence level for intervals. Set to `NULL` to not calculate confidence intervals.
-#' @param tidy_args List of arguments to pass to [broom::tidy()]. You can also pass a list of lists;
-#'   if so, the nth element will be used for the nth column.
-#' @param stars Levels for p value stars. Names of `stars` are symbols to use. Set to `NULL` to not show stars.
-#' @param bold_signif Where p values are below this number, cells will be displayed in bold. Use `NULL` to turn off
-#'   this behaviour.
+#' @param align Alignment for table cells. Set to a single character to align on
+#'   this character.
+#' @param ci_level Confidence level for intervals. Set to `NULL` to not
+#'   calculate confidence intervals.
+#' @param tidy_args List of arguments to pass to [generics::tidy()].
+#'   You can also pass a list of lists; if so, the nth element will be used for
+#'   the nth column.
+#' @param stars Levels for p value stars. Names of `stars` are symbols to use.
+#'   Set to `NULL` to not show stars.
+#' @param bold_signif Where p values are below this number, cells will be
+#'   displayed in bold. Use `NULL` to turn off this behaviour.
 #' @param borders Thickness of inner horizontal borders. Set to 0 for no borders.
-#' @param outer_borders Thickness of outer (top and bottom) horizontal borders. Set to 0 for no borders.
-#' @param note Footnote for bottom cell, which spans all columns. \code{{stars}} will be replaced by a note about
-#'   significance stars. Set to `NULL` for no footnote.
-#' @param statistics A vector of summary statistics to display. Set to `NULL` to show all available
-#'   statistics. To change display names, name the `statistics` vector:
-#'   `c("Displayed title" = "statistic_name", ...)`
-#' @param coefs A vector of coefficients to display. Overrules `omit_coefs`. To change display names,
-#'   name the `coef` vector: `c("Displayed title" = "coefficient_name", ...)`
+#' @param outer_borders Thickness of outer (top and bottom) horizontal borders.
+#'   Set to 0 for no borders.
+#' @param note Footnote for bottom cell, which spans all columns. \code{{stars}}
+#'   will be replaced by a note about significance stars. Set to `NULL` for no
+#'   footnote.
+#' @param statistics A vector of summary statistics to display. Set to `NULL` to
+#'   show all available statistics. To change display names, name the
+#'   `statistics` vector: `c("Displayed title" = "statistic_name", ...)`
+#' @param coefs A vector of coefficients to display. Overrules `omit_coefs`. To
+#'   change display names, name the `coef` vector: `c("Displayed title" =
+#'   "coefficient_name", ...)`
 #' @param omit_coefs Omit these coefficients.
 #'
 #' @details
@@ -80,18 +87,27 @@ generics::glance
 #' lm1 <- lm(mpg ~ cyl, mtcars)
 #' lm2 <- lm(mpg ~ cyl + hp, mtcars)
 #' glm1 <- glm(I(mpg > 20) ~ cyl, mtcars,
-#'       family = binomial)
+#'           family = binomial)
 #'
 #' huxreg(lm1, lm2, glm1)
+#'
+#' if (requireNamespace("sandwich") &&
+#'       requireNamespace("lmtest")) {
+#'
+#'   lm_robust <- lmtest::coeftest(lm1,
+#'         vcov = sandwich::vcovHC)
+#'   # coeftest() has no "glance" method:
+#'   huxreg(lm_robust,
+#'         statistics = character(0))
+#'
+#' }
 #'
 huxreg <- function (
         ...,
         error_format    = "({std.error})",
-        error_style     = c("stderr", "ci", "statistic", "pvalue"),
         error_pos       = c("below", "same", "right"),
         number_format   = "%.3f",
         align           = ".",
-        pad_decimal     = ".",
         ci_level        = NULL,
         tidy_args       = NULL,
         stars           = c("***" = 0.001, "**" = 0.01, "*" = 0.05),
@@ -104,7 +120,7 @@ huxreg <- function (
         omit_coefs      = NULL
       ) {
   requireNamespace("broom", quietly = TRUE)
-  requireNamespace("broom.mixed", quietly = TRUE)
+  suppressPackageStartupMessages(requireNamespace("broom.mixed", quietly = TRUE))
   if (utils::packageVersion("broom") < package_version("0.5.1")) {
     warning("`huxreg` requires `broom` version 0.5.1 or greater.")
   }
@@ -113,12 +129,10 @@ huxreg <- function (
   if (! missing(bold_signif)) assert_that(is.number(bold_signif))
   if (! missing(ci_level)) assert_that(is.number(ci_level))
   assert_that(is.null(stars) || is.numeric(stars))
-  assert_that(is.string(pad_decimal))
   models <- list(...)
   if (inherits(models[[1]], "list")) models <- models[[1]]
   mod_col_headings <- names_or(models, paste0("(", seq_along(models), ")"))
   error_pos <- match.arg(error_pos)
-  if (! missing(error_style)) error_style <- sapply(error_style, match.arg, choices = eval(formals(huxreg)$error_style))
   if (! is.null(tidy_args) && ! is.list(tidy_args[[1]])) tidy_args <- rep(list(tidy_args), length(models))
 
   # create list of tidy data frames, possibly with confidence intervals
@@ -184,16 +198,6 @@ huxreg <- function (
   }
 
   # create error cells
-  if (! missing(error_style)) {
-    formats <- list(stderr = "{std.error}", ci = "{conf.low} -- {conf.high}", statistic = "{statistic}",
-          pvalue = "{p.value}")
-    lbra <- rep("[", length(error_style))
-    rbra <- rep("]", length(error_style))
-    lbra[1] <- "("
-    rbra[1] <- ")"
-    error_format <- paste(lbra, formats[error_style], rbra, sep = "", collapse = " ")
-    warning(glue::glue("`error_style` is deprecated, please use `error_format = \"{error_format}\"` instead."))
-  }
   tidied <- lapply(tidied, function (x) {
     x$error_cell <- glue::glue_data(.x = x, error_format)
     x$error_cell[is.na(x$estimate)] <- ""
@@ -211,7 +215,7 @@ huxreg <- function (
   cols <- Reduce(cbind, cols)
 
   # make the data frame a huxtable
-  coef_hux <- hux(cols)
+  coef_hux <- huxtable(cols, add_colnames = FALSE)
   number_format(coef_hux) <- number_format
   if (! is.null(bold_signif)) {
     bold_cols <- lapply(tidied, function (mod) mod$p.value <= bold_signif)
@@ -257,12 +261,12 @@ huxreg <- function (
   ss_classes <- Reduce(cbind, ss_classes)
 
   # create huxtable of summary statistics
-  sumstats <- hux(sumstats)
+  sumstats <- huxtable(sumstats, add_colnames = FALSE)
   number_format(sumstats) <- number_format
   number_format(sumstats)[ss_classes == "integer"] <- 0
 
   if (error_pos == "right") {
-    sumstats2 <- as_hux(matrix("", nrow(sumstats), ncol(sumstats) * 2))
+    sumstats2 <- as_hux(matrix("", nrow(sumstats), ncol(sumstats) * 2), add_colnames = FALSE)
     for (i in seq_len(ncol(sumstats))) {
       sumstats2[, i * 2 - 1] <- sumstats[, i]
     }
@@ -276,6 +280,8 @@ huxreg <- function (
   if (error_pos == "right") mod_col_headings <- interleave(mod_col_headings, "")
   mod_col_headings <- c("", mod_col_headings)
   result <- rbind(mod_col_headings, coef_hux, sumstats, copy_cell_props = FALSE)
+  result <- set_header_rows(result, 1, TRUE)
+  result <- set_header_cols(result, 1, TRUE)
   result <- set_bottom_border(result, final(), everywhere, outer_borders)
   result <- set_top_border(result, 1, everywhere, outer_borders)
   result <- set_bottom_border(result, c(1, nrow(coef_hux) + 1), -1, borders)
@@ -283,8 +289,6 @@ huxreg <- function (
   if (error_pos == "right") result <- set_colspan(result, 1, evens, 2)
   align(result)[1, ]    <- "center"
   align(result)[-1, -1] <- align
-  # automatically gives deprecation warning
-  if (! missing(pad_decimal)) pad_decimal(result)[-1, -1] <- pad_decimal
   number_format(result)[, 1]  <- NA
   number_format(result)[1, ]  <- NA
 
@@ -293,7 +297,7 @@ huxreg <- function (
     stars <- if (is.null(stars)) "" else paste0(names(stars), " p < ", stars, collapse = "; ")
     note <- gsub("%stars%", stars, note)
     note <- glue::glue(note)
-    result <- add_footnote(result, note, border = 0) # borders handled above
+    result <- add_footnote(result, note, border = NULL)
     result <- set_wrap(result, final(), 1, TRUE)
     result <- set_align(result, final(), 1, "left")
   }
@@ -333,25 +337,27 @@ has_builtin_ci <- function (x) {
 }
 
 
-#' Override a model's `tidy` output
+#' Change a model's `tidy` output
 #'
-#' Use `tidy_override` to provide your own p values, confidence intervals
-#' etc. for a model.
+#' Use `tidy_override` and `tidy_replace` to provide your own p values,
+#' confidence intervals etc. for a model.
 #'
 #' @param x A model with methods defined for [generics::tidy()] and/or [generics::glance()].
 #' @param ... In `tidy_override`, columns of statistics to replace `tidy` output. In
 #'   `tidy` and `glance` methods, arguments passed on to the underlying model.
 #' @param glance A list of summary statistics for `glance`.
-#' @param extend Logical: allow adding new statistics?
+#' @param extend Logical: allow adding new columns to `tidy(x)`?
 #' @param object A `tidy_override` object.
 #'
-#' @return An object of class "tidy_override". When `tidy` and `glance` are called
-#' on this, it will return results from the underlying model, replacing some
-#' columns with your own data.
+#' @details
+#' `tidy_override` allows you to replace some columns of `tidy(x)` with your own data.
+#'
+#' @return An object that can be passed in to `huxreg`.
+#'
 #' @export
 #'
 #' @examples
-#' if (! requireNamespace("broom")) {
+#' if (! requireNamespace("broom", quietly = TRUE)) {
 #'   stop("Please install 'broom' to run this example.")
 #' }
 #'
@@ -359,10 +365,17 @@ has_builtin_ci <- function (x) {
 #' fixed_lm1 <- tidy_override(lm1,
 #'       p.value = c(.04, .12),
 #'       glance = list(r.squared = 0.99))
+
+#' huxreg(lm1, fixed_lm1)
 #'
-#' broom::tidy(fixed_lm1)
+#' if (requireNamespace("nnet", quietly = TRUE)) {
+#'   mnl <- nnet::multinom(gear ~ mpg, mtcars)
+#'   tidied <- broom::tidy(mnl)
+#'   mnl4 <- tidy_replace(mnl, tidied[tidied$y.level == 4, ])
+#'   mnl5 <- tidy_replace(mnl, tidied[tidied$y.level == 5, ])
+#'   huxreg(mnl4, mnl5, statistics = "nobs")
+#' }
 #'
-#' cbind(huxreg(fixed_lm1), huxreg(lm1))
 tidy_override <- function (x, ..., glance = list(), extend = FALSE) {
   assert_that(is.flag(extend), is.list(glance))
   tidy_cols <- data.frame(..., stringsAsFactors = FALSE)
@@ -376,8 +389,26 @@ tidy_override <- function (x, ..., glance = list(), extend = FALSE) {
 }
 
 #' @export
+#' @param tidied Data frame to replace the result of `tidy(x)`.
+#' @rdname tidy_override
+#' @details
+#' `tidy_replace` allows you to replace the result of `tidy(x)` entirely.
+tidy_replace <- function (x, tidied, glance = list()) {
+  structure(list(
+          model = x,
+          tidy_data = tidied,
+          glance_elems = glance(),
+          extend = FALSE
+        ),
+        class = "tidy_override")
+}
+
+
+#' @export
 #' @rdname tidy_override
 tidy.tidy_override <- function (x, ...) {
+  if (! is.null(x$tidy_data)) return(x$tidy_data)
+
   tidied <- try(tidy(x$model, ...), silent = TRUE)
   if (inherits(tidied, "try-error")) tidied <- data.frame()[seq_along(x$tidy_cols[[1]]), ]
   for (cn in names(x$tidy_cols)) {
@@ -388,6 +419,7 @@ tidy.tidy_override <- function (x, ...) {
 
   return(tidied)
 }
+
 
 #' @export
 #' @rdname tidy_override
@@ -410,3 +442,5 @@ nobs.tidy_override <- function (object, ...) {
   if ("nobs" %in% names(object$glance_elems)) return(object$glance_elems[["nobs"]])
   nobs(object$model)
 }
+
+

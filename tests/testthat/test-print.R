@@ -1,26 +1,4 @@
 
-context("Printing to various formats")
-
-
-test_that("LaTeX output examples unchanged", {
-  test_ex_same("to_latex")
-})
-
-
-test_that("Markdown output examples unchanged", {
-  test_ex_same("to_md")
-})
-
-
-test_that("HTML output examples unchanged", {
-  test_ex_same("to_html")
-})
-
-
-test_that("Screen output examples unchanged", {
-  test_ex_same("to_screen")
-})
-
 
 test_that("to_screen gives warning with colour if crayon not installed", {
   ht <- hux(a = 1:2)
@@ -108,6 +86,42 @@ test_that("to_md prints bold and italic", {
   expect_true(all(bold[, 4] == "**"))
 })
 
+
+test_that("to_screen borders respect spans", {
+  ht <- hux(a = 1:2, b = 3:4)
+  ht <- set_all_borders(ht)
+  ht2 <- ht
+
+  colspan(ht)[1, 1] <- 2
+  # a line with just: some spaces, │, 1, some spaces, │, some spaces
+  # NB that this character: │ is NOT the "or" character, so don't try to type it
+  expect_match(to_screen(ht),
+        "\\n\\s*│\\s*1\\s*│\\s*\\n",
+        perl = TRUE)
+
+  rowspan(ht2)[1, 1] <- 2
+  # a line after "3" with some spaces, a │ and some more spaces
+  expect_match(to_screen(ht2), "3.*?\\n\\s*│\\s*", perl = TRUE)
+})
+
+
+test_that("to_screen positioning", {
+  ht <- hux("foo")
+  position(ht) <- "centre"
+  to_s_res <- to_screen(ht, max_width = 80)
+  expect_match(to_s_res, "\\s{30,}foo", perl = TRUE)
+
+  position(ht) <- "right"
+  to_s_res <- to_screen(ht, max_width = 80)
+  expect_match(to_s_res, "\\s{60,}.*foo", perl = TRUE)
+
+  ht <- set_bold(ht)
+  to_s_res <- to_screen(ht, max_width = 80)
+  # the stars are for the control characters making foo bold
+  expect_match(to_s_res, "\\s{60,}.*f.*o.*o", perl = TRUE)
+})
+
+
 test_that("hux_logo works", {
   # there"s randomization, so:
   for (i in 1:100) expect_silent(hux_logo())
@@ -130,6 +144,21 @@ test_that("to_screen does not cut off multicols", {
 })
 
 
+test_that("to_screen alignment not messed up by markdown", {
+  skip_if_not_installed("crayon")
+
+  jams_md <- jams
+  jams_md <- set_markdown_contents(jams_md, 1, 2, "**Price**")
+  jams_output <- to_screen(jams)
+  jams_md_output <- to_screen(jams_md)
+  jams_output <- crayon::strip_style(jams_output)
+  jams_md_output <- crayon::strip_style(jams_md_output)
+  spaces <- stringr::str_match(jams_output, "Type(.*?)Price")[1, 2]
+  spaces_md <- stringr::str_match(jams_md_output, "Type(.*?)Price")[1, 2]
+  expect_identical(spaces, spaces_md)
+})
+
+
 test_that("output works with zero-dimension huxtables", {
   h_nrow0 <- hux(a = character(0), b = character(0), add_colnames = FALSE)
   expect_silent(to_screen(h_nrow0))
@@ -143,6 +172,7 @@ test_that("output works with zero-dimension huxtables", {
   expect_warning(to_html(h_ncol0), "col")
   expect_warning(to_latex(h_ncol0), "col")
 })
+
 
 test_that("output works with 1x1 huxtables", {
   h_1x1 <- hux(a = 1, add_colnames = FALSE)

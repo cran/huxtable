@@ -9,21 +9,25 @@ by_cases(..., ignore_na = TRUE)
 \arguments{
 \item{...}{A list of two-sided formulas interpreted by \code{case_when}.}
 
-\item{ignore_na}{If \code{TRUE}, \code{NA} values in the result will be left unchanged. Otherwise, \code{NA}
+\item{ignore_na}{If \code{TRUE}, \code{NA} values in the result will be left unchanged
+from their previous values. Otherwise, \code{NA}
 normally resets to the default.}
 }
 \value{
-A function for use in \code{map_***} functions.
+A function for use in \verb{map_***} functions.
 }
 \description{
 This function uses \code{\link[dplyr:case_when]{dplyr::case_when()}} to set cell properties.
 }
 \details{
-Within the formulas, the variable \code{.} will refer to the content of \code{ht[rows, cols]} (converted
-by \code{as.matrix}).
+Within the formulas, the variable \code{.} will refer to the content of
+\code{ht[rows, cols]}, after conversion by \code{\link[=as.matrix]{as.matrix()}}.
 
-\code{case_when} returns \code{NA} when no formula LHS is matched. To avoid this, set a default in the last
-formula: \code{TRUE ~ default}.
+\code{case_when} returns \code{NA} when no formula LHS is matched. To avoid this, set a
+default in the last formula: \code{TRUE ~ default}.
+
+\code{case_when} can't deal with \code{\link[=brdr]{brdr()}} objects, so you cannot use
+these in \code{by_cases()}.
 }
 \examples{
 if (! requireNamespace("dplyr")) {
@@ -41,9 +45,13 @@ map_background_color(ht, by_cases(
 \seealso{
 \link{mapping-functions}
 
-Other mapping functions: \code{\link{by_colorspace}},
-  \code{\link{by_function}}, \code{\link{by_quantiles}},
-  \code{\link{by_ranges}}, \code{\link{by_regex}},
-  \code{\link{by_rows}}, \code{\link{by_values}}
+Other mapping functions: 
+\code{\link{by_colorspace}()},
+\code{\link{by_function}()},
+\code{\link{by_quantiles}()},
+\code{\link{by_ranges}()},
+\code{\link{by_regex}()},
+\code{\link{by_rows}()},
+\code{\link{by_values}()}
 }
 \concept{mapping functions}

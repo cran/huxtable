@@ -44,9 +44,6 @@ knit_print.huxtable <- function (x, options, ...) {
               if (tenv %in% c("tabulary", "longtable")) {
                 latex_deps <- c(latex_deps, list(rmarkdown::latex_dependency(tenv)))
               }
-              if (getOption("huxtable.latex_use_fontspec", FALSE)) {
-                latex_deps <- c(latex_deps, list(rmarkdown::latex_dependency("fontspec")))
-              }
               knitr::asis_output(res, meta = latex_deps)
             },
             html = knitr::asis_output(htmlPreserve(res)),
@@ -95,10 +92,12 @@ knit_print.huxtable <- function (x, options, ...) {
 #'       )
 #' }
 knit_print.data.frame <- function(x, options, ...) {
-  if (! isTRUE(getOption("huxtable.knit_print_df", TRUE))) {
+  # the FALSE default is so that this does not get called unless
+  # huxtable has been explicitly attached
+  if (! isTRUE(getOption("huxtable.knit_print_df", FALSE))) {
     NextMethod() # probably calls knit_print.default
   } else {
-    ht <- smart_hux_from_df(x)
+    ht <- as_huxtable(x)
     df_theme <- getOption("huxtable.knit_print_df_theme", theme_plain)
     assert_that(is.function(df_theme))
     ht <- df_theme(ht)
@@ -122,13 +121,7 @@ knit_print.data.frame <- function(x, options, ...) {
 #' guess_knitr_output_format()
 #' }
 guess_knitr_output_format <- function() {
-  # this is on hold until I'm sure I want 'markdown' to be interpreted as HTML
-  # if (utils::packageVersion("knitr") >= "1.17.8") {
-  #   # delegate to knitr
-  #   if (knitr::is_latex_output()) return("latex")
-  #   if (knitr::is_html_output()) return("html")
-  #   return("")
-  # }
+  # knitr::is_html_output doesn't work in .Rhtml files
   assert_package("guess_knitr_output_format", "knitr")
   assert_package("guess_knitr_output_format", "rmarkdown")
   of <- knitr::opts_knit$get("out.format")

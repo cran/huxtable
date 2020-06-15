@@ -10,11 +10,15 @@ print_screen(ht, ...)
 
 to_screen(ht, ...)
 
-\method{to_screen}{huxtable}(ht,
+\method{to_screen}{huxtable}(
+  ht,
   min_width = ceiling(getOption("width")/6),
-  max_width = getOption("width", Inf), compact = TRUE,
-  colnames = TRUE, color = getOption("huxtable.color_screen", default =
-  TRUE), ...)
+  max_width = getOption("width", Inf),
+  compact = TRUE,
+  colnames = TRUE,
+  color = getOption("huxtable.color_screen", default = TRUE),
+  ...
+)
 }
 \arguments{
 \item{ht}{A huxtable.}
@@ -38,9 +42,17 @@ to_screen(ht, ...)
 Print a huxtable on screen
 }
 \details{
-\code{colspan}, \code{rowspan}, \code{align} and \code{caption} properties are shown. So are borders (but not border
-styles). If the \code{crayon} package is installed, output will be colorized (and contents bolded or
-italicized) by default; this will work in recent daily builds of RStudio as of October 2017.
+Screen display shows the following features:
+\itemize{
+\item Table and caption positioning
+\item Merged cells
+\item Cell alignment
+\item Borders
+\item Cell background and border color (if the "crayon" package is installed)
+\item Text color, bold and italic (if the "crayon" package is installed)
+}
+
+Cell padding, widths and heights are not shown, nor are border styles.
 }
 \examples{
 bottom_border(jams)[1, 1:2] <- 1
@@ -51,8 +63,10 @@ jams <- map_text_color(jams,
 print_screen(jams)
 }
 \seealso{
-Other printing functions: \code{\link{print_html}},
-  \code{\link{print_latex}}, \code{\link{print_md}},
-  \code{\link{print_rtf}}
+Other printing functions: 
+\code{\link{print_html}()},
+\code{\link{print_latex}()},
+\code{\link{print_md}()},
+\code{\link{print_rtf}()}
 }
 \concept{printing functions}

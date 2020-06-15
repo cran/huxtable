@@ -3,13 +3,17 @@
 library(knitr)
 library(dplyr)
 library(huxtable)
-options(huxtable.knit_print_df = FALSE)
+options(
+        huxtable.knit_print_df       = FALSE, 
+        huxtable.add_colnames        = TRUE,  # needed when run by testthat
+        huxtable.latex_use_fontspec  = TRUE
+      )
 
-is_latex <- guess_knitr_output_format() == 'latex'
+is_latex <- guess_knitr_output_format() == "latex"
 # is_latex <- TRUE
 knitr::knit_hooks$set(
   barrier = function(before, options, envir) {
-    if (! before && is_latex) knitr::asis_output('\\FloatBarrier')
+    if (! before && is_latex) knitr::asis_output("\\FloatBarrier")
   }
 )
 
@@ -20,274 +24,357 @@ if (is_latex) knitr::opts_chunk$set(barrier = TRUE)
 huxtable::hux_logo(latex = is_latex, html = ! is_latex)
 
 ## ---- eval = FALSE------------------------------------------------------------
-#  install.packages('huxtable')
+#  install.packages("huxtable")
 
 ## -----------------------------------------------------------------------------
 library(huxtable)
-ht <- hux(
-        Employee     = c('John Smith', 'Jane Doe', 'David Hugh-Jones'), 
-        Salary       = c(50000L, 50000L, 40000L),
-        add_colnames = TRUE
+ 
+jams <- hux(
+        Type  = c("Strawberry", "Raspberry", "Plum"),
+        Price = c(1.90, 2.10, 1.80)
       )
 
 ## -----------------------------------------------------------------------------
 data(mtcars)
 car_ht <- as_hux(mtcars)
 
-## ---- results = 'markup'------------------------------------------------------
-print_screen(ht)     # on the R command line, you can just type "ht"
+## ---- results = "markup"------------------------------------------------------
+print_screen(jams)     # on the R command line, you can just type "jams"
 
 ## -----------------------------------------------------------------------------
-ht
-
-## -----------------------------------------------------------------------------
-right_padding(ht) <- 10
-left_padding(ht)  <- 10
-
-## -----------------------------------------------------------------------------
-number_format(ht) <- 2    # 2 decimal places
-
-## -----------------------------------------------------------------------------
-bold(ht)[1, ]          <- TRUE
-bottom_border(ht)[1, ] <- 1
-
-## -----------------------------------------------------------------------------
-ht
+jams
 
 ## -----------------------------------------------------------------------------
 
-caption(ht) <- 'Employee table'
-ht
+library(dplyr) 
+
+jams %>% 
+      set_all_padding(4) %>% 
+      set_outer_padding(0) %>% 
+      set_number_format(2) %>% 
+      set_bold(1, everywhere) %>% 
+      set_bottom_border(1, everywhere) %>% 
+      set_width(0.4) %>% 
+      set_caption("Pots of jam for sale")
+  
+
+## ---- eval = FALSE------------------------------------------------------------
+#  jams <- set_all_padding(jams, 4)
+#  jams <- set_outer_padding(jam, 0)
+#  # etc.
+
+## -----------------------------------------------------------------------------
+
+# set all padding:
+left_padding(jams) <- 4
+right_padding(jams) <- 4
+top_padding(jams) <- 4
+bottom_padding(jams) <- 4
+
+# set outer padding:
+left_padding(jams)[1:nrow(jams), 1] <- 0
+top_padding(jams)[1, 1:ncol(jams)] <- 0
+right_padding(jams)[1:nrow(jams), ncol(jams)] <- 0
+bottom_padding(jams)[nrow(jams), 1:ncol(jams)] <- 0
+
+number_format(jams) <- 2
+bold(jams)[1, 1:ncol(jams)] <- TRUE
+bottom_border(jams)[1, 1:ncol(jams)] <- 0.4
+width(jams) <- 0.4
+caption(jams) <- "Pots of jam for sale"
 
 
-## ---- echo = FALSE------------------------------------------------------------
-sides <- c('left_', 'right_', 'top_', 'bottom_')
+## ---- eval = FALSE------------------------------------------------------------
+#  names(x)[1] <- "Name"
+
+## ---- eval = FALSE------------------------------------------------------------
+#  bold(jams)[1, 1:ncol(jams)] <- TRUE
+
+## ---- eval = FALSE------------------------------------------------------------
+#  ht <- set_property(ht, rows, cols, value)
+
+## ---- eval = FALSE------------------------------------------------------------
+#  ht <- set_property(ht, value)
+
+## ---- eval = FALSE------------------------------------------------------------
+#  ht <- set_property(ht, value)
+
+## ----props, echo = FALSE------------------------------------------------------
+sides <- c("left_", "right_", "top_", "bottom_")
 props <- list()
-props[['Cell_Text']] <- sort(c('font', 'text_color', 'wrap', 'bold', 'italic', 'font', 'font_size', 'na_string', 'escape_contents', 'number_format', 'rotation'))
+props[["Cell Text"]] <- sort(c("text_color", "wrap", "bold", "italic", "font",
+      "font_size", "na_string", "escape_contents", "markdown", "number_format",
+      "rotation"))
 
-props[['Cell']] <- sort(c('align', 'valign', 'rowspan', 'colspan', 'background_color', 
-      paste0(sides, 'border'), paste0(sides, 'border_color'), paste0(sides, 'border_style'), 
-      paste0(sides, 'padding')))
-props[['Row']]    <- 'row_height'
-props[['Column']] <- 'col_width'
-props[['Table']]  <- sort(c('width', 'height', 'position', 'caption', 'caption_pos', 'tabular_environment', 'label', 'latex_float'))
+props[["Cell"]] <- sort(c(
+        "align", "valign", "rowspan", "colspan", "background_color", 
+        paste0(sides, "border"), 
+        paste0(sides, "border_color"), 
+        paste0(sides, "border_style"), 
+        paste0(sides, "padding")
+      ))
+
+props[["Row"]]    <- c("row_height", "header_rows")
+props[["Column"]] <- c("col_width", "header_cols")
+props[["Table"]]  <- sort(c("width", "height", "position", "caption", 
+  "caption_pos", "caption_width", "tabular_environment", "label", "latex_float"))
 
 maxl <- max(sapply(props, length))
-props <- lapply(props, function(x) c(x, rep('', maxl - length(x))))
+props <- lapply(props, function(x) c(x, rep("", maxl - length(x))))
 
-ss_font <- if (guess_knitr_output_format() == 'latex') 'cmtt' else 'courier'
+mono_font <- if (is_latex) "LucidaConsole" else "monospace"
 
-prop_hux <- hux(as.data.frame(props))                     %>% 
-      add_colnames                                        %>% 
-      {foo <- .; foo[1,] <- gsub('_', ' ', foo[1,]); foo} %>% 
-      set_font(-1, everywhere, ss_font)                   %>% 
-      set_font_size( 10)                                  %>% 
-      set_bold(1, everywhere, TRUE)                       %>% 
-      set_width(0.9)                                      %>% 
-      set_background_color(-1, evens, grey(.9))           %>% 
-      set_outer_borders(1)                                %>% 
-      set_bottom_border(1, everywhere, 1)                 %>% 
-      set_top_padding(2)                                  %>% 
-      set_bottom_padding(4)                               %>% 
-      set_caption('Huxtable properties')                  %>% 
-      set_position('left') %>% 
-      set_col_width(c(.2, .25, .15, .15, .25))
+prop_hux <- hux(as.data.frame(props, check.names = FALSE)) %>% 
+      set_font_size(10)                                    %>% 
+      set_font(-1, everywhere, mono_font)                  %>% 
+      set_header_rows(1, TRUE)                             %>% 
+      set_width(0.9)                                       %>% 
+      set_tb_padding(2)                                    %>% 
+      set_caption("Huxtable properties")                   %>% 
+      set_label("tab:props")                               %>% 
+      set_col_width(c(.2, .25, .15, .15, .25))             %>% 
+      theme_bright()                                      
 
 prop_hux
 
+## ---- eval = FALSE------------------------------------------------------------
+#  # Set the italic property on row 1, column 1:
+#  jams %>% set_italic(1, 1)
+
+## ---- eval = FALSE------------------------------------------------------------
+#  # Set the italic property on column 1 of every row matching "berry":
+#  is_berry <- grepl("berry", jams$Type)
+#  jams %>% set_italic(is_berry, 1)
+
+## ---- eval = FALSE------------------------------------------------------------
+#  # Set the italic property on row 1 of the column named "Type":
+#  jams %>% set_italic(1, "Type")
+
+## ---- eval = FALSE------------------------------------------------------------
+#  italic(jams)[1, "Type"] <- TRUE
+#  # the same as:
+#  jams <- jams %>% set_italic(1, "Type")
+
+## ---- eval = FALSE------------------------------------------------------------
+#  # Set the italic property on row 1 of every column whose name starts with "T":
+#  jams %>%
+#        set_italic(1, starts_with("T"))
+
+## ---- eval = FALSE------------------------------------------------------------
+#  # Set the italic property on row 1 of all columns:
+#  jams %>% set_italic(1, everywhere)
+#  
+#  # Set the italic property on all rows of column 1:
+#  jams %>% set_italic(everywhere, 1)
+
+## ---- eval = FALSE------------------------------------------------------------
+#  
+#  jams %>% set_italic(final(2), everywhere)
+#  # same as:
+#  jams %>% set_italic(3:4, 1:2)
+
 ## -----------------------------------------------------------------------------
-
-library(dplyr)
-hux(
-        Employee     = c('John Smith', 'Jane Doe', 'David Hugh-Jones'), 
-        Salary       = c(50000, 50000, 40000),
-        add_colnames = TRUE
-      )                               %>%
-      set_right_padding(10)           %>%
-      set_left_padding(10)            %>% 
-      set_bold(1, 1:2, TRUE)          %>% 
-      set_bottom_border(1, 1:2, 1)    %>%
-      set_align(1:4, 2, 'right')      %>%
-      set_number_format(2)            %>% 
-      set_caption('Employee table')
-
-
-## ---- results = 'markup'------------------------------------------------------
-italic(ht)
-position(ht)
+jams %>% 
+      set_text_color(2:3, 1, "purple")
 
 ## -----------------------------------------------------------------------------
-ht[3, 1] <- 'Jane Jones'
-ht
+jams %>% 
+      set_background_color(evens, everywhere, "grey95")
 
 ## -----------------------------------------------------------------------------
-ht_with_roles <- ht
-ht_with_roles$Role <- c("Role", "Admin", "CEO", "Dogsbody")
-ht_with_roles
+jams %>% 
+      set_markdown_contents(1, 1, "*Type* of jam") %>% 
+      set_markdown_contents(1, 2, "*Price* of jam") %>% 
+      set_markdown_contents(3, 2, "~2.10~ **Sale!** 1.50")
 
 ## -----------------------------------------------------------------------------
-ht_with_roles <- cbind(ht, c("Role", "Admin", "CEO", "Dogsbody"))
-ht_with_roles
+jams %>% 
+      set_right_border(everywhere, 1, brdr(3, "double", "grey"))
 
 ## -----------------------------------------------------------------------------
-rbind(ht, c("Yihui Xie", 100000))
+jams %>% 
+      set_right_border(everywhere, 1, 3) %>% 
+      set_right_border_style(everywhere, 1, "double") %>% 
+      set_right_border_color(everywhere, 1, "grey")
 
 ## -----------------------------------------------------------------------------
+jams %>% 
+      set_background_color(evens, everywhere, "grey80") %>% 
+      set_background_color(odds, everywhere, "grey90") %>% 
+      set_all_borders(brdr(0.4, "solid", "white")) %>% 
+      set_outer_padding(4)
 
-to_insert <- hux(
-        Role  = c("Admin", "CEO", "Dogsbody"),
-        Hired = as.Date(c("2015-01-01", "2008-06-05", "2012-07-31")),
-        add_colnames = TRUE
+## ---- eval = FALSE------------------------------------------------------------
+#  jams[3, 1] <- "Snozberry"
+
+## ---- eval = FALSE------------------------------------------------------------
+#  # Summer sale!
+#  jams$Price <- c("Price", 1.50, 1.60, 1.50)
+
+## -----------------------------------------------------------------------------
+jams$Sugar <- c("Sugar content", "40%", "50%", "30%")
+jams
+
+## -----------------------------------------------------------------------------
+rbind(jams, c("Gooseberry", 2.1, "55%"))
+
+## -----------------------------------------------------------------------------
+best_before <- c("Best before", c("Aug 2022", "Sept 2022", "June 2022"))
+
+cbind(jams[, 1], best_before, jams[, -1])
+
+## -----------------------------------------------------------------------------
+jams %>% 
+      insert_column(best_before, after = "Type") %>% 
+      set_number_format(everywhere, 2, 0) # correct the formatting for dates
+
+
+## -----------------------------------------------------------------------------
+jams %>% 
+      mutate(
+        Type = toupper(Type)
       ) %>% 
-      set_bold(1, 1:2, TRUE) %>% 
-      set_bottom_border(1, 1:2, TRUE)
-
-cbind(ht[, 1], to_insert, ht[, 2:ncol(ht)])
+      select(Type, Price)
 
 ## -----------------------------------------------------------------------------
-
-add_columns(ht, to_insert, after = 1)
-
-
-## -----------------------------------------------------------------------------
-
-add_columns(ht, to_insert, after = "Employee")
-
-
-## -----------------------------------------------------------------------------
-
-car_ht <- as_hux(mtcars)                
-car_ht <- huxtable::add_rownames(car_ht, "Car")
-# Select columns by name:
-car_ht <- car_ht[, c("Car", "mpg", "cyl", "am")] 
-
-# Order by number of cylinders:
-car_ht <- car_ht[order(car_ht$cyl), ]
-
-car_ht <- huxtable::add_colnames(car_ht)
-
-# Pretty output, see below: 
-theme_plain(car_ht[1:5,])
-
-## -----------------------------------------------------------------------------
-
-car_ht <- as_hux(mtcars)
-car_ht <- huxtable::add_rownames(car_ht, colname = "Car")
-
-car_ht <- car_ht                                          %>%
-      slice(1:10)                                         %>% 
-      select(Car, mpg, cyl, hp)                           %>% 
-      arrange(hp)                                         %>% 
-      filter(cyl > 4)                                     %>% 
-      rename(MPG = mpg, Cylinders = cyl, Horsepower = hp) %>% 
-      mutate(kml = MPG/2.82)                              %>% 
-      huxtable::add_colnames()                            
-
-theme_plain(car_ht)
-
-## -----------------------------------------------------------------------------
-htn <- hux(c(
-        "Some numbers...", 
-        11.003, 
-        300, 
-        12.02, 
-        "12.1 **", 
-        "mean 11.7 (se 2.3)"
-      )) 
-
-number_format(htn) <- 3
-theme_plain(htn)
-
-## -----------------------------------------------------------------------------
-align(htn)[2:6, ] <- "." # not the first row
-
-theme_plain(htn)
-
-## -----------------------------------------------------------------------------
-
-my_data <- data.frame(
-        Employee    = c("John Smith", "Jane Doe", "David Hugh-Jones"), 
-        Salary      = c(50000L, 50000L, 40000L),
-        Performance = c(8.9, 9.2, 7.8)  
+jams_data <- data.frame(
+        Type = c("Strawberry", "Raspberry", "Plum"),
+        Price = c(1.90, 2.10, 1.80)
       )
 
-as_hux(my_data, add_colnames = TRUE) # with automatic formatting
+jams_ordered <- jams_data %>% 
+      arrange(Price) %>% 
+      as_hux() %>% 
+      set_bold(1, everywhere) # et cetera...
 
-as_hux(my_data, add_colnames = TRUE, autoformat = FALSE) # no automatic formatting
-
-## -----------------------------------------------------------------------------
-code_ht <- if (is_latex) hux(c("Some maths", "$a^b$")) else 
-      hux(c("Copyright symbol", "&copy;"))
-
-theme_plain(code_ht)
-
-## -----------------------------------------------------------------------------
-escape_contents(code_ht)[2, 1] <- FALSE
-
-theme_plain(code_ht)
+## ---- eval = FALSE------------------------------------------------------------
+#  # Same result as above
+#  
+#  jams_data %>%
+#        as_hux(add_colnames = FALSE) %>%
+#        arrange(Price) %>%
+#        add_colnames()
 
 ## -----------------------------------------------------------------------------
-width(ht) <- 0.4
-col_width(ht) <- c(.7, .3)
-ht
+iris_hux <- iris %>% 
+      group_by(Species) %>% 
+      select(Species, Sepal.Length, Sepal.Width, Petal.Length, Petal.Width) %>% 
+      slice(1:5) %>% 
+      as_hux() %>%
+      theme_basic() %>% 
+      set_tb_padding(2)
+
+iris_hux      
 
 ## -----------------------------------------------------------------------------
-ht_wrapped <- ht
-ht_wrapped[5, 1] <- "David Arthur Shrimpton Hugh-Jones"
-wrap(ht_wrapped) <- TRUE
-ht_wrapped
+iris_hux <- iris_hux %>% 
+  set_contents(1, 2:5, c("Length", "Width", "Length", "Width")) %>% 
+  insert_row("", "Sepal", "", "Petal", "", after = 0) %>% 
+  merge_cells(1, 2:3) %>% 
+  merge_cells(1, 4:5) %>% 
+  set_align(1, everywhere, "center") %>% 
+  set_tb_padding(1, everywhere, 0) %>% 
+  set_bold(1, everywhere)
+  
+iris_hux
 
 ## -----------------------------------------------------------------------------
-as_hux(mtcars[1:4, 1:4])                           %>% 
-      huxtable::add_rownames(colname = "Car name") %>% 
-      huxtable::add_colnames()
+iris_hux_wide <- iris_hux %>% 
+      set_header_rows(1:2, TRUE) %>% 
+      restack_across(rows = 7) %>% 
+      set_bottom_border(final(1), everywhere)
+
+iris_hux_wide
+
+## -----------------------------------------------------------------------------
+lego_hux <- as_hux(matrix(1:16, 4, 4)) %>% 
+      set_background_color(1:2, 1:2, "red") %>% 
+      set_background_color(1:2, 3:4, "yellow") %>% 
+      set_background_color(3:4, 1:2, "darkgreen") %>% 
+      set_background_color(3:4, 3:4, "blue") %>% 
+      set_text_color(3:4, 1:4, "white") %>% 
+      set_all_borders(brdr(2, "solid", "white"))
+
+lego_hux %>% set_caption("Original table")
+
+lego_hux %>% 
+      restack_across(rows = 2) %>% 
+      set_caption("Restacked across")
+
+lego_hux %>% 
+      restack_down(cols = 2) %>% 
+      set_caption("Restacked down")
+
+## -----------------------------------------------------------------------------
+iris_hux_wide %>% 
+      set_width(0.8) %>% 
+      set_font_size(8) %>% 
+      set_lr_padding(2) %>% 
+      set_col_width(rep(c(0.4, 0.2, 0.2, 0.2, 0.2), 3)/3) %>% 
+      set_position("left")
+
+## ---- echo = FALSE------------------------------------------------------------
+jams %>% 
+      set_position("wrapright") %>% 
+      set_width(0.35) %>% 
+      set_caption(NA) %>% 
+      set_font_size(8) %>% 
+      theme_compact()
+
+## ---- eval = FALSE------------------------------------------------------------
+#  set_row_property(ht, row, value)
+
+## -----------------------------------------------------------------------------
+iris_hux <- iris_hux %>% 
+      set_header_rows(1:2, TRUE) %>% 
+      set_header_cols(1, TRUE) %>% 
+      style_headers(bold = TRUE, text_color = "grey40")
+
+iris_hux
+
+## -----------------------------------------------------------------------------
+list_of_iris <- split_across(iris_hux, c(7, 12))
+list_of_iris[[1]]
+list_of_iris[[2]]
+list_of_iris[[3]]
+
+## -----------------------------------------------------------------------------
+theme_mondrian(jams)
+
+## -----------------------------------------------------------------------------
+jams %>% map_background_color(by_rows("grey90", "grey95"))
 
 ## -----------------------------------------------------------------------------
 
-car_ht <- as_hux(mtcars)
-car_ht <- huxtable::add_rownames(car_ht, colname = "Car")
-car_ht <- car_ht %>% arrange(cyl) %>% select(1:4)
-car_ht <- huxtable::add_colnames(car_ht)
-
-car_ht <- cbind(cylinders = car_ht$cyl, car_ht)
-car_ht$cylinders[1]   <- ""
-car_ht$cylinders[2]   <- "Four cylinders"
-car_ht$cylinders[13]  <- "Six cylinders"
-car_ht$cylinders[20]  <- "Eight cylinders"
-
-car_ht <- car_ht %>%  
-  merge_cells(2:12, 1) %>% 
-  merge_cells(13:19, 1) %>% 
-  merge_cells(20:33, 1)
-
-
-car_ht <- rbind(c("List of cars", "", "", "", ""), car_ht)
-car_ht <- merge_cells(car_ht, 1, 1:5)
-align(car_ht)[1, 1] <- "center"
-
-car_ht <- theme_plain(car_ht)
-right_border(car_ht)[1, 1] <- 0.4
-bottom_border(car_ht)[21, 1] <- 0.4
-car_ht
-
-## -----------------------------------------------------------------------------
-theme_mondrian(ht)
-
-## -----------------------------------------------------------------------------
-ht %>% set_background_color(everywhere, starts_with("S"), "orange")
-
-## -----------------------------------------------------------------------------
-ht %>% map_background_color(by_rows("grey90", "grey95"))
-
-## -----------------------------------------------------------------------------
-
-car_ht %>% map_text_color(everywhere, 3, 
-        by_ranges(c(15, 25), c("red", "darkgreen", "green"))
+iris_hux %>% 
+      map_text_color(-(1:2), -1, 
+        by_colorspace("darkred", "grey50", "darkgreen", colwise = TRUE)
       )
 
 
 ## -----------------------------------------------------------------------------
-ht %>% map_bold(by_regex('Jones' = TRUE))
+jams %>% map_text_color(by_regex("berry" = "red4", "navy"))
+
+## ---- include = FALSE---------------------------------------------------------
+options(huxtable.knit_print_df = TRUE)
+
+## -----------------------------------------------------------------------------
+head(iris)
+
+## -----------------------------------------------------------------------------
+options(huxtable.knit_print_df = FALSE)
+
+head(iris) # back to normal
+
+## ---- include = FALSE---------------------------------------------------------
+options(huxtable.knit_print_df = TRUE)
+
+## ---- results = "markup"------------------------------------------------------
+print_screen(jams)
+
+## ---- eval = FALSE------------------------------------------------------------
+#  quick_pdf(iris_hux)
+#  quick_pdf(iris_hux, file = "iris.pdf")
 
 ## -----------------------------------------------------------------------------
 
@@ -296,37 +383,4 @@ lm2 <- lm(mpg ~ hp, mtcars)
 lm3 <- lm(mpg ~ cyl + hp, mtcars)
 
 huxreg(lm1, lm2, lm3)
-
-## ---- include = FALSE---------------------------------------------------------
-options(huxtable.knit_print_df = TRUE)
-
-## -----------------------------------------------------------------------------
-head(mtcars)
-
-## -----------------------------------------------------------------------------
-options(huxtable.knit_print_df = FALSE)
-
-head(mtcars) # back to normal
-
-## ---- include = FALSE---------------------------------------------------------
-options(huxtable.knit_print_df = TRUE)
-
-## ---- results = 'markup'------------------------------------------------------
-print_screen(ht)
-
-## ---- echo = FALSE------------------------------------------------------------
-quick_commands <- hux(
-        Command = c("quick_pdf", "quick_docx", "quick_html", "quick_xlsx", "quick_pptx", 
-          "quick_rtf", "quick_latex"), 
-        Output = c("PDF document", "Word document", "HTML web page", "Excel spreadsheet", 
-          "Powerpoint presentation", "RTF document", "LaTeX document"),
-        add_colnames = TRUE
-      )
-font(quick_commands)[, 1] <- if (is_latex) 'cmtt' else 'Courier'
-
-theme_plain(quick_commands)
-
-## ---- eval = FALSE------------------------------------------------------------
-#  quick_pdf(mtcars)
-#  quick_pdf(mtcars, file = 'motorcars data.pdf')
 

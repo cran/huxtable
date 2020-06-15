@@ -4,7 +4,7 @@
 \alias{knit_print.huxtable}
 \title{Print a huxtable within knitr}
 \usage{
-knit_print.huxtable(x, options, ...)
+\method{knit_print}{huxtable}(x, options, ...)
 }
 \arguments{
 \item{x}{A huxtable.}
@@ -25,6 +25,7 @@ prints itself out appropriately. You can override the output format by setting
 \seealso{
 \link{huxtable-options}
 
-Other knit_print: \code{\link{knit_print.data.frame}}
+Other knit_print: 
+\code{\link{knit_print.data.frame}()}
 }
 \concept{knit_print}

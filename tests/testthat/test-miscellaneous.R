@@ -1,5 +1,4 @@
 
-context("Miscellaneous")
 
 test_that(".onLoad works and sets options", {
   old_opts <- options()
@@ -7,7 +6,6 @@ test_that(".onLoad works and sets options", {
           # huxtable.add_colnames  = NULL, # want not to set this to anything on package load
           huxtable.print         = NULL,
           huxtable.color_screen  = NULL,
-          huxtable.knit_print_df = NULL,
           huxtable.knit_print_df_theme = NULL,
           huxtable.autoformat = NULL,
           huxtable.autoformat_number_format = NULL,
@@ -19,15 +17,13 @@ test_that(".onLoad works and sets options", {
     expect_false( is.null(options(opt)[[1]]), info = paste("Option:", opt))
   }
   options(old_opts)
-
-
 })
 
 
 test_dplyr_methods <- function () {
   huxtable:::.onLoad(system.file(package = "huxtable"), "huxtable")
-  expected_methods <- c("arrange", "arrange_", "filter", "filter_", "mutate", "mutate_", "rename",
-    "rename_", "select", "select_", "slice", "slice_", "transmute", "transmute_")
+  expected_methods <- c("arrange", "arrange_", "filter", "filter_", "mutate",
+        "mutate_",  "slice", "slice_", "transmute", "transmute_")
   dplyr_methods <- getNamespaceInfo("dplyr", "S3methods")  # will load dplyr
   dplyr_methods <- as.data.frame(dplyr_methods[, 1:2])
   names(dplyr_methods) <- c("generic", "class")
@@ -69,45 +65,3 @@ test_that(".onLoad gets S3 methods registered if namespace loaded", {
   library(knitr)
   test_knitr_methods()
 })
-
-
-test_that("install/report_latex_dependencies run", {
-  skip_if_not_installed("tinytex")
-
-  expect_silent(packages <- report_latex_dependencies(quiet = TRUE))
-  packages <- vapply(packages, `[[`, character(1), "name")
-  packages <- setdiff(packages, c("graphicx", "calc", "array"))
-  with_mock(
-    `tinytex::tlmgr_install` = function (...) return(0),
-    expect_error(x <- install_latex_dependencies(), regexp = NA)
-  )
-  expect_true(x)
-})
-
-
-test_that("check_latex_dependencies runs correctly", {
-  skip_if_not_installed("tinytex")
-
-  with_mock(
-    `tinytex::tl_pkgs` = function (...) return(character(0)), {
-    expect_false(check_latex_dependencies(quiet = TRUE))
-    expect_message(check_latex_dependencies(quiet = FALSE), regexp = "not found")
-  })
-
-  ld <- tlmgr_packages()
-  with_mock(
-    `tinytex::tl_pkgs` = function (...) return(ld), {
-      expect_true(check_latex_dependencies(quiet = TRUE))
-      expect_message(check_latex_dependencies(quiet = FALSE), regexp = "All LaTeX packages found")
-    })
-})
-
-
-test_that("is_a_number", {
-  expect_false(is_a_number("foo"))
-  expect_true(is_a_number(1.5))
-  expect_true(is_a_number("1.5"))
-  ht <- hux(a = 1:2, add_colnames = TRUE)
-  expect_equivalent(is_a_number(ht), matrix(c(FALSE, TRUE, TRUE), 3, 1))
-})
-

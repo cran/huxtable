@@ -80,7 +80,14 @@ quick_pdf <- function (..., file = confirm("huxtable-output.pdf"), borders = 0.4
     tinytex::latexmk(latex_file, pdf_file = file, engine = engine)
     output_file <- file
   } else {
-    tools::texi2pdf(latex_file, clean = TRUE) # outputs to current working directory
+    if (getOption("huxtable.latex_use_fontspec", FALSE)) {
+      old_LATEX = Sys.getenv("LATEX")
+      Sys.setenv(LATEX = "xelatex")
+      tools::texi2dvi(latex_file, clean = TRUE) # outputs to current working directory
+      Sys.setenv(LATEX = old_LATEX)
+    } else {
+      tools::texi2pdf(latex_file, clean = TRUE) # outputs to current working directory
+    }
     output_file <- sub("\\.tex$", ".pdf", basename(latex_file))
   }
   if (! file.exists(output_file)) stop("Could not find pdf output file '", output_file, "'")
@@ -108,8 +115,15 @@ quick_html <- function (..., file = confirm("huxtable-output.html"), borders = 0
   force(file)
   hts <- huxtableize(list(...), borders)
 
+  loc <- Sys.getlocale("LC_COLLATE")
+  loc <- strsplit(loc, ".", fixed = TRUE)[[1]]
+  loc[1] <- gsub("_", "-", loc[1], fixed = TRUE)
   sink(file)
-  cat("<!DOCTYPE html><html><body>")
+  cat("<!DOCTYPE html>",
+         sprintf("<html lang=\"%s\">", loc[1]),
+         sprintf("<head><meta charset=\"%s\"><title>%s</title></head>",
+           loc[2], file),
+         "<body>\n", sep = "\n")
   tryCatch({
     lapply(hts, function (ht) {
       cat("<p>&nbsp;</p>")
@@ -167,7 +181,7 @@ quick_pptx <- function (..., file = confirm("huxtable-output.pptx"), borders = 0
   for (ht in hts) {
     ft <- as_flextable(ht)
     my_pptx <- officer::add_slide(my_pptx, layout = "Title and Content", master = "Office Theme")
-    my_pptx <- flextable::ph_with_flextable(my_pptx, ft)
+    my_pptx <- officer::ph_with(my_pptx, ft, location = officer::ph_location_type("body"))
   }
   print(my_pptx, target = file)
 

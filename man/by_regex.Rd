@@ -14,11 +14,12 @@ is an error.}
 \item{.grepl_args}{A list of arguments to pass to \code{\link[=grepl]{grepl()}}. Useful options
 include \code{fixed}, \code{perl} and \code{ignore.case}.}
 
-\item{ignore_na}{If \code{TRUE}, \code{NA} values in the result will be left unchanged. Otherwise, \code{NA}
+\item{ignore_na}{If \code{TRUE}, \code{NA} values in the result will be left unchanged
+from their previous values. Otherwise, \code{NA}
 normally resets to the default.}
 }
 \value{
-A function for use in \code{map_***} functions.
+A function for use in \verb{map_***} functions.
 }
 \description{
 Map cells matching a string or regex to cell properties
@@ -39,9 +40,13 @@ map_bold(ht, by_regex(
 \seealso{
 \link{mapping-functions}
 
-Other mapping functions: \code{\link{by_cases}},
-  \code{\link{by_colorspace}}, \code{\link{by_function}},
-  \code{\link{by_quantiles}}, \code{\link{by_ranges}},
-  \code{\link{by_rows}}, \code{\link{by_values}}
+Other mapping functions: 
+\code{\link{by_cases}()},
+\code{\link{by_colorspace}()},
+\code{\link{by_function}()},
+\code{\link{by_quantiles}()},
+\code{\link{by_ranges}()},
+\code{\link{by_rows}()},
+\code{\link{by_values}()}
 }
 \concept{mapping functions}

@@ -1,6 +1,4 @@
 
-# Tools for managing LaTeX dependencies ------------------------------------------------------------
-
 #' @import assertthat
 NULL
 
@@ -10,13 +8,15 @@ huxtable_latex_dependencies <- list(
   list(name = "caption"),
   list(name = "graphicx"),
   list(name = "siunitx"),
+  list(name = "ulem"), # for strikeout in markdown
   list(name = "colortbl"),
   list(name = "multirow"),
   list(name = "hhline"),
   list(name = "calc"),
   list(name = "tabularx"),
   list(name = "threeparttable"),
-  list(name = "wrapfig")
+  list(name = "wrapfig"),
+  list(name = "adjustbox")
 )
 
 
@@ -40,6 +40,10 @@ huxtable_latex_dependencies <- list(
 report_latex_dependencies <- function(quiet = FALSE, as_string = FALSE) {
   assert_that(is.flag(quiet), is.flag(as_string))
 
+  if (getOption("huxtable.latex_use_fontspec", FALSE)) {
+    huxtable_latex_dependencies <- c(huxtable_latex_dependencies,
+      list(list(name = "fontspec")))
+  }
   report <- sapply(huxtable_latex_dependencies, function(ld) {
     package_str <- "\\usepackage"
     if (! is.null(ld$options)) {
@@ -90,24 +94,29 @@ check_latex_dependencies <- function (quiet = FALSE) {
       stdout = TRUE)
     pkgs <- gsub("[.].*", "", pkgs)
   }
-  if (all(ld %in% pkgs)) {
+  pkgs_found <- if (all(ld %in% pkgs)) {
     if (! quiet) message("All LaTeX packages found.")
-    return(TRUE)
+    TRUE
   } else {
     missing_pkgs <- setdiff(ld, pkgs)
     if (! quiet) message("The following LaTeX packages were not found:\n",
       paste(missing_pkgs, collapse = ", "), "\n",
       "Install them using your latex package manager or via install_latex_dependencies().")
-    return(FALSE)
+    FALSE
   }
+
+  adjustbox_ok <- check_adjustbox(quiet = quiet)
+  return(pkgs_found && adjustbox_ok)
 }
 
 
 #' Tools for LaTeX dependencies
 #'
-#' `install_latex_dependencies` is a utility function to install the LaTeX packages
-#' that huxtable requires. It calls [tinytex::tlmgr_install()] if possible,
-#' or `tlmgr install` directly.
+#' `install_latex_dependencies` is a utility function to install and/or update
+#' the LaTeX packages that huxtable requires. It calls
+#' [`tinytex::tlmgr_install()`][tinytex::tlmgr] if possible, or `tlmgr install`
+#' directly.
+#'
 #' @return `install_latex_dependencies` returns `TRUE` if `tlmgr` returns 0.
 #' @export
 #' @rdname report_latex_dependencies
@@ -121,14 +130,31 @@ install_latex_dependencies <- function () {
   message("Trying to install packages: ", paste(ld, collapse = ", "))
   message("If this fails, try running the following on the command line ",
     "(you may need admin permissions):")
-  message("  tlmgr install ", paste(ld, collapse = " "))
-  if (requireNamespace("tinytex", quietly = TRUE)) {
+  message("  tlmgr install ", paste(ld, collapse = " "), "\n")
+
+  tinytex_available <- requireNamespace("tinytex", quietly = TRUE)
+  install_ok <- if (tinytex_available) {
     tinytex::tlmgr_install(ld) == 0
   } else {
     warning("R package tinytex not found, trying to install packages directly with tlmgr")
-    message(paste("tlmgr", "install", ld))
     system2("tlmgr", c("install", ld)) == 0
   }
+
+  adjustbox_ok <- check_adjustbox(quiet = TRUE)
+  if (! adjustbox_ok) {
+    adjustbox_ok <- if (tinytex_available) {
+      tinytex::tlmgr_update(all = FALSE, self = FALSE, more_args = "adjustbox") == 0
+    } else {
+      system2("tlmgr", c("update", "adjustbox")) == 0
+    }
+  }
+  if (! adjustbox_ok) {
+    warning(
+        "adjustbox version is out of date and could not be updated automatically.\n",
+        "Try to install it with your TeX package manager.")
+  }
+
+  return(install_ok && adjustbox_ok)
 }
 
 
@@ -139,4 +165,22 @@ tlmgr_packages <- function () {
   ld <- c(ld, "tools")
 
   return(ld)
+}
+
+
+check_adjustbox <- function (quiet = TRUE) {
+  args <- c("info", "--data", "'cat-version'", "--only-installed", "adjustbox")
+  adjustbox_rev <- if (requireNamespace("tinytex", quietly = TRUE)) {
+    tinytex::tlmgr(args, stdout = TRUE, .quiet = TRUE)
+  } else {
+    system2("tlmgr", args, stdout = TRUE)
+  }
+
+  ok <- as.package_version(adjustbox_rev) >= "1.2"
+  if (! ok && ! quiet) {
+    warning("TeX package 'adjustbox' is out of date.\n",
+      "Update it with your package manager or via `install_latex_dependencies()`.")
+  }
+
+  return(ok)
 }

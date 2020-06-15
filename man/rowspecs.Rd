@@ -4,13 +4,13 @@
 \alias{rowspecs}
 \title{Different ways to select rows and columns}
 \description{
-This help page describes how to use the \code{row} and \code{col} arguments in \code{set_*} functions.
+This help page describes how to use the \code{row} and \code{col} arguments in \verb{set_*} functions.
 }
 \section{The basics}{
 
 
-The \code{set_*} functions for cell properties all have arguments like this:
-\code{set_property(ht, row, col, value, byrow = FALSE)}.
+The \verb{set_*} functions for cell properties all have arguments like this:
+\code{set_property(ht, row, col, value)}.
 
 You can treat \code{row} and \code{col} arguments like arguments for
 \link[=[.data.frame]{data frame subsetting}. For example, you can use \code{row = 1:3} to get the
@@ -22,29 +22,30 @@ There are also a few extra tricks you can use:
 \item Use \code{everywhere} to refer to all rows or all columns.
 \item Use \code{final(n)} to refer to the last n rows or columns.
 \item Use \code{evens} to get only even rows/columns and \code{odds} for only odd ones.
-\item Use \code{\link[=every]{every(n, from = m)}} to get every nth row/column starting at row/column m.
+\item Use \code{\link[=stripe]{stripe(n, from = m)}} to get every nth row/column starting at row/column m.
 \item Use \code{dplyr} functions like \code{starts_with}, \code{contains} and \code{matches} to
-specify columns (but not rows). See \code{\link[tidyselect]{select_helpers}} for a full list.
-\item Set \code{byrow = TRUE} to set properties by row rather than by column.
+specify columns (but not rows). See \link[tidyselect:language]{tidyselect::language}
+for a full list.
 }
 }
 
 \section{The gory details}{
 
 
-How the row and col arguments are parsed depends on the number of arguments passed to the \code{set_*}
+How the row and col arguments are parsed depends on the number of arguments passed to the \verb{set_*}
 function.
 \itemize{
-\item If there are two arguments (excluding \code{byrow}) then the second argument is taken as the
+\item If there are two arguments then the second argument is taken as the
 value and is set for all rows and columns.
 \item If there are four arguments:
 \itemize{
 \item If \code{row} or \code{col} is numeric, character or logical, it is evaluated just as in standard
-subsetting. \code{col} will be evaluated in a special context provided by \code{\link[tidyselect:with_vars]{tidyselect::with_vars()}}
+subsetting. \code{col} will be evaluated in a special context provided by
+\code{\link[tidyselect:poke_vars]{tidyselect::with_vars()}}
 to allow the use of dplyr functions.
 \item If \code{row} or \code{col} is a function,it is called with two arguments: the huxtable,
 and the dimension number being evaluated, i.e. 1 for rows, 2 for columns. It must return a vector
-of column indices. \code{\link[=evens]{evens()}}, \code{\link[=odds]{odds()}}, \code{\link[=every]{every()}} and \code{\link[=final]{final()}}
+of column indices. \code{\link[=evens]{evens()}}, \code{\link[=odds]{odds()}}, \code{\link[=stripe]{stripe()}} and \code{\link[=final]{final()}}
 return functions for this purpose.
 }
 }

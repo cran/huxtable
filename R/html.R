@@ -31,8 +31,9 @@ to_html <- function (ht, ...) UseMethod("to_html")
 #'
 #' @return `print_notebook` prints HTML output suitable for use in an
 #' RStudio interactive notebook.
-print_notebook <- function(ht, ...) print(rmarkdown::html_notebook_output_html(to_html(ht)))
-
+print_notebook <- function(ht, ...) {
+  print(rmarkdown::html_notebook_output_html(to_html(ht)))
+}
 
 
 #' @export
@@ -42,7 +43,10 @@ to_html.huxtable <- function(ht, ...) {
 
   ## TABLE START ----------
   width <- width(ht)
-  if (is.numeric(width)) width <- paste0(width * 100, "%")
+  width_string <- if (is.na(width)) "" else {
+    if (is.numeric(width)) width <- paste0(width * 100, "%")
+    paste0("width: ", width)
+  }
 
   margin_string <- switch(position(ht),
           "wrapleft"  = "margin-left: 0%; margin-right: 2em;",
@@ -54,8 +58,8 @@ to_html.huxtable <- function(ht, ...) {
 
   height <- height(ht)
   height_string <- blank_where({
-    if (is.numeric(height)) height <- paste0(height * 100, "%")
-    sprintf("height: %s;", height)
+    h <- if (is.numeric(height)) paste0(height * 100, "%") else height
+    sprintf("height: %s;", h)
   }, is.na(height))
 
   float_string <- switch(position(ht),
@@ -64,17 +68,27 @@ to_html.huxtable <- function(ht, ...) {
           ""
         )
 
-  id_string <- blank_where(sprintf(" id=\"%s\"", label(ht)), is.na(label(ht)))
+  lab <- make_label(ht)
+  id_string <- if (is.na(lab)) "" else sprintf(" id=\"%s\"", lab)
 
   table_start <- sprintf(
-        '<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: %s; %s %s %s"%s>\n',
-        width, margin_string, height_string, float_string, id_string)
+        '<table class="huxtable" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; %s; %s %s %s"%s>\n',
+        width_string, margin_string, height_string, float_string, id_string)
 
-  if (! is.na(cap <- make_caption(ht, "html"))) {
+  if (! is.na(cap <- make_caption(ht, lab, "html"))) {
     vpos <- if (grepl("top", caption_pos(ht))) "top" else "bottom"
     hpos <- get_caption_hpos(ht)
-    cap <- sprintf('<caption style="caption-side: %s; text-align: %s;">%s</caption>', vpos, hpos,
-          cap)
+
+    if (! is.na(cap_width <- caption_width(ht))) {
+      if (! is.na(as.numeric(cap_width))) {
+        cap_width <- paste0(as.numeric(cap_width) * 100, "%")
+      }
+      cap_width <- sprintf("width: %s;", cap_width)
+    } else {
+      cap_width <- ""
+    }
+    cap <- sprintf('<caption style="caption-side: %s; text-align: %s;%s">%s</caption>',
+          vpos, hpos, cap_width, cap)
     table_start <- paste0(table_start, cap)
   }
 
@@ -82,7 +96,7 @@ to_html.huxtable <- function(ht, ...) {
   col_widths <- col_width(ht)
   # NAs become empty strings
   empty_cw <- is.na(col_widths)
-  if (is.numeric(col_widths)) col_widths <- paste0(col_widths * 100, "%")
+  if (is.numeric(col_widths)) col_widths <- sprintf("%s%%", col_widths * 100)
   cols_html <- sprintf(' style="width: %s"', col_widths)
   cols_html <- blank_where(cols_html, empty_cw)
   cols_html <- sprintf("<col%s>", cols_html)
@@ -100,34 +114,10 @@ to_html.huxtable <- function(ht, ...) {
   align   <- sprintf(" text-align: %s;", real_align(ht))
   wrap    <- sprintf(" white-space: %s;", ifelse(wrap(ht), "normal", "nowrap"))
 
-  # collapsed_borders() are in "real cell" position. But we just want to grab the original data
-  # and apply it?
-  borders    <- get_all_borders(ht)
-  border_styles    <- get_all_border_styles(ht)
-  if (length(unlist(borders)) > 0 && any(unlist(borders) > 0 & unlist(borders) < 3 &
-        unlist(border_styles) == "double"))
-        warning("border_style set to \"double\" but border less than 3 points")
-
-  border_width <- sprintf(" border-style: %s %s %s %s; border-width: %.4gpt %.4gpt %.4gpt %.4gpt;",
-        border_styles$top, border_styles$right, border_styles$bottom, border_styles$left,
-        borders$top, borders$right, borders$bottom, borders$left)
-  no_borders <- borders$top == 0 & borders$right == 0 & borders$bottom == 0 & borders$left == 0
-  border_width <- blank_where(border_width, no_borders)
-
-  format_bc <- function (pos, col) {
-    x <- sprintf(" border-%s-color: rgb(%s);", pos, format_color(col))
-    blank_where(x, is.na(col))
-  }
-  top_bc    <- top_border_color(ht)
-  bottom_bc <- bottom_border_color(ht)
-  left_bc   <- left_border_color(ht)
-  right_bc  <- right_border_color(ht)
-  border_color <- paste0(
-          format_bc("top", top_bc),
-          format_bc("right", right_bc),
-          format_bc("bottom", bottom_bc),
-          format_bc("left", left_bc)
-        )
+  # get_visible_borders() data is in "real cell" position.
+  # But we just want to grab the original data
+  # and apply it
+  border_css <- compute_border_css(ht)
 
   add_pts <- function (x) if (is.numeric(x)) sprintf("%.4gpt", x) else x
   padding <- sprintf(" padding: %s %s %s %s;",
@@ -142,7 +132,7 @@ to_html.huxtable <- function(ht, ...) {
   bg_color <- sprintf(" background-color: rgb(%s);", bg_color)
   bg_color <- blank_where(bg_color, is.na(background_color(ht)))
 
-  bold <- ifelse(bold(ht), " font-weight: bold;", "")
+  bold <- ifelse(bold(ht), " font-weight: bold;", " font-weight: normal;")
   italic <- ifelse(italic(ht), " font-style: italic;", "")
 
   font <- sprintf(" font-family: %s;", font(ht))
@@ -150,10 +140,13 @@ to_html.huxtable <- function(ht, ...) {
   font_size <- sprintf(" font-size: %.4gpt;", font_size(ht))
   font_size <- blank_where(font_size, is.na(font_size(ht)))
 
-  style   <- paste0("style=\"", valign, align, wrap, border_width, border_color,
+  style   <- paste0("style=\"", valign, align, wrap, border_css,
         padding, bg_color, bold, italic, font, font_size, "\"")
-  td <- sprintf("<td%s%s %s>", rowspan, colspan, style)
-
+  th_td <- matrix("td", nrow(ht), ncol(ht))
+  th_td[header_rows(ht), ] <- "th"
+  th_td[, header_cols(ht)] <- "th"
+  cell_start <- sprintf("<%s%s%s %s>", th_td, rowspan, colspan, style)
+  cell_end   <- sprintf("</%s>", th_td)
   contents <- clean_contents(ht, type = "html")
 
   rot <- rotation(ht)
@@ -176,8 +169,8 @@ to_html.huxtable <- function(ht, ...) {
   color_span_end <- rep("</span>", length(color))
   color_span_end <- blank_where(color_span_end, is.na(text_color(ht)))
 
-  cells_html <- paste0(td, rot_div, color_span, contents, color_span_end, rot_div_end,
-        rep("</td>\n", length(td)))
+  cells_html <- paste0(cell_start, rot_div, color_span, contents,
+                  color_span_end, rot_div_end, cell_end)
   cells_html <- blank_where(cells_html, display_cells$shadowed)
 
   # add in row tags
@@ -196,4 +189,74 @@ to_html.huxtable <- function(ht, ...) {
 
   res <- paste0(table_start, cols_html, cells_html, "</table>\n")
   return(res)
+}
+
+
+#' Create border css for each cell
+#'
+#' This returns a matrix of border CSS. Cells with spans > 1 get the
+#' borders from the correct position.
+#'
+#' @param ht A huxtable.
+#'
+#' @return A character array of border CSS, ending in a semicolon
+#' @noRd
+compute_border_css <- function (ht) {
+  top_row <- c(row(ht))
+  bottom_row <- top_row + c(rowspan(ht)) - 1
+  left_col <- c(col(ht))
+  right_col <- left_col + c(colspan(ht)) - 1
+
+  dc <- display_cells(ht)
+  dc <- as.matrix(dc[, c("row", "col", "end_row", "end_col")])
+  # we don't use display_row because shadowed cells will be blanked anyway.
+  top_matrix    <- dc[, c("row", "col"), drop = FALSE]
+  left_matrix   <- top_matrix
+  bottom_matrix <- dc[, c("end_row", "col"), drop = FALSE]
+  right_matrix  <- dc[, c("row", "end_col"), drop = FALSE]
+
+  # We don't use get_visible_borders, because borders in the middle of a
+  # span won't be used anyway.
+  tb <- brdr_thickness(top_border(ht))   [top_matrix]
+  rb <- brdr_thickness(right_border(ht)) [right_matrix]
+  bb <- brdr_thickness(bottom_border(ht))[bottom_matrix]
+  lb <- brdr_thickness(left_border(ht))  [left_matrix]
+
+  tbs <- top_border_style(ht)   [top_matrix]
+  rbs <- right_border_style(ht) [right_matrix]
+  bbs <- bottom_border_style(ht)[bottom_matrix]
+  lbs <- left_border_style(ht)  [left_matrix]
+
+  tbc <- top_border_color(ht)   [top_matrix]
+  rbc <- right_border_color(ht) [right_matrix]
+  bbc <- bottom_border_color(ht)[bottom_matrix]
+  lbc <- left_border_color(ht)  [left_matrix]
+
+  format_border_color_css <- function (col, pos) {
+    x <- sprintf(" border-%s-color: rgb(%s);", pos, format_color(col))
+    blank_where(x, is.na(col))
+  }
+  tbc <- format_border_color_css(tbc, "top")
+  rbc <- format_border_color_css(rbc, "right")
+  bbc <- format_border_color_css(bbc, "bottom")
+  lbc <- format_border_color_css(lbc, "left")
+
+  if (any(tbs == "double" & tb > 0 & tb < 3) ||
+      any(rbs == "double" & rb > 0 & rb < 3) ||
+      any(bbs == "double" & bb > 0 & bb < 3) ||
+      any(lbs == "double" & lb > 0 & lb < 3)
+  ) {
+    warning("border_style set to \"double\" but border less than 3 points")
+  }
+
+  border_css <- sprintf(
+    " border-style: %s %s %s %s; border-width: %.4gpt %.4gpt %.4gpt %.4gpt;",
+    tbs, rbs, bbs, lbs, tb, rb, bb, lb
+  )
+  border_css <- paste0(border_css, sprintf("%s %s %s %s", tbc, rbc, bbc, lbc))
+
+  no_borders <- tb == 0 & rb == 0 & bb == 0 & lb == 0
+  border_css <- blank_where(border_css, no_borders)
+
+  return(border_css)
 }

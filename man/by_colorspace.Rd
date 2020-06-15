@@ -4,8 +4,13 @@
 \alias{by_colorspace}
 \title{Map numeric cell contents smoothly to colors}
 \usage{
-by_colorspace(..., range = NULL, na_color = NA, ignore_na = TRUE,
-  colwise = FALSE)
+by_colorspace(
+  ...,
+  range = NULL,
+  na_color = NA,
+  ignore_na = TRUE,
+  colwise = FALSE
+)
 }
 \arguments{
 \item{...}{Colors}
@@ -14,13 +19,14 @@ by_colorspace(..., range = NULL, na_color = NA, ignore_na = TRUE,
 
 \item{na_color}{Color to return for \code{NA} values. Can be \code{NA} itself.}
 
-\item{ignore_na}{If \code{TRUE}, \code{NA} values in the result will be left unchanged. Otherwise, \code{NA}
+\item{ignore_na}{If \code{TRUE}, \code{NA} values in the result will be left unchanged
+from their previous values. Otherwise, \code{NA}
 normally resets to the default.}
 
 \item{colwise}{Logical. Calculate breaks separately within each column?}
 }
 \value{
-A function for use in \code{map_***} functions.
+A function for use in \verb{map_***} functions.
 }
 \description{
 Map numeric cell contents smoothly to colors
@@ -31,7 +37,7 @@ Map numeric cell contents smoothly to colors
 \examples{
 
 if (! requireNamespace("scales")) {
-  stop("Please install the \\"scales\\" package to run this example")
+  stop("Please install the \"scales\" package to run this example")
 }
 ht <- as_hux(matrix(rnorm(25), 5, 5))
 map_background_color(ht,
@@ -43,9 +49,13 @@ map_background_color(ht,
 \seealso{
 \link{mapping-functions}
 
-Other mapping functions: \code{\link{by_cases}},
-  \code{\link{by_function}}, \code{\link{by_quantiles}},
-  \code{\link{by_ranges}}, \code{\link{by_regex}},
-  \code{\link{by_rows}}, \code{\link{by_values}}
+Other mapping functions: 
+\code{\link{by_cases}()},
+\code{\link{by_function}()},
+\code{\link{by_quantiles}()},
+\code{\link{by_ranges}()},
+\code{\link{by_regex}()},
+\code{\link{by_rows}()},
+\code{\link{by_values}()}
 }
 \concept{mapping functions}
