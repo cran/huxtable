@@ -16,11 +16,12 @@ huxtable_latex_dependencies <- list(
   list(name = "tabularx"),
   list(name = "threeparttable"),
   list(name = "wrapfig"),
-  list(name = "adjustbox")
+  list(name = "adjustbox"),
+  list(name = "hyperref")
 )
 
 
-#' Tools for LaTeX dependencies
+#' Manage LaTeX dependencies for huxtables
 #'
 #' `report_latex_dependencies` prints out and/or returns a list of LaTeX dependencies for adding
 #' to a LaTeX preamble.

@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 5.0.0
+Version: 5.1.0
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -18,21 +18,22 @@ Description: Creates styled tables for data presentation. Export to HTML, LaTeX,
 License: MIT + file LICENSE
 URL: https://hughjonesd.github.io/huxtable
 BugReports: https://github.com/hughjonesd/huxtable/issues
-Imports: assertthat, generics, glue, memoise, rlang, stats, stringr (>=
-        1.2.0), tidyselect, utils, commonmark
-Suggests: bookdown, broom (>= 0.5.1), broom.mixed, covr, crayon,
-        devtools, dplyr (>= 0.7.0), flextable (>= 0.5.5), ggplot2,
-        httr, knitr, lme4, lmtest, nlme, nnet, officer, openxlsx,
-        psych, rmarkdown, sandwich, scales, testthat, tibble, tinytex
+Imports: assertthat, commonmark, generics, glue, memoise, R6, rlang,
+        stats, stringr (>= 1.2.0), tidyselect, utils, xml2
+Suggests: AER, bookdown, broom (>= 0.5.1), broom.mixed, covr, crayon,
+        devtools, dplyr (>= 0.7.0), fansi, flextable (>= 0.5.5),
+        ftExtra (>= 0.0.2), ggplot2, httr, knitr, lme4, lmtest, nlme,
+        nnet, officer, openxlsx, psych, rmarkdown, sandwich, scales,
+        testthat, tibble, tinytex
 SystemRequirements: LaTeX packages: adjustbox, array, calc, caption,
-        colortbl, fontspec, graphicx, hhline, multirow, siunitx,
-        tabularx, threeparttable, ulem, wrapfig
+        colortbl, fontspec, graphicx, hhline, hyperref, multirow,
+        siunitx, tabularx, threeparttable, ulem, wrapfig
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Depends: R (>= 2.10)
 NeedsCompilation: no
-Packaged: 2020-06-15 14:37:38 UTC; david
+Packaged: 2020-09-10 20:58:15 UTC; david
 Repository: CRAN
-Date/Publication: 2020-06-15 23:50:06 UTC
+Date/Publication: 2020-09-18 08:50:14 UTC

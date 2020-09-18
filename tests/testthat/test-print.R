@@ -57,7 +57,7 @@ test_that("to_md warns on unimplemented features", {
 test_that("to_md prints bold and italic", {
   short_strings <- c("bold", "both", "italic")
   long_strings <- strrep(toupper(short_strings), 40)
-  ht <- hux(a = short_strings, b = long_strings)
+  ht <- hux(a = short_strings, b = long_strings, add_colnames = FALSE)
   bold(ht)[1:2, 1:2] <- TRUE
   italic(ht)[2:3, 1:2] <- TRUE
   expect_silent(res <- to_md(ht))
@@ -212,6 +212,12 @@ test_that("HTML gives warnings for double borders not wide enough", {
   expect_warning(to_html(ht), "double")
   top_border(ht) <- 3
   expect_silent(to_html(ht))
+})
+
+
+test_that("Markdown in rtf", {
+  ht <- hux("Some *italic*, **bold**, ~strikethrough~, [a link](https://google.com)")
+  expect_silent(to_rtf(ht))
 })
 
 

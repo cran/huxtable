@@ -27,8 +27,11 @@ generics::glance
 #' @param ci_level Confidence level for intervals. Set to `NULL` to not
 #'   calculate confidence intervals.
 #' @param tidy_args List of arguments to pass to [generics::tidy()].
-#'   You can also pass a list of lists; if so, the nth element will be used for
-#'   the nth column.
+#'   A list without names will be treated as a list of argument lists, one
+#'   for each model.
+#' @param glance_args List of arguments to pass to [generics::glance()]. A
+#'   list without names will be treated as a list of argument lists, one for
+#'   each model.
 #' @param stars Levels for p value stars. Names of `stars` are symbols to use.
 #'   Set to `NULL` to not show stars.
 #' @param bold_signif Where p values are below this number, cells will be
@@ -110,6 +113,7 @@ huxreg <- function (
         align           = ".",
         ci_level        = NULL,
         tidy_args       = NULL,
+        glance_args     = NULL,
         stars           = c("***" = 0.001, "**" = 0.01, "*" = 0.05),
         bold_signif     = NULL,
         borders         = 0.4,
@@ -129,11 +133,16 @@ huxreg <- function (
   if (! missing(bold_signif)) assert_that(is.number(bold_signif))
   if (! missing(ci_level)) assert_that(is.number(ci_level))
   assert_that(is.null(stars) || is.numeric(stars))
+
   models <- list(...)
   if (inherits(models[[1]], "list")) models <- models[[1]]
   mod_col_headings <- names_or(models, paste0("(", seq_along(models), ")"))
+
   error_pos <- match.arg(error_pos)
-  if (! is.null(tidy_args) && ! is.list(tidy_args[[1]])) tidy_args <- rep(list(tidy_args), length(models))
+
+  if (! is.null(tidy_args) && ! is.null(names(tidy_args))) {
+    tidy_args <- rep(list(tidy_args), length(models))
+  }
 
   # create list of tidy data frames, possibly with confidence intervals
   my_tidy <- function (n, ci_level = NULL) {
@@ -145,14 +154,21 @@ huxreg <- function (
       args$conf.int <- TRUE
       args$conf.level <- ci_level
     }
+
     do.call(tidy, args)
   }
+
   tidy_with_ci <- function (n) {
-    if (has_builtin_ci(models[[n]])) return(my_tidy(n, ci_level = ci_level))
-    tidied <- my_tidy(n) # should return "estimate" and "std.error"
-    cbind(tidied, make_ci(tidied[, c("estimate", "std.error")], ci_level))
+    if (has_builtin_ci(models[[n]])) {
+      my_tidy(n, ci_level = ci_level)
+    } else {
+      tidied <- my_tidy(n) # should return "estimate" and "std.error"
+      cbind(tidied, make_ci(tidied[, c("estimate", "std.error")], ci_level))
+    }
   }
-  tidied <- lapply(seq_along(models), if (is.null(ci_level)) my_tidy else tidy_with_ci)
+
+  tidy_fn <- if (is.null(ci_level)) my_tidy else tidy_with_ci
+  tidied <- lapply(seq_along(models), tidy_fn)
 
   # select coefficients
   my_coefs <- unique(unlist(lapply(tidied, function (x) {
@@ -169,52 +185,62 @@ huxreg <- function (
   coef_names <- names_or(my_coefs, my_coefs)
 
   # select appropriate rows
-  tidied <- lapply(tidied, merge, x = data.frame(term = my_coefs, stringsAsFactors = FALSE), all.x = TRUE, by = "term",
-        sort = FALSE)
+  tidied <- lapply(tidied, merge,
+          x     = data.frame(term = my_coefs, stringsAsFactors = FALSE),
+          all.x = TRUE,
+          by    = "term",
+          sort  = FALSE
+        )
   tidied <- lapply(tidied, function (x) {
     x$term[! is.na(match(x$term, my_coefs))] <- coef_names[match(x$term, my_coefs)]
     x <- x[match(unique(coef_names), x$term), ]
   })
   coef_names <- unique(coef_names)
 
-  # add stars to estimates
+  # add stars to estimates ----
+  tidied <- lapply(tidied, function (x) {
+    x$estimate_star <- x$estimate
+    x
+  })
   if (! is.null(stars)) {
     names(stars) <- paste0(" ", names(stars))
     stars <- sort(stars)
     cutpoints <- c(0, stars, 1)
     symbols   <- c(names(stars), "")
+
     tidied <- lapply(tidied, function (x) {
       if (is.null(x$p.value)) {
         warning("tidy() does not return p values for models of class ", class(x)[1],
               "; significance stars not printed.")
         return (x)
       }
-      x$estimate[ !is.na(x$estimate) ] <- with (x[! is.na(x$estimate), ],
-              paste0(estimate,
-              symnum(as.numeric(p.value), cutpoints = cutpoints, symbols = symbols, na = ""))
+      x$estimate_star[! is.na(x$estimate)] <- with(x[! is.na(x$estimate), ],
+              paste0(estimate, symnum(as.numeric(p.value), cutpoints = cutpoints,
+                symbols = symbols, na = ""))
             )
       x
     })
   }
 
-  # create error cells
+  # create error cells and blank NAs ----
   tidied <- lapply(tidied, function (x) {
     x$error_cell <- glue::glue_data(.x = x, error_format)
-    x$error_cell[is.na(x$estimate)] <- ""
-    x$estimate[is.na(x$estimate)] <- ""
+    x$error_cell[is.na(x$estimate)]    <- ""
+    x$estimate_star[is.na(x$estimate)] <- ""
+    x$estimate[is.na(x$estimate)]      <- ""
     x
   })
 
-  # cbind tidy data into a single data frame
+  # cbind tidy data into a single data frame ----
   coef_col <- switch(error_pos,
     same  = paste,
     below = interleave,
     right = cbind
   )
-  cols <- lapply(tidied, function (mod) coef_col(mod$estimate, mod$error_cell))
+  cols <- lapply(tidied, function (mod) coef_col(mod$estimate_star, mod$error_cell))
   cols <- Reduce(cbind, cols)
 
-  # make the data frame a huxtable
+  # make the data frame a huxtable ----
   coef_hux <- huxtable(cols, add_colnames = FALSE)
   number_format(coef_hux) <- number_format
   if (! is.null(bold_signif)) {
@@ -228,11 +254,24 @@ huxreg <- function (
     bold(coef_hux) <- bold_cols
   }
 
-  # create list of summary statistics
-  all_sumstats <- lapply(models, function(m) {
-    bg <- try(glance(m), silent = TRUE)
+
+
+  # create list of summary statistics ----
+
+  if (! is.null(glance_args) && ! is.null(names(glance_args))) {
+    glance_args <- rep(list(glance_args), length(models))
+  }
+  if (is.null(glance_args)) {
+    glance_args <- rep(list(list()), length(models))
+  }
+
+  all_sumstats <- lapply(seq_along(models), function(s) {
+    m <- models[[s]]
+    ga <- glance_args[[s]]
+    ga$x <- m
+    bg <- try(do.call(generics::glance, ga), silent = TRUE)
     bg <- if (inherits(bg, "try-error")) {
-      warning(sprintf("Error calling `glance` on object of class %s:",
+      warning(sprintf("Error calling `glance` on model %s, of class `%s`:", s,
             class(m)[1]))
       warning(bg)
       NULL
@@ -245,7 +284,7 @@ huxreg <- function (
     x
   })
 
-  # select summary statistics and cbind into a single data frame
+  # select summary statistics and cbind into a single data frame ----
   stat_names <- unique(unlist(lapply(all_sumstats, function (x) x$stat)))
   if (! is.null(statistics)) {
     if (! all(statistics %in% stat_names)) warning("Unrecognized statistics: ",
@@ -260,7 +299,7 @@ huxreg <- function (
   sumstats <- Reduce(cbind, sumstats)
   ss_classes <- Reduce(cbind, ss_classes)
 
-  # create huxtable of summary statistics
+  # create huxtable of summary statistics ----
   sumstats <- huxtable(sumstats, add_colnames = FALSE)
   number_format(sumstats) <- number_format
   number_format(sumstats)[ss_classes == "integer"] <- 0
@@ -272,14 +311,21 @@ huxreg <- function (
     }
     sumstats <- sumstats2
   }
-  coef_hux <- cbind(if (error_pos == "below") interleave(coef_names, "") else coef_names, coef_hux,
-        copy_cell_props = FALSE)
-  sumstats <- cbind(names_or(stat_names, stat_names), sumstats, copy_cell_props = FALSE)
 
-  # create single huxtable from coefficients and summary statistics
+  coef_name_cells <- if (error_pos == "below") {
+    interleave(coef_names, "")
+  } else {
+    coef_names
+  }
+  coef_hux <- cbind(coef_name_cells, coef_hux, copy_cell_props = FALSE)
+  stat_names <- names_or(stat_names, stat_names)
+  sumstats <- cbind(stat_names, sumstats, copy_cell_props = FALSE)
+
+  # create single huxtable from coefficients and summary statistics ----
   if (error_pos == "right") mod_col_headings <- interleave(mod_col_headings, "")
   mod_col_headings <- c("", mod_col_headings)
   result <- rbind(mod_col_headings, coef_hux, sumstats, copy_cell_props = FALSE)
+
   result <- set_header_rows(result, 1, TRUE)
   result <- set_header_cols(result, 1, TRUE)
   result <- set_bottom_border(result, final(), everywhere, outer_borders)
@@ -292,7 +338,7 @@ huxreg <- function (
   number_format(result)[, 1]  <- NA
   number_format(result)[1, ]  <- NA
 
-  # add a table note
+  # add a table note ----
   if (! is.null(note)) {
     stars <- if (is.null(stars)) "" else paste0(names(stars), " p < ", stars, collapse = "; ")
     note <- gsub("%stars%", stars, note)
@@ -300,6 +346,7 @@ huxreg <- function (
     result <- add_footnote(result, note, border = NULL)
     result <- set_wrap(result, final(), 1, TRUE)
     result <- set_align(result, final(), 1, "left")
+    result <- set_number_format(result, final(), 1, NA)
   }
 
   return(result)
@@ -382,7 +429,7 @@ tidy_override <- function (x, ..., glance = list(), extend = FALSE) {
   structure(list(
           model = x,
           tidy_cols = tidy_cols,
-          glance_elems = glance,
+          glance_elems = as.list(glance),
           extend = extend
         ),
         class = "tidy_override")
@@ -397,7 +444,7 @@ tidy_replace <- function (x, tidied, glance = list()) {
   structure(list(
           model = x,
           tidy_data = tidied,
-          glance_elems = glance(),
+          glance_elems = as.list(glance),
           extend = FALSE
         ),
         class = "tidy_override")
@@ -413,7 +460,8 @@ tidy.tidy_override <- function (x, ...) {
   if (inherits(tidied, "try-error")) tidied <- data.frame()[seq_along(x$tidy_cols[[1]]), ]
   for (cn in names(x$tidy_cols)) {
     if (! x$extend && ! cn %in% names(tidied)) stop(glue::glue(
-          "Column \"{cn}\" not found in results of `tidy()`"))
+          "Column \"{cn}\" not found in results of `tidy()` on original object.\n",
+          "Did you misspell a column name, or forget to add `extend = TRUE`?"))
     tidied[[cn]] <- x$tidy_cols[[cn]]
   }
 
@@ -429,7 +477,8 @@ glance.tidy_override <- function (x, ...) {
 
   for (elem in names(x$glance_elems)) {
     if (! x$extend && ! elem %in% names(sumstats)) stop(glue::glue(
-          "Element \"{elem}\" not found in results of `glance()`"))
+          "Element \"{elem}\" not found in results of `glance()` on original object.\n",
+          "Did you misspell a column name, or forget to add `extend = TRUE`?"))
     sumstats[[elem]] <- x$glance_elems[[elem]]
   }
 

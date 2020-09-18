@@ -1,8 +1,53 @@
 
-Note that huxtable attempts to follow semantic versioning (https://semver.org). Therefore, major 
-version increments reflect backwards-incompatible API changes, not necessarily big changes.
+Huxtable attempts to follow semantic versioning (https://semver.org). Therefore, the major
+version number is increased whenever there are backwards-incompatible API changes.
 
-# huxtable (development version)
+
+# huxtable 5.1.0
+
+* `as_flextable()` now exports markdown in cells to RTF, and to Word with the 
+  help of the optional `ftExtra` package. Thanks @atusy for adding this feature.
+  
+* Improvements to markdown screen export. This now uses the optional `fansi` 
+  package.
+  
+* New feature: `as_Workbook()` gains `start_row` and `start_col` arguments, to 
+  write a huxtable into an Excel worksheet starting at a particular row or column.
+  
+* New feature: `huxreg()` gains a `glance_args` argument to pass arguments to 
+  `glance()`.
+  
+* New feature: `options(huxtable.long_minus = TRUE)` will try to use long
+  minus signs before numbers. The default is `FALSE`. It will probably become
+  `TRUE` in a future version.
+  
+* Bugfix: `insert_row/column(..., after = 0)` was unsetting table properties.
+
+* Bugfix: unicode characters above 32767 were incorrectly represented in RTF.
+  Thanks @kaigu1990.
+  
+* Bugfix: columns were being collapsed in `as_Workbook()`. 
+
+* Bugfix: `style_cells` didn't work unless huxtable was on the search path.
+
+* Bugfix: `merge_repeated_rows` merged `NA` rows incorrectly.
+
+* Bugfix: number format was not set correctly in `huxreg()`'s `note`.
+
+* Bugfix: in `huxreg()`, `tidy_args` threw an error if the first argument to
+  `tidy()` was a named list.
+  
+* Bugfix: `tidy_replace()` was broken.
+
+* Clearer error messages for `tidy_override()` when `extend = FALSE`. In future,
+  `extend` will probably default to `TRUE`.
+
+## Other news:
+
+* Huxtable received its first Patreon sponsor! Thanks to Ross Mattheis.
+
+
+# huxtable 5.0.0
 
 Huxtable 5.0.0 brings numerous changes. For a more user-friendly introduction,
 see https://hughjonesd.github.io/whats-new-in-huxtable-5.0.0.html.
@@ -121,7 +166,7 @@ For example, the following code now does what you probably want:
 
 ## Other changes
 
-* You can now use [markdown](https://commonmark.org/help) within table cells. 
+* You can now use [markdown](https://commonmark.org/help/) within table cells. 
   - Use `set_markdown(ht, rows, cols)` to turn this on.
   - Or use the convenience function `set_markdown_contents()` to set cell 
     contents that will be interpreted as markdown. 
@@ -155,7 +200,7 @@ For example, the following code now does what you probably want:
   ````
   Some iris species are shown in \@ref(tab:mytable):
   
-  ```{r mytable}
+  ```r
   as_hux(iris)
   ```
   ````

@@ -64,6 +64,9 @@ sanitize <- function (str, type = c("latex", "html", "rtf")) {
     result <- gsub("\\\\", "SANITIZE.BACKSLASH", result)
     result <- gsub("\n", " \\newline ", result, fixed = TRUE)
     result <- gsub("$", "\\$", result, fixed = TRUE)
+    if (getOption("huxtable.long_minus", FALSE)) {
+      result <- gsub("\\$-\\$", "$-$", result, fixed = TRUE)
+    }
     result <- gsub(">", "$>$", result, fixed = TRUE)
     result <- gsub("<", "$<$", result, fixed = TRUE)
     result <- gsub("|", "$|$", result, fixed = TRUE)
@@ -168,7 +171,7 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
 }
 
 
-#' Default print method for huxtables
+#' Format and print huxtables using a default method
 #'
 #' By default huxtables are printed using [print_screen()]. In certain cases, for example
 #' in Sweave documents, it may be

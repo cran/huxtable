@@ -246,9 +246,26 @@ make_getter_setters("escape_contents", "cell", check_fun = is.logical)
 #' @templateVar default TRUE
 #'
 #' @details
-#' Markdown is currently implemented for HTML and LaTeX only. There is
-#' basic support for on-screen display. The only extension used is
-#' "strikethrough": write `~text~` to strike through text.
+#' Markdown is currently implemented for HTML, Word, Powerpoint, RTF, LaTeX and
+#' on-screen display. Word requires the `ftExtra` package.
+#'
+#' Most formats use [commonmark](https://commonmark.org), with the
+#' "strikethrough" extension enabled.
+#'
+#' The following features are intended to work:
+#'
+#' * bold and italic text
+#' * strikethrough (write `~~text~~` to strike through text).
+#' * hyperlinks
+#'
+#' There are some quirks:
+#'
+#' * Paragraph-level properties (e.g. lists) won't work in Word.
+#' * Strikethrough will probably not work in Word.
+#' * To make lists work in LaTeX, set [width()] and ensure [wrap()] is `TRUE`.
+#' * Inline images in RTF work using the INCLUDEPICTURE field type.
+#'
+#' If you try to use markdown tables, then seek psychiatric help.
 #'
 #' @seealso [set_markdown_contents()], a shortcut function.
 #'
@@ -376,7 +393,7 @@ make_getter_setters("rotation", "cell",
 #' The exception is exponents in
 #' scientific notation; huxtable attempts to detect and ignore these.
 #'
-#' The default value is "\%.3g", which rounds numbers if they have more than 3
+#' The default value is "%.3g", which rounds numbers if they have more than 3
 #' significant digits, and which may use scientific notation for large numbers.
 #'
 #' Note that if your cells are of type numeric, a number format of `NA` doesn't
@@ -388,6 +405,8 @@ make_getter_setters("rotation", "cell",
 #' are useful shortcuts for common formatting functions.
 #'
 #' @family formatting functions
+#' @seealso `options("huxtable.long_minus")` in [huxtable-options] for pretty-printing
+#'   minus signs.
 #'
 #' @examples
 #' ht <- huxtable(

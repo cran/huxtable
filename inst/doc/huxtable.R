@@ -185,7 +185,7 @@ jams %>%
 jams %>% 
       set_markdown_contents(1, 1, "*Type* of jam") %>% 
       set_markdown_contents(1, 2, "*Price* of jam") %>% 
-      set_markdown_contents(3, 2, "~2.10~ **Sale!** 1.50")
+      set_markdown_contents(3, 2, "~~2.10~~ **Sale!** 1.50")
 
 ## -----------------------------------------------------------------------------
 jams %>% 

@@ -78,6 +78,7 @@
 \usepackage{threeparttable}
 \usepackage{wrapfig}
 \usepackage{adjustbox}
+\usepackage{hyperref}
 
 \title{Huxtable table demo}
 \author{David Hugh-Jones}
@@ -803,11 +804,11 @@ caption)}\label{position-and-width-and-caption}}
   \providecommand{\huxtpad}[1]{\rule{0pt}{#1}}
   \providecommand{\huxbpad}[1]{\rule[-#1]{0pt}{#1}}
 
-\begin{table}[h]
+\begin{table}[ht]
 \begin{centerbox}
 \begin{threeparttable}
 \captionsetup{justification=centering,singlelinecheck=off}
-\caption{latex\_float h, here}
+\caption{latex\_float ht, here or at top}
  \setlength{\tabcolsep}{0pt}
 \begin{tabular}{l l}
 

@@ -98,6 +98,9 @@ NULL
 #'   header option. Note that [quick_pdf()] may use pdflatex. The default is
 #'   `FALSE`.
 #'
+#' * `options('huxtable.long_minus')`. If `TRUE`, prints long minus signs
+#'   for numbers. The default is `FALSE`.
+#'
 #' * `options('huxtable.autoformat_number_format')` and
 #'   `options('huxtable.autoformat_align')` are lists. The list names are base R
 #'   classes. [huxtable()] with `autoformat = TRUE` will set `number_format()` and
@@ -116,12 +119,32 @@ NULL
 #'
 #' A FAQ of common issues.
 #'
-#' * LaTeX output isn't working.
+#' * I get a LaTeX error when I try to compile my document!
 #'
 #'   Have you installed the LaTeX packages you need? LaTeX packages are different
 #'   from R packages. Run [check_latex_dependencies()] to find out if you are
 #'   missing any. Then install them using your system's LaTeX management
 #'   application. Or you can try [install_latex_dependencies()].
+#'
+#'   In some rmarkdown and LaTeX formats, you also need to add LaTeX dependencies
+#'   manually. Run [report_latex_dependencies()] and add
+#'   the output to your LaTeX preamble, or in Rmarkdown formats, add it to the
+#'   rmarkdown header like this:
+#'
+#'   ```
+#'   header-includes:
+#'     - \usepackage{array}
+#'     - \usepackage{caption}
+#'     ... et cetera
+#'   ```
+#'
+#' * Huxtable isn't working in my Rmarkdown `beamer_presentation` slides.
+#'
+#'   You may need to set the beamer "fragile" option, like this:
+#'
+#'   ```
+#'   # Slide title {.fragile}
+#'   ```
 #'
 #' * Numbers in my cells look weird!
 #'
@@ -157,6 +180,11 @@ NULL
 #'   \\@ref(tab:my-table-label).
 #'
 #'   ```
+#'
+#' * I called `library(huxtable)` and now my `data.table` objects are getting
+#'   printed!
+#'
+#'   Set `options(huxtable.knit_print_df = FALSE)`.
 #'
 #' * I have another problem.
 #'

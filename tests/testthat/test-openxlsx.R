@@ -1,6 +1,5 @@
 
 
-context("openxlsx conversion")
 skip_if_not_installed("openxlsx")
 
 
@@ -73,6 +72,12 @@ test_that("Can add to an existing workbook", {
   wb <- openxlsx::createWorkbook()
   expect_silent(wb <- as_Workbook(hx, Workbook = wb))
   expect_silent(as_Workbook(hx, Workbook = wb, sheet = "Another sheet"))
+})
+
+
+test_that("Can write with offset rows and columns", {
+  hx <- huxtable(a = 1:3, b = 4:6)
+  expect_silent(wb <- as_Workbook(hx, start_col = 3, start_row = 2))
 })
 
 
