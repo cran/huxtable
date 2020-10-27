@@ -12,6 +12,13 @@ Huxtable attempts to follow semantic versioning (\url{https://semver.org}).
 Therefore, the major version number is increased whenever there are
 backwards-incompatible API changes.
 }
+\section{huxtable 5.1.1}{
+\itemize{
+\item Minor test update for compatibility with broom.
+\item Fixes for R 4.1.0.
+}
+}
+
 \section{huxtable 5.1.0}{
 \itemize{
 \item \code{as_flextable()} now exports markdown in cells to RTF, and to Word

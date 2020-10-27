@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 5.1.0
+Version: 5.1.1
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -16,7 +16,7 @@ Description: Creates styled tables for data presentation. Export to HTML, LaTeX,
   Includes  a 'huxreg' function for creation of regression tables, and 'quick_*' 
   one-liners to print data to a new document.
 License: MIT + file LICENSE
-URL: https://hughjonesd.github.io/huxtable
+URL: https://hughjonesd.github.io/huxtable/
 BugReports: https://github.com/hughjonesd/huxtable/issues
 Imports: assertthat, commonmark, generics, glue, memoise, R6, rlang,
         stats, stringr (>= 1.2.0), tidyselect, utils, xml2
@@ -34,6 +34,6 @@ LazyData: true
 RoxygenNote: 7.1.1
 Depends: R (>= 2.10)
 NeedsCompilation: no
-Packaged: 2020-09-10 20:58:15 UTC; david
+Packaged: 2020-10-27 16:36:30 UTC; david
 Repository: CRAN
-Date/Publication: 2020-09-18 08:50:14 UTC
+Date/Publication: 2020-10-27 18:30:07 UTC
