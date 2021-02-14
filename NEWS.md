@@ -1,11 +1,21 @@
 
+
 Huxtable attempts to follow semantic versioning (https://semver.org). Therefore, the major
 version number is increased whenever there are backwards-incompatible API changes.
+
+# huxtable 5.2.0
+
+* Add `table_environment` property so you can use e.g. `"table*"` in TeX.
+* Bugfix: `print_screen(h, colnames = FALSE)` didn't print a final newline.
+* Bugfix: italic from markdown was being printed as underlined in TeX.
+* Minor test update for compatibility with broom.
+
 
 # huxtable 5.1.1
 
 * Minor test update for compatibility with broom.
 * Fixes for R 4.1.0.
+
 
 # huxtable 5.1.0
 
@@ -290,10 +300,12 @@ For example, the following code now does what you probably want:
   - `colspan/rowspan` set `colspan/rowspan` of the first cell in the inserted
     row/column.
 
+
 # huxtable 4.6.1
 
 * Bugfix: right borders in wrong place when cells were merged.
 * Bugfix: chinese characters were displaying wrongly in `to_screen()`.
+
 
 # huxtable 4.6.0
 
@@ -303,12 +315,14 @@ For example, the following code now does what you probably want:
 * Bugfix: text colors in `hux_logo()`.
 * Bugfix: rbind of huxtable and matrix wasn't setting `row_height` correctly.
 
+
 # huxtable 4.5.0
 
 * Add `quick_latex()` function.
 * The `texreg` package now includes a `huxtablereg` function, analogous
   to `huxreg`, which outputs a huxtable from a list of regressions. This will
   be available from the next version of `texreg`.
+
 
 # huxtable 4.4.0
 
@@ -372,6 +386,7 @@ For example, the following code now does what you probably want:
 
   to your YAML header for this to work, and you will need a recent (> 2.0.0) version of Pandoc.
 
+
 # huxtable 4.2.0
 
 * More speedups: LaTeX 2-3x faster, as_Workbook 2-3x faster.
@@ -422,6 +437,7 @@ For example, the following code now does what you probably want:
 * `is_a_number` is deprecated.
 * ... and a cool new randomized `hux_logo()` ;-)
 
+
 # huxtable 4.0.1
 
 * Improved formatting in Excel output.
@@ -433,6 +449,7 @@ For example, the following code now does what you probably want:
 * Bugfix: `as_flextable` borders not working in cells with colspan > 1.
 * Documentation bugfixes.
 * Compatibility with broom 5.0.0 - thanks @alexpghayes
+
 
 # huxtable 4.0.0
 
@@ -490,14 +507,17 @@ For example, the following code now does what you probably want:
 * `quick_xxx` functions without an explicit `file` argument throw an error if called non-interactively,
   and prompt before overwriting files if called interactively.
 
+
 # huxtable 2.0.2
 
 * Don't apply `number_format` to exponents in scientific notation.
 * Turn off some tests on CRAN, as they fail there but not elsewhere.
 
+
 # huxtable 2.0.1
 
 * Fix `quick_pdf` error when moving output across filesystems.
+
 
 # huxtable 2.0.0
 
@@ -512,12 +532,14 @@ For example, the following code now does what you probably want:
 * Default value of `number_format` has changed from "%5.2f" to "%5.3g", which plays nicer with integers
   but may surprise you by using scientific format for large numbers.
 
+
 # huxtable 1.2.0
 
 * New `outer_borders` argument for `huxreg`. This changes default behaviour slightly.
 * New `border` argument for `add_footnote` to choose width of footnote's top border.
 * Added guard assertions to many exported functions.
 * Bugfix: captions and colnames are wrapped in to_screen to respect max_width.
+
 
 # huxtable 1.1.0
 
@@ -529,6 +551,7 @@ For example, the following code now does what you probably want:
   positive border widths....)
 * Bugfix: flextable didn't like huxreg's syntactically invalid column names.
 * Accept, but silently change, English spelling of 'centre' in `align`, `position` and `caption_pos`.
+
 
 # huxtable 1.0.0
 
@@ -558,11 +581,13 @@ For example, the following code now does what you probably want:
   - Use `{stars}` not `%stars%` to display significance levels in the `note` argument.
   - `borders` becomes a number specifying border width. Set to 0 for no borders.
 
+
 # huxtable 0.3.1
 
 * New convenience functions `insert_row` and `insert_column`.
 * `latex_float` property allows you to change positioning in LaTeX.
 * (Semantic versioning fail: this should have been 0.4.0.)
+
 
 # huxtable 0.3.0
 
@@ -571,14 +596,17 @@ For example, the following code now does what you probably want:
 * New `set_default_properties` function to set default properties for new huxtables.
 * Fix compatibility with dplyr 0.6.0.
 
+
 # huxtable 0.2.2
 
 * Fix a bug that could lead to wrong significance stars in `huxreg`.
+
 
 # huxtable 0.2.1
 
 * Compatibility with dplyr 0.6.0.
 * Use ~ for decimal padding in LaTeX.
+
 
 # huxtable 0.2.0
 
@@ -599,6 +627,7 @@ For example, the following code now does what you probably want:
 ## Breaking changes
 
 * `theme_minimal` has been renamed `theme_basic` to avoid a name clash with `ggplot2`.
+
 
 # huxtable 0.1.0
 

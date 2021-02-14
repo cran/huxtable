@@ -12,6 +12,17 @@ Huxtable attempts to follow semantic versioning (\url{https://semver.org}).
 Therefore, the major version number is increased whenever there are
 backwards-incompatible API changes.
 }
+\section{huxtable 5.2.0}{
+\itemize{
+\item Add \code{table_environment} property so you can use e.g. \code{"table*"} in
+TeX.
+\item Bugfix: \code{print_screen(h, colnames = FALSE)} didn’t print a final
+newline.
+\item Bugfix: italic from markdown was being printed as underlined in TeX.
+\item Minor test update for compatibility with broom.
+}
+}
+
 \section{huxtable 5.1.1}{
 \itemize{
 \item Minor test update for compatibility with broom.
@@ -134,7 +145,8 @@ the border thickness, write \code{brdr_thickness(left_border(ht))}.
 \item \code{error_style} and \code{pad_decimal} arguments in \code{huxreg}. Use
 \code{error_format} and \code{align(hx) <- "."}.
 \item The \code{where()}, \code{is_a_number()} and \code{pad_decimal()} functions.
-Use \verb{map_*} functions, \code{! is.na(as.numeric(x))}, and \code{align(ht) <- "."}.
+Use \verb{map_*} functions, \code{! is.na(as.numeric(x))}, and
+\code{align(ht) <- "."}.
 }
 \item Default padding has been increased to 6 points.
 \item By default, \code{width()} is now unset.
@@ -177,8 +189,9 @@ on-screen display.
 \item Huxtable now has the concept of header row and columns.
 \itemize{
 \item By default, data frame column names will be headers.
-\item To set other rows to be headers, use \code{set_header_rows(ht, row_numbers, TRUE)}. For columns, use \code{header_cols()} or
-\code{set_header_cols()}.
+\item To set other rows to be headers, use
+\code{set_header_rows(ht, row_numbers, TRUE)}. For columns, use
+\code{header_cols()} or \code{set_header_cols()}.
 \item New functions \code{style_headers()}, \code{style_header_cols()}, and
 \code{style_header_rows()} to set multiple properties on headers.
 \item In themes, \code{header_row/col = TRUE} set the first row/col to a
@@ -309,16 +322,16 @@ regressions. This will be available from the next version of
 \itemize{
 \item Huxtables can now be printed directly in Word documents and
 Powerpoint presentations, thanks to the \code{flextable} package and
-recent versions of Pandoc. (Powerpoint printing requires Pandoc >=
-2.4.0.)
+recent versions of Pandoc. (Powerpoint printing requires
+Pandoc >= 2.4.0.)
 \item New “wrapleft” and “wrapright” options to \code{position()} allow text
 wrapping around tables.
 \item New \code{set_outer_border_colors()} and \code{set_outer_border_styles()}
 functions, like \code{set_outer_borders()}.
 \item Huxtable no longer requires the \code{broom} package, instead using the
-\code{generics} package. If you use \code{huxreg()}, you will still need e.g.
-\code{broom} or \code{broom.mixed} to provide \code{tidy()} and \code{glance()} methods
-for specific models.
+\code{generics} package. If you use \code{huxreg()}, you will still need
+e.g. \code{broom} or \code{broom.mixed} to provide \code{tidy()} and \code{glance()}
+methods for specific models.
 \item Bugfix: \code{tidy.tidy_override()} and \code{glance.tidy_override()} should
 work even if underlying object has no \code{tidy()} or \code{glance()} method.
 \item Bugfix: huxtables had option clash when \code{echo = TRUE} in Rmd
@@ -350,7 +363,7 @@ is not set.
 pipes.
 \item Enhancement: left- and right-aligned captions are now set above the
 table in LaTeX, using the “threeparttable” package. You will need to
-install this using e.g. \code{install_latex_dependencies()} or \code{tlmgr} if
+install this using e.g. \code{install_latex_dependencies()} or \code{tlmgr} if
 it is not already on your system.
 \item Enhancement: in \code{huxtable()} and friends, \code{add_rownames = "Colname"}
 now sets the name for the new column.
@@ -379,8 +392,8 @@ add
 
 md_extensions: +raw_attribute
 
-to your YAML header for this to work, and you will need a recent (>
-2.0.0) version of Pandoc.
+to your YAML header for this to work, and you will need a recent
+(> 2.0.0) version of Pandoc.
 }
 }
 }
@@ -464,13 +477,13 @@ rows.
 \item Improved formatting in Excel output.
 \item New \code{format} method which returns the result of \code{to_html},
 \code{to_latex} etc. as appropriate.
-\item Bugfix: \code{to_html} printing e.g. “left-border: NA;” in cell CSS.
+\item Bugfix: \code{to_html} printing e.g. “left-border: NA;” in cell CSS.
 \item Bugfix: \verb{set_all_*} not working when huxtable is not attached.
 \item Bugfix: \code{as_Workbook} failing with non-numeric \code{width}.
 \item Bugfix: \code{hux_logo} was using multiple fonts, fails with Excel
 output.
-\item Bugfix: \code{as_flextable} borders not working in cells with colspan >
-1.
+\item Bugfix: \code{as_flextable} borders not working in cells with
+colspan > 1.
 \item Documentation bugfixes.
 \item Compatibility with broom 5.0.0 - thanks @alexpghayes
 }
@@ -582,7 +595,7 @@ column names.
 \subsection{Breaking changes}{
 \itemize{
 \item \code{number_format} now applies to any number-like substrings in cells.
-This means you can include e.g. significance stars in a cell and
+This means you can include e.g. significance stars in a cell and
 still use \code{number_format} to format the content.
 \item If \code{number_format} is NA, numbers are unchanged.
 \item Default value of \code{number_format} has changed from “\%5.2f” to

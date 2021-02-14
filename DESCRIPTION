@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 5.1.1
+Version: 5.2.0
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -34,6 +34,6 @@ LazyData: true
 RoxygenNote: 7.1.1
 Depends: R (>= 2.10)
 NeedsCompilation: no
-Packaged: 2020-10-27 16:36:30 UTC; david
+Packaged: 2021-02-13 11:22:25 UTC; david
 Repository: CRAN
-Date/Publication: 2020-10-27 18:30:07 UTC
+Date/Publication: 2021-02-14 22:10:06 UTC

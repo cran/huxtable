@@ -8,7 +8,7 @@ huxtable_latex_dependencies <- list(
   list(name = "caption"),
   list(name = "graphicx"),
   list(name = "siunitx"),
-  list(name = "ulem"), # for strikeout in markdown
+  list(name = "ulem", options = "normalem"), # for strikeout in markdown
   list(name = "colortbl"),
   list(name = "multirow"),
   list(name = "hhline"),
@@ -170,7 +170,7 @@ tlmgr_packages <- function () {
 
 
 check_adjustbox <- function (quiet = TRUE) {
-  args <- c("info", "--data", "'cat-version'", "--only-installed", "adjustbox")
+  args <- c("info", "--data", "cat-version", "--only-installed", "adjustbox")
   adjustbox_rev <- if (requireNamespace("tinytex", quietly = TRUE)) {
     tinytex::tlmgr(args, stdout = TRUE, .quiet = TRUE)
   } else {
