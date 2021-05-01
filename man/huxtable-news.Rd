@@ -12,6 +12,13 @@ Huxtable attempts to follow semantic versioning (\url{https://semver.org}).
 Therefore, the major version number is increased whenever there are
 backwards-incompatible API changes.
 }
+\section{huxtable (development version)}{
+\itemize{
+\item Allow \code{tidy_override()} to extend columns of \code{tidy} and \code{glance}.
+\item Bugfix: #196 \code{^} was giving errors in LaTeX.
+}
+}
+
 \section{huxtable 5.2.0}{
 \itemize{
 \item Add \code{table_environment} property so you can use e.g. \code{"table*"} in

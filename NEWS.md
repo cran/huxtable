@@ -3,6 +3,14 @@
 Huxtable attempts to follow semantic versioning (https://semver.org). Therefore, the major
 version number is increased whenever there are backwards-incompatible API changes.
 
+# huxtable 5.3.0
+
+* Improve decimal alignment in LaTeX when `align(ht) == "."`. This may change
+  the appearance of some documents.
+* Allow `tidy_override()` to extend columns of `tidy` and `glance`.
+* Bugfix: #196 `^` was giving errors in LaTeX.
+
+
 # huxtable 5.2.0
 
 * Add `table_environment` property so you can use e.g. `"table*"` in TeX.
