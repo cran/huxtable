@@ -181,7 +181,7 @@ to_screen.huxtable <- function (
   }
 
 
-  if (colnames && any(nchar(all_colnames) > 0)) {
+  if (colnames && any(nzchar(all_colnames))) {
     colnames_text <- paste0("Column names: ", paste(all_colnames, collapse = ", "))
     colnames_text <- strwrap(colnames_text, max_width)
     colnames_text <- paste0(colnames_text, collapse = "\n")
@@ -211,7 +211,7 @@ character_matrix <- function (
 
   dc <- display_cells(ht, all = FALSE)
   dc <- dc[order(dc$colspan), ]
-  contents <- clean_contents(ht, type = if (markdown) "markdown" else "screen")
+  contents <- clean_contents(ht, output_type = if (markdown) "markdown" else "screen")
   drow_mat <- as.matrix(dc[, c("display_row", "display_col")])
 
   dc$contents <- contents[drow_mat]
@@ -305,16 +305,17 @@ character_matrix <- function (
     if (md_bold) strings[ncharw(strings) > 0] <- paste0("**", strings[ncharw(strings) > 0], "**")
     if (md_italic) strings[ncharw(strings) > 0] <- paste0("*", strings[ncharw(strings) > 0], "*")
     align <- real_align(ht)[ dcell$display_row, dcell$display_col ]
-    stringr_align <- switch(align, "left" = "right", "right" = "left", "centre" = "both")
+    stringr_align <- switch(align, "left" = "right", "right" = "left",
+                                  "center" = "both")
     strings <- col_aware_strpad(strings, width, stringr_align)
     dc$strings[[r]] <- strings
   }
 
   dc$text_height <- sapply(dc$strings, length)
-  # we use nchar(type = "c") because otherwise, when characters have
+  # we use type = "chars" because otherwise, when characters have
   # screen width > 1, "cols"
   # in the loop below will be too long, leading to the text being repeated:
-  dc$text_width <- sapply(dc$strings, function (x) max(ncharw(x, type = "c")))
+  dc$text_width <- sapply(dc$strings, function (x) max(ncharw(x, type = "chars")))
 
   #######################################################################
   # calculate row heights: start at 0 and increase it if it"s too little,
@@ -379,12 +380,12 @@ col_aware_strsplit <- function (...) {
 col_aware_strpad <- function (string, width, side) {
   if (requireNamespace("crayon", quietly = TRUE)) {
     clean <- crayon::strip_style(string)
-    padded <- stringr::str_pad(clean, width, side)
+    padded <- stringi::stri_pad(clean, width, side = side, use_length = TRUE)
     # returns a matrix. First column is whole match. Next columns are captures:
     pads   <- stringr::str_match(padded, "^( *).*?( *)$")
     paste0(pads[, 2], string, pads[, 3])
   } else {
-    stringr::str_pad(string, width, side)
+    stringi::stri_pad(string, width, side = side, use_length = TRUE)
   }
 }
 

@@ -158,6 +158,15 @@ replace_properties <- function (ht, i, j, value) {
 }
 
 
+#' Copy row and colspans over appropriately from the subsetted matrix
+#'
+#' @param new_ht New huxtable, row/colspans not yet set
+#' @param old_ht Subsetted huxtable
+#' @param rows,cols Which rows/cols are being subsetted
+#' @param cols
+#'
+#' @return The new huxtable with row and colspans set correctly.
+#' @noRd
 arrange_spans <- function (
         new_ht,
         old_ht,
@@ -166,39 +175,79 @@ arrange_spans <- function (
       ) {
   if (ncol(new_ht) == 0 || nrow(new_ht) == 0) return(new_ht)
 
-  merge_sets <- seq_len(ncol(old_ht) * nrow(old_ht))
+  # == create merge_sets ==
+  # a matrix representing spans in old_ht
+  # merged cells have the same value:
+  # e.g. 1 1
+  #      2 3
+  # would represent a cell with colspan 2 in the first row
+
+  dc <- display_cells(old_ht)
+  stride <- max(dim(old_ht))
+  merge_sets <- dc$display_row * stride + dc$display_col
   dim(merge_sets) <- dim(old_ht)
 
-  rs <- rowspan(old_ht)
-  cs <- colspan(old_ht)
-  for (i in seq_len(nrow(old_ht))) for (j in seq_len(ncol(old_ht))) {
-    rows_to_merge <- seq(i, i + rs[i, j] - 1)
-    cols_to_merge <- seq(j, j + cs[i, j] - 1)
-    merge_sets[rows_to_merge, cols_to_merge] <- merge_sets[i, j]
-  }
+  # == create within-span indices ==
+  # the first row within a span has row_number 1, the second is 2 etc.
+  # same for cols and col_number
+
+  row_number <- dc$row - dc$display_row + 1L
+  col_number <- dc$col - dc$display_col + 1L
+  dim(row_number) <- dim(col_number) <- dim(old_ht)
+
+  # == calculate the merge_sets for new_ht ==
   # since merge_sets were always contiguous rectangles, new merge sets
   # will also be rectangles - not necessarily contiguous though.
-  new_merge_sets <- merge_sets[rows, cols, drop = FALSE]
+  # TODO: bug is that if you repeat rows, they will have the same
+  # merge_set and colspan will erroneously be set on them
+  merge_sets <- merge_sets[rows, cols, drop = FALSE]
 
+
+  # == calculate row/col_number for new_ht ==
+  row_number <- row_number[rows, cols, drop = FALSE]
+  col_number <- col_number[rows, cols, drop = FALSE]
+
+  # == add 0s to ensure end_row/col is ok when a span goes to the end of the row
+  merge_sets <- rbind(merge_sets, 0)
+  merge_sets <- cbind(merge_sets, 0)
+  row_number <- rbind(row_number, 0)
+  row_number <- cbind(row_number, 0)
+  col_number <- rbind(col_number, 0)
+  col_number <- cbind(col_number, 0)
+
+  # == create new row/colspan from merge_sets and row/col_number ==
   # all 1s:
   nrs <- rowspan(new_ht)
   ncs <- colspan(new_ht)
 
-  # we add 0s to ensure end_i/end_j is right when a span goes to the end of the row
-  new_merge_sets <- rbind(new_merge_sets, 0)
-  new_merge_sets <- cbind(new_merge_sets, 0)
   row_seq <- seq_len(nrow(new_ht) + 1)
   col_seq <- seq_len(ncol(new_ht) + 1)
   done <- matrix(FALSE, nrow(new_ht), ncol(new_ht))
   for (i in seq_len(nrow(new_ht))) for (j in seq_len(ncol(new_ht))) {
-    ms <- new_merge_sets[i, j]
+    ms <- merge_sets[i, j]
     if (done[i, j]) next  # changed by prev cell
-    # go down from i/j until you find a different merge set:
-    end_i <- min(which(row_seq >= i & new_merge_sets[, j] != ms)) - 1
-    end_j <- min(which(col_seq >= j & new_merge_sets[i, ] != ms)) - 1
-    nrs[i, j] <- end_i - i + 1
-    ncs[i, j] <- end_j - j + 1
-    done[seq(i, end_i), seq(j, end_j)] <- TRUE
+    # go down from i/j until you find a different merge set,
+    # or you have seen ALL the row_numbers/col_numbers
+    end_row <- min(which(row_seq >= i & merge_sets[, j] != ms)) - 1
+    end_col <- min(which(col_seq >= j & merge_sets[i, ] != ms)) - 1
+
+    rn <- row_number[seq(i, end_row), j]
+    cn <- col_number[i, seq(j, end_col)]
+    # find the first row/col where ALL row/col numbers within this
+    # merge_set have been reached
+    all_rn <- seq(min(rn), max(rn))
+    all_cn <- seq(min(cn), max(cn))
+    # max(match(..)) returns either the first element of rn where
+    # all numbers in all_rn have been matched, or NA
+    all_matched_row <- i - 1 + max(match(all_rn, rn))
+    all_matched_col <- j - 1 + max(match(all_cn, cn))
+
+    end_row <- min(end_row, all_matched_row, na.rm = TRUE)
+    end_col <- min(end_col, all_matched_col, na.rm = TRUE)
+
+    nrs[i, j] <- end_row - i + 1
+    ncs[i, j] <- end_col - j + 1
+    done[seq(i, end_row), seq(j, end_col)] <- TRUE
   }
 
   rowspan(new_ht) <- nrs

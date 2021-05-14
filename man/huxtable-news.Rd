@@ -7,13 +7,47 @@
 \description{
 This help page simply gives the contents of NEWS.md.
 }
-\details{
-Huxtable attempts to follow semantic versioning (\url{https://semver.org}).
-Therefore, the major version number is increased whenever there are
-backwards-incompatible API changes.
-}
-\section{huxtable (development version)}{
+\section{huxtable 5.4.0}{
 \itemize{
+\item New behaviour: setting \code{colspan()} or \code{rowspan()} overwrites the
+content of cells that have been shadowed.\if{html}{\out{<div class="r">}}\preformatted{ht <- hux(c(1, 1), c(2, 2), c(3, 3))
+ht <- set_all_borders(ht)
+colspan(ht)[1, 1] <- 3
+
+# old behaviour                
+ht[, c(2, 1, 3)]
+##   +--------------------------+
+##   |                  2       |
+##   +--------+--------+--------+
+##   |      2 |      1 |      3 |
+##   +--------+--------+--------+
+
+# new behaviour
+ht[, c(2, 1, 3)]
+##   +--------------------------+
+##   |                  1       |
+##   +--------+--------+--------+
+##   |      2 |      1 |      3 |
+##   +--------+--------+--------+
+}\if{html}{\out{</div>}}
+\item New option \code{huxtable.latex_siunitx_align} allows you to use the
+LaTeX \code{siunitx} package to handle decimal point alignment. This is
+\code{FALSE} by default.
+\item Bugfix: centre alignment was not working in \code{print_screen()}.
+\item Bugfix: failure in \code{to_md()} with recent versions of \code{stringi}
+package.
+\item Bugfix: repeating a single row in a subset, like
+\code{ht[c(1, 1, 2, 3), ]}, was setting \code{colspan = 2} on the repeated
+row.
+\item Bugfix: zero-argument subset replacement like \code{ht[] <- ...} wasn’t
+working.
+}
+}
+
+\section{huxtable 5.3.0}{
+\itemize{
+\item Improve decimal alignment in LaTeX when \code{align(ht) == "."}. This may
+change the appearance of some documents.
 \item Allow \code{tidy_override()} to extend columns of \code{tidy} and \code{glance}.
 \item Bugfix: #196 \code{^} was giving errors in LaTeX.
 }

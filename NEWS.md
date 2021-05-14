@@ -1,7 +1,41 @@
 
+# huxtable 5.4.0
 
-Huxtable attempts to follow semantic versioning (https://semver.org). Therefore, the major
-version number is increased whenever there are backwards-incompatible API changes.
+* New behaviour: setting `colspan()` or `rowspan()` overwrites the content of
+  cells that have been shadowed. 
+  
+  ```r
+  
+  ht <- hux(c(1, 1), c(2, 2), c(3, 3))
+  ht <- set_all_borders(ht)
+  colspan(ht)[1, 1] <- 3
+  
+  # old behaviour                
+  ht[, c(2, 1, 3)]
+  ##   +--------------------------+
+  ##   |                  2       |
+  ##   +--------+--------+--------+
+  ##   |      2 |      1 |      3 |
+  ##   +--------+--------+--------+
+
+  # new behaviour
+  ht[, c(2, 1, 3)]
+  ##   +--------------------------+
+  ##   |                  1       |
+  ##   +--------+--------+--------+
+  ##   |      2 |      1 |      3 |
+  ##   +--------+--------+--------+
+  ```
+  
+* New option `huxtable.latex_siunitx_align` allows you to use the LaTeX
+  `siunitx` package to handle decimal point alignment. This is `FALSE` by
+  default.
+* Bugfix: centre alignment was not working in `print_screen()`.
+* Bugfix: failure in `to_md()` with recent versions of `stringi` package.
+* Bugfix: repeating a single row in a subset, like `ht[c(1, 1, 2, 3), ]`,
+  was setting `colspan = 2` on the repeated row.
+* Bugfix: zero-argument subset replacement like `ht[] <- ...` wasn't working.
+
 
 # huxtable 5.3.0
 

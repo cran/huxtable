@@ -87,7 +87,7 @@ as_Workbook.huxtable <- function (
     openxlsx::mergeCells(wb, sheet, cols = seq_len(ncol(ht)), rows = cap_row)
   }
 
-  contents <- clean_contents(ht, type = "excel") # character matrix
+  contents <- clean_contents(ht, output_type = "excel") # character matrix
 
   nr <- nrow(contents)
   contents <- as.data.frame(contents, stringsAsFactors = FALSE)
@@ -141,7 +141,7 @@ as_Workbook.huxtable <- function (
     null_args <- lapply(null_args, function (x) if (is.na(x)) NULL else x)
 
     nf <- number_format(ht)[[drow, dcol]] # double brackets needed here
-    format_zero <- format_numbers(0, nf, "excel")
+    format_zero <- format_numbers(0, nf)
     num_fmt <- if (grepl("^0\\.0+$", format_zero)) format_zero else
           if (is.numeric(contents[drow, dcol])) "NUMBER" else "GENERAL"
 

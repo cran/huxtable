@@ -34,25 +34,52 @@ Values may be "left", "center", "right", \code{NA} or a single character. If
 \code{value} is a single character (e.g. a decimal point), then the cell is
 aligned on this character.
 }
-\details{
-Neither HTML nor LaTeX currently possess reliable ways of aligning cells
-on a decimal point. Huxtable does this by padding with spaces. This may
-work better if you use a fixed-width font.
+\section{Aligning on a decimal point}{
+
+
+To align cells on the decimal point, set \code{align} to \code{"."} or any other single
+character (e.g. \code{","} in European languages).
+
+By default, huxtable aligns these cells by padding with spaces. The mechanics
+of this were improved for LaTeX in version 5.3.0, but are still not perfect.
+Using a fixed-width font may help.
+
+If \code{options("huxtable.latex_siunitx_align")} is set to \code{TRUE}, then in
+LaTeX output, numbers in these cells will be surrounded by \verb{\\\\tablenum\{\}}.
+See the siunitx documentation for more details. Note that this may have
+other side-effects, for example \code{1e3} becomes \verb{1 x 10^3}.
+
+To use non-default decimal points, set both \code{align(ht)} and
+\code{\link[=number_format]{number_format()}}. See the example.
 }
+
 \examples{
 
 numbers <- c(1, 1.5, 1.03, 10, 10.01)
-number_hux <- as_hux(matrix(numbers, 5, 4))
+number_hux <- as_hux(matrix(numbers, 5, 5))
 number_format(number_hux) <- "\%.4g"
+number_format(number_hux)[, 5] <- fmt_pretty(
+                                    decimal.mark = ",",
+                                    big.mark = ""
+                                  )
 
 number_hux <- map_align(number_hux,
-      by_cols("left", "center", "right", "."))
+      by_cols("left", "center", "right", ".", ","))
 
-alignments <- c("left", "centre", "right", "decimal (.)")
+alignments <- c(
+                 "left",
+                 "centre",
+                 "right",
+                 "decimal (.)",
+                 "decimal (,)"
+               )
 number_hux <- rbind(
         alignments,
         number_hux
       )
+
+align(number_hux)
 number_hux
+
 
 }

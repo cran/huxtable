@@ -52,8 +52,8 @@ jams %>%
       set_all_padding(4) %>% 
       set_outer_padding(0) %>% 
       set_number_format(2) %>% 
-      set_bold(1, everywhere) %>% 
-      set_bottom_border(1, everywhere) %>% 
+      set_bold(row = 1, col = everywhere) %>% 
+      set_bottom_border(row = 1, col = everywhere) %>% 
       set_width(0.4) %>% 
       set_caption("Pots of jam for sale")
   
@@ -61,7 +61,6 @@ jams %>%
 ## ---- eval = FALSE------------------------------------------------------------
 #  jams <- set_all_padding(jams, 4)
 #  jams <- set_outer_padding(jam, 0)
-#  # etc.
 
 ## -----------------------------------------------------------------------------
 
@@ -91,7 +90,7 @@ caption(jams) <- "Pots of jam for sale"
 #  bold(jams)[1, 1:ncol(jams)] <- TRUE
 
 ## ---- eval = FALSE------------------------------------------------------------
-#  ht <- set_property(ht, rows, cols, value)
+#  ht <- set_property(ht, row = rows, col = cols, value)
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  ht <- set_property(ht, value)
@@ -187,6 +186,16 @@ jams %>%
       set_markdown_contents(1, 1, "*Type* of jam") %>% 
       set_markdown_contents(1, 2, "*Price* of jam") %>% 
       set_markdown_contents(3, 2, "~~2.10~~ **Sale!** 1.50")
+
+## -----------------------------------------------------------------------------
+jams %>%
+      set_align(1, everywhere, "center")
+
+## -----------------------------------------------------------------------------
+numbers <- hux(Numbers = c(100, 3.14, 0.0002))
+numbers %>%
+      set_align(-1, 1, ".") %>%
+      theme_basic()
 
 ## -----------------------------------------------------------------------------
 jams %>% 
@@ -311,7 +320,7 @@ iris_hux_wide %>%
       set_width(0.8) %>% 
       set_font_size(8) %>% 
       set_lr_padding(2) %>% 
-      set_col_width(rep(c(0.4, 0.2, 0.2, 0.2, 0.2), 3)/3) %>% 
+      set_col_width(rep(c(0.4, 0.2, 0.2, 0.2, 0.2)/3, 3)) %>% 
       set_position("left")
 
 ## ---- echo = FALSE------------------------------------------------------------
@@ -335,9 +344,9 @@ iris_hux
 
 ## -----------------------------------------------------------------------------
 list_of_iris <- split_across(iris_hux, c(7, 12))
-list_of_iris[[1]]
-list_of_iris[[2]]
-list_of_iris[[3]]
+list_of_iris[[1]] %>% set_caption("Setosa Irises")
+list_of_iris[[2]] %>% set_caption("Versicolor Irises")
+list_of_iris[[3]] %>% set_caption("Virginica Irises")
 
 ## -----------------------------------------------------------------------------
 theme_mondrian(jams)

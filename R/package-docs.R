@@ -99,7 +99,12 @@ NULL
 #'   `FALSE`.
 #'
 #' * `options('huxtable.long_minus')`. If `TRUE`, prints long minus signs
-#'   for numbers. The default is `FALSE`.
+#'   for numbers. The default is `FALSE`. In LaTeX output, this option is
+#'   overridden by `options('huxtable.latex_siunitx_align')`.
+#'
+#' * `options('huxtable.latex_siunitx_align')`. If `TRUE`, uses the `\tablenum`
+#'   macro from the "siunitx" package to align numbers when `align(ht)` is `"."`
+#'   or similar. See [align()] for details. The default is `FALSE`.
 #'
 #' * `options('huxtable.autoformat_number_format')` and
 #'   `options('huxtable.autoformat_align')` are lists. The list names are base R
@@ -177,7 +182,7 @@ NULL
 #'   set the label using [label()], then in markdown text do e.g.:
 #'
 #'   ```
-#'   \\@ref(tab:my-table-label).
+#'   \@ref(tab:my-table-label).
 #'
 #'   ```
 #'
@@ -185,6 +190,27 @@ NULL
 #'   printed!
 #'
 #'   Set `options(huxtable.knit_print_df = FALSE)`.
+#'
+#' * How can I set a property on an arbitrary group of cells?
+#'
+#'   If you can't use the [mapping-functions] interface, and you want to
+#'   set a property for multiple cells that aren't all in the same rows
+#'   and/or columns, you could use a little-known fact about R subsetting.
+#'   If you subset `ht[x]` where `x` is two-column numeric matrix, then
+#'   each row of `x` indexes a single `(row, column)` cell. So, for example,
+#'   here's how to set the background color of cells `(2,1)`, `(1, 3)` and
+#'   `(4, 2)` of a huxtable:
+#'
+#'   ```
+#'   indices <- matrix(c(2, 1, 1, 3, 4, 2), ncol = 2, byrow = TRUE)
+#'   background_color(jams)[indices] <- "orange"
+#'   ```
+#'
+#'   Another useful trick sets properties on the diagonal, using [diag()]:
+#'
+#'   ```
+#'   diag(background_color(jams)) <- "grey"
+#'   ```
 #'
 #' * I have another problem.
 #'

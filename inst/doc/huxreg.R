@@ -10,6 +10,7 @@ knitr::knit_hooks$set(
 )
 
 if (is_latex) knitr::opts_chunk$set(barrier = TRUE)
+options(huxtable.latex_siunitx_align = FALSE)
 
 ## -----------------------------------------------------------------------------
 data(diamonds, package = "ggplot2")
@@ -92,7 +93,7 @@ huxreg(lm1, lm3, bold_signif = 0.05)
 ## -----------------------------------------------------------------------------
 library(lmtest)
 library(sandwich)
-lm_robust <- coeftest(lm1, vcov = vcovHC)
+lm_robust <- coeftest(lm1, vcov = vcovHC, save = TRUE)
 huxreg("Normal SEs" = lm1, "Robust SEs" = lm_robust)
 
 ## -----------------------------------------------------------------------------

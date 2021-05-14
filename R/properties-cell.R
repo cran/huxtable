@@ -38,26 +38,51 @@ check_align_value <- function (x) {
 #' @templateVar attr_name align
 #' @templateVar value_param_desc A character vector or matrix.
 #'
-#' @details
-#' Neither HTML nor LaTeX currently possess reliable ways of aligning cells
-#' on a decimal point. Huxtable does this by padding with spaces. This may
-#' work better if you use a fixed-width font.
+#' @section Aligning on a decimal point:
+#'
+#' To align cells on the decimal point, set `align` to `"."` or any other single
+#' character (e.g. `","` in European languages).
+#'
+#' By default, huxtable aligns these cells by padding with spaces. The mechanics
+#' of this were improved for LaTeX in version 5.3.0, but are still not perfect.
+#' Using a fixed-width font may help.
+#'
+#' If `options("huxtable.latex_siunitx_align")` is set to `TRUE`, then in
+#' LaTeX output, numbers in these cells will be surrounded by `\\tablenum{}`.
+#' See the siunitx documentation for more details. Note that this may have
+#' other side-effects, for example `1e3` becomes `1 x 10^3`.
+#'
+#' To use non-default decimal points, set both `align(ht)` and
+#' [number_format()]. See the example.
 #'
 #' @examples
 #'
 #' numbers <- c(1, 1.5, 1.03, 10, 10.01)
-#' number_hux <- as_hux(matrix(numbers, 5, 4))
+#' number_hux <- as_hux(matrix(numbers, 5, 5))
 #' number_format(number_hux) <- "%.4g"
+#' number_format(number_hux)[, 5] <- fmt_pretty(
+#'                                     decimal.mark = ",",
+#'                                     big.mark = ""
+#'                                   )
 #'
 #' number_hux <- map_align(number_hux,
-#'       by_cols("left", "center", "right", "."))
+#'       by_cols("left", "center", "right", ".", ","))
 #'
-#' alignments <- c("left", "centre", "right", "decimal (.)")
+#' alignments <- c(
+#'                  "left",
+#'                  "centre",
+#'                  "right",
+#'                  "decimal (.)",
+#'                  "decimal (,)"
+#'                )
 #' number_hux <- rbind(
 #'         alignments,
 #'         number_hux
 #'       )
+#'
+#' align(number_hux)
 #' number_hux
+#'
 #'
 NULL
 make_getter_setters("align", "cell",
@@ -106,7 +131,10 @@ make_getter_setters("rowspan", "cell",
             stop("rowspan would extend beyond bottom of table")
           }
           # throws an error if cells are cut
-          display_cells(ht, new_rowspan = value)
+          dc <- display_cells(ht, new_rowspan = value)
+          if (any(value > 1)) {
+            ht <- overwrite_shadowed_cells(ht, dc)
+          }
         }
       )
 
@@ -125,9 +153,21 @@ make_getter_setters("colspan", "cell",
             stop("colspan would extend beyond right edge of table")
           }
           # throws an error if cells are cut
-          display_cells(ht, new_colspan = value)
+          dc <- display_cells(ht, new_colspan = value)
+          if (any(value > 1)) {
+            ht <- overwrite_shadowed_cells(ht, dc)
+          }
         }
       )
+
+
+overwrite_shadowed_cells <- function (ht, dc) {
+  dcells <- as.matrix(dc[, c("display_row", "display_col")])
+  contents <- as.data.frame(ht)[dcells]
+  ht[] <- contents
+
+  ht
+}
 
 
 #' @description
