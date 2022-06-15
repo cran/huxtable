@@ -169,6 +169,36 @@ test_that("Word files", {
 })
 
 
+test_that("quarto files", {
+  skip_if_not_installed("quarto")
+  qp <- quarto::quarto_path()
+  skip_if_not(is.character(qp))
+
+  on.exit({
+    for (f in c("quarto-test-out.pdf", "quarto-test-out.html"))
+    if (file.exists(f)) try(file.remove(f), silent = TRUE)
+    if (file.exists("quarto-test_files")) {
+      try(unlink("quarto-test_files", recursive = TRUE), silent = TRUE)
+    }
+  })
+
+  expect_silent(
+    quarto::quarto_render("quarto-test.qmd", output_format = "pdf",
+                            output_file = "quarto-test-out.pdf",
+                            execute_dir = "temp-artefacts",
+                            debug = FALSE, quiet = TRUE)
+  )
+
+  expect_silent(
+    quarto::quarto_render("quarto-test.qmd", output_format = "html",
+                            output_file = "quarto-test-out.html",
+                            execute_dir = "temp-artefacts",
+                            debug = FALSE, quiet = TRUE)
+  )
+
+})
+
+
 test_that("Works with fontspec", {
   skip_on_cran()
   skip_on_os("linux") # no Arial
@@ -219,10 +249,5 @@ test_that("huxtable.latex_siunitx_align", {
   expect_silent(to_md(ht))
 
   skip_on_cran()
-  expect_silent(
-    quick_pdf(ht,
-            file = file.path("temp-artefacts", "latex-siunitx-test.pdf"),
-            open = FALSE
-          )
-  )
+  test_render("siunitx-test.Rmd", "pdf_document")
 })

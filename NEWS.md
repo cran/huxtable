@@ -1,3 +1,22 @@
+# huxtable 5.5.0
+
+* Huxtable should work with [Quarto](https://quarto.org) documents.
+  - Quarto labels and captions will override huxtable-provided ones.
+  - Quarto style references like `@table-label` only work with quarto labels.
+  - Please report any bugs!
+* New `column_to_header()` function converts a column to header rows.
+  New `as_hux()` method for `grouped_df` objects optionally converts groups
+  to header rows.
+* New convenience functions `stripe_rows()` and `stripe_columns()`.
+* Add `format` and `...` options to `fmt_percent()` to allow flexible
+  formatting via `formatC()`.
+* `add_footnote()` gets an explicit `number_format` argument which is `NA`
+  by default.
+* Bugfix: infinite loop with wide characters in `to_screen()`.
+* Bugfix: duplicate colnames when exporting `huxreg(..., error_pos = "right")`
+  to flextable.
+* Bugfix: bookdown-style references weren't working in blogdown.
+
 
 # huxtable 5.4.0
 

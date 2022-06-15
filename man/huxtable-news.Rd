@@ -7,10 +7,36 @@
 \description{
 This help page simply gives the contents of NEWS.md.
 }
+\section{huxtable 5.5.0}{
+\itemize{
+\item Huxtable should work with \href{https://quarto.org}{Quarto} documents.
+\itemize{
+\item Quarto labels and captions will override huxtable-provided ones.
+\item Quarto style references like \verb{@table-label} only work with
+quarto labels.
+\item Please report any bugs!
+}
+\item New \code{column_to_header()} function converts a column to header rows.
+New \code{as_hux()} method for \code{grouped_df} objects optionally converts
+groups to header rows.
+\item New convenience functions \code{stripe_rows()} and \code{stripe_columns()}.
+\item Add \code{format} and \code{...} options to \code{fmt_percent()} to allow flexible
+formatting via \code{formatC()}.
+\item \code{add_footnote()} gets an explicit \code{number_format} argument which is
+\code{NA} by default.
+\item Bugfix: infinite loop with wide characters in \code{to_screen()}.
+\item Bugfix: duplicate colnames when exporting
+\code{huxreg(..., error_pos = "right")} to flextable.
+\item Bugfix: bookdown-style references weren’t working in blogdown.
+}
+}
+
 \section{huxtable 5.4.0}{
 \itemize{
 \item New behaviour: setting \code{colspan()} or \code{rowspan()} overwrites the
-content of cells that have been shadowed.\if{html}{\out{<div class="r">}}\preformatted{ht <- hux(c(1, 1), c(2, 2), c(3, 3))
+content of cells that have been shadowed.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ht <- hux(c(1, 1), c(2, 2), c(3, 3))
 ht <- set_all_borders(ht)
 colspan(ht)[1, 1] <- 3
 
@@ -139,7 +165,9 @@ behaviour.
 \item Huxtable borders have been reworked, fixing some longstanding bugs
 and adding new features.
 \itemize{
-\item Borders are now automatically collapsed. For example:\if{html}{\out{<div class="r">}}\preformatted{jams \%>\% 
+\item Borders are now automatically collapsed. For example:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{jams \%>\% 
     set_right_border(everywhere, 1, 1) \%>\% 
     set_left_border(everywhere, 2, 0.4)
 }\if{html}{\out{</div>}}
@@ -147,7 +175,9 @@ and adding new features.
 will set the border in between the columns of \code{jams} to \code{0.4},
 overwriting the previous value. This is more in line with what
 you would expect. For example, the following code now does what
-you probably want:\preformatted{jams \%>\% 
+you probably want:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{jams \%>\% 
     set_rowspan(2, 1, 3) \%>\% 
     set_bottom_border(4, everywhere, 1)
 ##                 Type              Price  
@@ -155,9 +185,11 @@ you probably want:\preformatted{jams \%>\%
 ##                                    2.10  
 ##                                    1.80  
 ##               ---------------------------
-}
+}\if{html}{\out{</div>}}
 
-instead of the old behaviour:\preformatted{jams \%>\% 
+instead of the old behaviour:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{jams \%>\% 
     set_rowspan(2, 1, 3) \%>\% 
     set_bottom_border(4, everywhere, 1)
 ##                 Type           Price  
@@ -165,13 +197,17 @@ instead of the old behaviour:\preformatted{jams \%>\%
 ##                                 2.10  
 ##                                 1.80  
 ##                            -----------
-}
+}\if{html}{\out{</div>}}
 \item \code{set_left_border()}, \code{set_all_borders()} and friends all use a
-default value of 0.4. So to set a default border, write e.g.\if{html}{\out{<div class="r">}}\preformatted{as_hux(head(iris)) \%>\% 
+default value of 0.4. So to set a default border, write e.g.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{as_hux(head(iris)) \%>\% 
       set_bottom_border(1, everywhere)
 }\if{html}{\out{</div>}}
 \item A new \code{brdr()} class encapsulates border thickness, style and
-colour. You can set all properties at once by writing, e.g.:\if{html}{\out{<div class="r">}}\preformatted{as_hux(jams) \%>\% 
+colour. You can set all properties at once by writing, e.g.:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{as_hux(jams) \%>\% 
       set_bottom_border(1, everywhere, brdr(1, "dotted", "darkgreen"))
 }\if{html}{\out{</div>}}
 
@@ -239,25 +275,31 @@ on-screen display.
 header, and style all header rows/cols.
 }
 \item \code{set_bold()} and \code{set_italic()} now use a default value of \code{TRUE}.
-So you can write e.g.\if{html}{\out{<div class="r">}}\preformatted{as_hux(head(iris)) \%>\% 
+So you can write e.g.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{as_hux(head(iris)) \%>\% 
       set_bold(1, everywhere)
 }\if{html}{\out{</div>}}
 \item Console output in R now shows table position and caption position.
 \item By default, huxtable now sets labels from the current knitr chunk
 label, if there is one. This is consistent with \code{kable()}. In
-bookdown, you can then do e.g.\preformatted{Some iris species are shown in \@ref(tab:mytable):
+bookdown, you can then do e.g.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Some iris species are shown in \@ref(tab:mytable):
 
 ```r
 as_hux(iris)
 ```
-}
+}\if{html}{\out{</div>}}
 
 Set \code{options(huxtable.autolabel = FALSE)} to turn off this
 behaviour.
 \item The one-argument form of \code{[} now works for huxtables just as it does
 for data frames. For example, \code{ht[2:3]} selects columns 2 and 3.
 \item New functions \code{fmt_percent()} and \code{fmt_pretty()} for passing into
-\code{number_format()}:\if{html}{\out{<div class="r">}}\preformatted{jams$Sugar <-c ("Sugar content", 0.4, 0.35, 0.45)
+\code{number_format()}:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{jams$Sugar <-c ("Sugar content", 0.4, 0.35, 0.45)
 set_number_format(jams, -1, "Sugar", fmt_percent(1))
 }\if{html}{\out{</div>}}
 \item \code{split_across()} and \code{split_down()} split a huxtable into a list of
@@ -363,8 +405,8 @@ regressions. This will be available from the next version of
 \itemize{
 \item Huxtables can now be printed directly in Word documents and
 Powerpoint presentations, thanks to the \code{flextable} package and
-recent versions of Pandoc. (Powerpoint printing requires
-Pandoc >= 2.4.0.)
+recent versions of Pandoc. (Powerpoint printing requires Pandoc >=
+2.4.0.)
 \item New “wrapleft” and “wrapright” options to \code{position()} allow text
 wrapping around tables.
 \item New \code{set_outer_border_colors()} and \code{set_outer_border_styles()}
@@ -391,8 +433,8 @@ of latex packages.
 
 \section{huxtable 4.3.0}{
 \itemize{
-\item More work on TeX. Tables \emph{should} now compile when raw_attributes
-is not set.
+\item More work on TeX. Tables \emph{should} now compile when raw_attributes is
+not set.
 \item New \code{map_xxx} functions to set properties variably by cell values.
 \item Functions for mapping properties variably: \code{by_rows}, \code{by_values},
 \code{by_ranges}, \code{by_quantiles} etc.
@@ -433,8 +475,8 @@ add
 
 md_extensions: +raw_attribute
 
-to your YAML header for this to work, and you will need a recent
-(> 2.0.0) version of Pandoc.
+to your YAML header for this to work, and you will need a recent (>
+2.0.0) version of Pandoc.
 }
 }
 }
@@ -497,8 +539,8 @@ cbind/rbind.
 \item cbind and rbind work.
 }
 \item Bugfix: HTML cols were printed with ‘width: NA’.
-\item Bugfix: width, col_width etc. can be reset to a number after
-setting them to a string.
+\item Bugfix: width, col_width etc. can be reset to a number after setting
+them to a string.
 \itemize{
 \item The (undocumented) ability to mix numeric and non-numeric values
 for padding and/border widths has been removed. If you want a
@@ -523,8 +565,8 @@ rows.
 \item Bugfix: \code{as_Workbook} failing with non-numeric \code{width}.
 \item Bugfix: \code{hux_logo} was using multiple fonts, fails with Excel
 output.
-\item Bugfix: \code{as_flextable} borders not working in cells with
-colspan > 1.
+\item Bugfix: \code{as_flextable} borders not working in cells with colspan >
+1.
 \item Documentation bugfixes.
 \item Compatibility with broom 5.0.0 - thanks @alexpghayes
 }

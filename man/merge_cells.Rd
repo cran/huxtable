@@ -21,10 +21,21 @@ The \code{ht} object.
 by setting \code{\link[=colspan]{colspan()}} and \code{\link[=rowspan]{rowspan()}}.
 }
 \details{
-\code{merge_cells(ht, c(min_row, max_row), c(min_col, max_col))} is equivalent to\preformatted{  colspan(ht)[min_row, min_col] <- max_col - min_col + 1
+\code{merge_cells(ht, c(min_row, max_row), c(min_col, max_col))} is equivalent to
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  colspan(ht)[min_row, min_col] <- max_col - min_col + 1
   rowspan(ht)[min_row, min_col] <- max_row - min_row + 1
+}\if{html}{\out{</div>}}
 }
+\section{Cell content}{
+
+In merged cell ranges, only the top left cell's content is displayed.
+In addition, when you merge cells (either by setting \code{\link[=colspan]{colspan()}} or
+\code{\link[=rowspan]{rowspan()}}, or using \code{\link[=merge_cells]{merge_cells()}} and friends) the content of the top
+left cell is copied to other cells. This prevents unexpected changes to
+content if you reorder or subset rows and columns.
 }
+
 \examples{
 
 ht <- hux(a = 1:3, b = 1:3)

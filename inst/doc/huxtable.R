@@ -188,6 +188,15 @@ jams %>%
       set_markdown_contents(3, 2, "~~2.10~~ **Sale!** 1.50")
 
 ## -----------------------------------------------------------------------------
+new_row <- if (is_latex) c("Imaginary jam", "$e^{-i\\pi}$") else 
+             c("Copyright jam", "&copy;")
+
+jams %>%
+      insert_row(new_row, after = 4) %>%
+      set_escape_contents(5, 2, FALSE)
+ 
+
+## -----------------------------------------------------------------------------
 jams %>%
       set_align(1, everywhere, "center")
 
@@ -222,6 +231,7 @@ jams %>%
 #  jams$Price <- c("Price", 1.50, 1.60, 1.50)
 
 ## -----------------------------------------------------------------------------
+options(error=recover)
 jams$Sugar <- c("Sugar content", "40%", "50%", "30%")
 jams
 

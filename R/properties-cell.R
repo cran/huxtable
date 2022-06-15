@@ -102,6 +102,8 @@ make_getter_setters("align", "cell",
 #' @template property-params
 #' @param value An integer vector or matrix.
 #'
+#' @inheritSection span-overwrites-shadows Cell content
+#'
 #' @seealso [merge_cells()], [merge_across()] and [merge_down()] for
 #' a higher-level interface.
 #'
@@ -221,7 +223,9 @@ make_getter_setters("text_color", "cell")
 
 #' Wrap cell content over multiple lines
 #'
-#' Text wrapping only really makes sense when the table [width()] has been set.
+#' Text wrapping only works when the table [width()] has been set. In
+#' particular, if you want to insert newlines in cells, then you should
+#' set a value for [width()] and set `wrap` to `TRUE`.
 #'
 #' @template getset-cell
 #' @templateVar attr_name wrap
@@ -448,8 +452,8 @@ make_getter_setters("rotation", "cell",
 #' are useful shortcuts for common formatting functions.
 #'
 #' @family formatting functions
-#' @seealso `options("huxtable.long_minus")` in [huxtable-options] for pretty-printing
-#'   minus signs.
+#' @seealso [fmt_pretty()] and [fmt_percent()].`options("huxtable.long_minus")`
+#' in [huxtable-options] for pretty-printing minus signs.
 #'
 #' @examples
 #' ht <- huxtable(
