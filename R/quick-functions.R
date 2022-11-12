@@ -153,11 +153,6 @@ quick_docx <- function (..., file = confirm("huxtable-output.docx"), borders = 0
   my_doc <- officer::read_docx()
   for (ht in hts) {
     ft <- as_flextable(ht)
-    if (!is.null(ft$caption$value)) {
-      if (utils::packageVersion("flextable") >= "0.5.5") {
-        my_doc <- officer::body_add_par(my_doc, ft$caption$value, style = "table title")
-      }
-    }
     my_doc <- flextable::body_add_flextable(my_doc, ft)
     my_doc <- officer::body_add_par(my_doc, " ")
   }
@@ -290,10 +285,11 @@ confirm <- function (file) {
 
 auto_open <- function (path) {
   sysname <- Sys.info()["sysname"]
+  safe_path <- shQuote (path)
   switch(sysname,
-    Darwin  = system2("open", path),
-    Windows = system2("start", path),
-    Linux   = system2("xdg-open", path),
+    Darwin  = system2("open", safe_path),
+    Windows = system2("start", safe_path),
+    Linux   = system2("xdg-open", safe_path),
     warning("Could not determine OS to open document automatically")
   )
 }

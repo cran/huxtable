@@ -7,6 +7,15 @@
 \description{
 This help page simply gives the contents of NEWS.md.
 }
+\section{huxtable 5.5.1}{
+\itemize{
+\item CSS borders are now set explicitly even if they are all set to 0.
+\item Bugfix: shell-quote files in \verb{quick_*} functions. Thanks to
+@ceresek.
+\item Bugfix: cope with adjustbox version “1.3a” among latex dependencies.
+}
+}
+
 \section{huxtable 5.5.0}{
 \itemize{
 \item Huxtable should work with \href{https://quarto.org}{Quarto} documents.
@@ -36,7 +45,8 @@ formatting via \code{formatC()}.
 \item New behaviour: setting \code{colspan()} or \code{rowspan()} overwrites the
 content of cells that have been shadowed.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{ht <- hux(c(1, 1), c(2, 2), c(3, 3))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+ht <- hux(c(1, 1), c(2, 2), c(3, 3))
 ht <- set_all_borders(ht)
 colspan(ht)[1, 1] <- 3
 
