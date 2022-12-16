@@ -4,20 +4,20 @@ library(knitr)
 library(dplyr)
 library(huxtable)
 options(
+        huxtable.latex_use_fontspec  = TRUE, #!CRAN
         huxtable.knit_print_df       = FALSE, 
-        huxtable.add_colnames        = TRUE,  # needed when run by testthat
-        huxtable.latex_use_fontspec  = TRUE
+        huxtable.add_colnames        = TRUE  # needed when run by testthat
       )
 
 is_latex <- guess_knitr_output_format() == "latex"
-# is_latex <- TRUE
-knitr::knit_hooks$set(
-  barrier = function(before, options, envir) {
-    if (! before && is_latex) knitr::asis_output("\\FloatBarrier")
-  }
-)
+# is_latex <- TRUE                                                 # !CRAN
+knitr::knit_hooks$set(                                             # !CRAN
+  barrier = function(before, options, envir) {                     # !CRAN
+    if (! before && is_latex) knitr::asis_output("\\FloatBarrier") # !CRAN
+  }                                                                # !CRAN
+)                                                                  # !CRAN
 
-if (is_latex) knitr::opts_chunk$set(barrier = TRUE)
+if (is_latex) knitr::opts_chunk$set(barrier = TRUE)                # !CRAN 
 
 
 ## ---- echo = FALSE------------------------------------------------------------
@@ -122,11 +122,11 @@ props[["Table"]]  <- sort(c("width", "height", "position", "caption",
 maxl <- max(sapply(props, length))
 props <- lapply(props, function(x) c(x, rep("", maxl - length(x))))
 
-mono_font <- if (is_latex) "LucidaConsole" else "monospace"
+mono_font <- if (is_latex) "LucidaConsole" else "monospace" # !CRAN 
 
 prop_hux <- hux(as.data.frame(props, check.names = FALSE)) %>% 
       set_font_size(10)                                    %>% 
-      set_font(-1, everywhere, mono_font)                  %>% 
+#      set_font(-1, everywhere, mono_font)                  %>% 
       set_header_rows(1, TRUE)                             %>% 
       set_width(0.9)                                       %>% 
       set_tb_padding(2)                                    %>% 
