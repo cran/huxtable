@@ -9,8 +9,18 @@ This help page simply gives the contents of NEWS.md.
 }
 \section{huxtable (development version)}{
 \itemize{
+\item Bugfix: disable quarto styling on HTML tables. You can reenable quarto
+processing with \code{options(huxtable.quarto_process = TRUE)}.
+\item Bugfix: borders weren’t working with merged cells in Word documents.
+}
+}
+
+\section{huxtable 5.5.2}{
+\itemize{
 \item Update \code{by_cases()} to work with dplyr 1.1.0. Within \code{by_cases()}
-formulas, \code{.} is now vector rather than matrix. Thanks @DavisVaughan.
+formulas, \code{.} is now vector rather than matrix when dplyr version
+1.1.0 is detected. Thanks @DavisVaughan.
+\item Add package checks in \verb{quick_*} functions. Thanks @reuning.
 }
 }
 

@@ -27,7 +27,7 @@ library(knitr)
 library(dplyr)
 library(huxtable)
 options(
-        # huxtable.latex_use_fontspec  = TRUE, #!CRAN
+#        huxtable.latex_use_fontspec  = TRUE, #!CRAN
         huxtable.knit_print_df       = FALSE, 
         huxtable.add_colnames        = TRUE  # needed when run by testthat
       )

@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 5.5.2
+Version: 5.5.3
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -22,7 +22,7 @@ Imports: assertthat, commonmark, fansi, generics, glue, htmltools,
         memoise, R6, rlang, stats, stringi, stringr (>= 1.2.0),
         tidyselect, utils, xml2
 Suggests: AER, bookdown, broom (>= 0.5.1), broom.mixed, covr, crayon,
-        devtools, dplyr (>= 0.7.0), flextable (>= 0.5.5), ftExtra (>=
+        devtools, dplyr (>= 0.7.0), flextable (>= 0.6.9), ftExtra (>=
         0.0.2), ggplot2, httr, knitr, lme4, lmtest, nlme, nnet,
         officer, openxlsx, psych, quarto, rmarkdown, sandwich, scales,
         testthat, tibble, tinytex
@@ -32,10 +32,10 @@ SystemRequirements: LaTeX packages: adjustbox, array, calc, caption,
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Depends: R (>= 2.10)
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2022-12-15 18:18:27 UTC; david
+Packaged: 2023-12-09 12:10:26 UTC; davidhugh-jones
 Repository: CRAN
-Date/Publication: 2022-12-16 13:30:02 UTC
+Date/Publication: 2023-12-09 17:00:02 UTC

@@ -1,8 +1,16 @@
+# huxtable 5.5.3
+
+* Bugfix: disable quarto styling on HTML tables. You can reenable quarto
+  processing with `options(huxtable.quarto_process = TRUE)`.
+* Bugfix: borders weren't working with merged cells in Word documents.
+
 # huxtable 5.5.2
 
 * Update `by_cases()` to work with dplyr 1.1.0. Within `by_cases()` formulas,
   `.` is now vector rather than matrix when dplyr version 1.1.0 is detected. 
   Thanks @DavisVaughan.
+* Add package checks in `quick_*` functions. Thanks @reuning.
+
 
 # huxtable 5.5.1
 
