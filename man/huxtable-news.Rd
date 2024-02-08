@@ -7,7 +7,18 @@
 \description{
 This help page simply gives the contents of NEWS.md.
 }
-\section{huxtable (development version)}{
+\section{huxtable 5.5.5}{
+\itemize{
+\item Bugfix: quarto cross-referencing doesn’t work for PDF with quarto
+version 1.4. See \code{?huxtable-FAQ} for workarounds.
+\item Bugfix: \code{by_cases()} wasn’t picking up variables from the caller
+environment.
+\item huxtable 5.5.4 was never released due to failing a reverse dependency
+check.
+}
+}
+
+\section{huxtable 5.5.3}{
 \itemize{
 \item Bugfix: disable quarto styling on HTML tables. You can reenable quarto
 processing with \code{options(huxtable.quarto_process = TRUE)}.

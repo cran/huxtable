@@ -1,3 +1,11 @@
+# huxtable 5.5.5
+
+* Bugfix: quarto cross-referencing doesn't work for PDF with quarto version
+  1.4. See `?huxtable-FAQ` for workarounds.
+* Bugfix: `by_cases()` wasn't picking up variables from the 
+  caller environment.
+* huxtable 5.5.4 was never released due to failing a reverse dependency check.
+
 # huxtable 5.5.3
 
 * Bugfix: disable quarto styling on HTML tables. You can reenable quarto
