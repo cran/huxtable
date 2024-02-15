@@ -1,9 +1,9 @@
-a34b1ed43f56f87f6bf18ad325f728af *DESCRIPTION
+4d33ccda758ff4d395dcef3630f7a746 *DESCRIPTION
 3cc7f83ec483aaf2bed8f487b1c5730e *LICENSE
 5177f033c206d58d8cd6f38ede16c3ab *NAMESPACE
-70c135422add204afb6fc0b63b6958e4 *NEWS.md
+85d0ee03fb99fae065e35a2a6b0404c0 *NEWS.md
 79eb20d7c3c1742b88ceb078c076bba3 *R/Workbook.R
-67871471c951a0961229db9e05130f64 *R/aaa-utils.R
+b719a336bfe0e63649d672f619d9e35a *R/aaa-utils.R
 c6d7360fb1a0dcc971aa9f152b7d0318 *R/bind-insert-internal.R
 2f604a32271f3337a59da110cc44e111 *R/bind-insert.R
 31a0cb503c6a994b962e65cde45dc95a *R/bookdown.R
@@ -55,16 +55,16 @@ a0b49d209151fb94e7e03273b654103e *build/vignette.rds
 463bf98446eb3ddb0b9ec9021cedbc52 *data/jams.rda
 a3685700b417481eec62fc732e1f3b62 *inst/doc/design-principles.R
 b32e993631682e5cb8b1fcb85fc66543 *inst/doc/design-principles.Rmd
-daffbcdb46abe7b46037c73a045078e8 *inst/doc/design-principles.html
+9defe4e23767b9f367610ec08e9bbd6a *inst/doc/design-principles.html
 91eb032f613e421d61ecdab125751fd1 *inst/doc/huxreg.R
 86c142263af20163cc514dc944502b22 *inst/doc/huxreg.Rmd
-7083295a7290d3e7dc755b8ab212590e *inst/doc/huxreg.html
+33372c833ffa388d009ea9e5dbc1f83e *inst/doc/huxreg.html
 0102e2df3ece642b178fcf0608120106 *inst/doc/huxtable.R
 31be7e5c69886ba0fd7df15221676828 *inst/doc/huxtable.Rmd
-267946a3dbe1885ea39131858bb47e01 *inst/doc/huxtable.pdf
+47b7c30e4a241bdf82f47e4385253a6c *inst/doc/huxtable.pdf
 11c9076d60879935786534c68f194822 *inst/doc/themes.R
 4bd2ec6e54274585df5af0fdffed6851 *inst/doc/themes.Rhtml
-6c486eb6b83c2a3dc87bfee97ab60a78 *inst/doc/themes.html
+55bfad8a7904bfcf35119c91f538d235 *inst/doc/themes.html
 59383765fb60abce9267fa520eeef763 *man/add_colnames.Rd
 a98cf53390b9ba11a23ddbd43e969ecd *man/add_footnote.Rd
 ce5803403b37b6a5510a1f88763b0c77 *man/add_rows.Rd
@@ -93,7 +93,7 @@ ce6911548973f9bfeadb71170e78a868 *man/by_cases.Rd
 ce343a1102c38bce453b88a2ed1f4eaa *man/cbind.huxtable.Rd
 9a6c76f5e34168e15cd5930d92078107 *man/col_width.Rd
 1b03f529a74b4673bcf5242843da7ef3 *man/column_to_header.Rd
-0914d4b492429acbc1d8f12115e1a16c *man/dplyr-verbs.Rd
+996dc1686f90cb9fc6595275fee64662 *man/dplyr-verbs.Rd
 02517077c2551e62778f1efc80cdc7d8 *man/escape_contents.Rd
 6a2a47bfc2084797b24852657f10cf2c *man/extract-methods.Rd
 c02c343dec48634a05be02a5fac7280d *man/final.Rd
@@ -107,7 +107,7 @@ a1762847de90b2b4ca7ed799e5b58e86 *man/height.Rd
 650ce55330152f85b416e5a8390cb775 *man/hux_logo.Rd
 ad7b5fa41d11944b84f023017e0624b2 *man/huxreg.Rd
 423ee9808ecc0d0733717bf6e8ceb894 *man/huxtable-FAQ.Rd
-4c9ee0dda986b9f5fee5146075af4c3b *man/huxtable-news.Rd
+cb5153bc0e5a8c5f157403623b59a950 *man/huxtable-news.Rd
 35ee57abe3f6f248050aa0ab4b2aa5ad *man/huxtable-options.Rd
 bfe429cb02910db308be278977d7807f *man/huxtable-package.Rd
 a50c8bb49483aee1d238fa7877ffce3a *man/huxtable.Rd
@@ -162,6 +162,7 @@ e18020ef1ec5e5f9c4eac46f6c84e5fa *man/to_screen.Rd
 a906ee45681214becd7484fa650a31d6 *man/width.Rd
 3ad8d33c0f742db3087ac9f2ae9c3f75 *man/wrap.Rd
 681e8527c99b934ac5e6663f98eb5eff *tests/testthat.R
+14d28745eb88c6642cdc730df4d3a07e *tests/testthat/404.html
 bd331575654583b8263737debbee5642 *tests/testthat/bones.png
 e469c9e6e4faf26ad2679b141a183c93 *tests/testthat/bookdown-test.Rmd
 67bcff4a9b53e11176862a2a14095f7a *tests/testthat/echo-true-latex-test.Rmd
@@ -175,7 +176,7 @@ cb8a90cb68cf5a063a0b6aa8ccc4ee3c *tests/testthat/guess-output-format-test.Rnw
 ee0f5df72a31bcb58cd850736df39c88 *tests/testthat/knitr-latex-tester.Rnw
 bc394c680bec965b0e49ab0420c8194b *tests/testthat/multirow.rds
 f834d955d0eb48fd41b6ea798de6f62b *tests/testthat/placeins-header.tex
-77caaee9f9861311530bfd2119925ec0 *tests/testthat/quarto-test-tex-labels-out.pdf
+9799295726e73226fd90a6d4e6d853e9 *tests/testthat/quarto-test-tex-labels-out.pdf
 3c2ba63b21a73896b670f4712123c54f *tests/testthat/quarto-test-tex-labels.qmd
 626781afe99d1fabb2da39f7fb43abb4 *tests/testthat/quarto-test.aux
 db6e2981febe2a89c6e2ac84d5f9b260 *tests/testthat/quarto-test.log
@@ -185,7 +186,7 @@ c957e5a497c9773593d9febf0a899765 *tests/testthat/setup-add-colnames.R
 c96d22e3e76d833ed98266caee3fb57f *tests/testthat/setup-functions.R
 7afb61a69e1d394c68534fdc0ccb583d *tests/testthat/siunitx-test.Rmd
 b906d3761cb973f64ddf44f312270c6c *tests/testthat/table-tester-2.Rmd
-ca038d36f8949be700cf949a58af90e3 *tests/testthat/table-tester-2.log
+efcea824e491088db2e6bb3b42b31aaa *tests/testthat/table-tester-2.log
 820db9b437f61ad61bb5fb02b9b2ee6b *tests/testthat/teardown-add_colnames.R
 36c20eab67287cff7a44cbd0bc8862aa *tests/testthat/test-attributes.R
 2e87ec334108aa5197f877f6eb4ae5cb *tests/testthat/test-column-to-header.R
