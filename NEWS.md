@@ -1,3 +1,8 @@
+# huxtable 5.5.7
+
+* Bugfix: fix quarto referencing in quarto 1.5
+* Bugfix: integer overflow on very large huxtables. Thanks @kpagacz.
+
 
 # huxtable 5.5.6
 

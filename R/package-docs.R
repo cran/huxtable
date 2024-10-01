@@ -49,8 +49,7 @@
 #' \href{https://github.com/hughjonesd/huxtable/issues}{github}.
 #'
 #' @name huxtable-package
-#' @docType package
-NULL
+"_PACKAGE"
 
 
 #' Package options
@@ -119,8 +118,7 @@ NULL
 #'   `list(..., Date = "center", ...)`.
 #'
 #' @name huxtable-options
-#' @docType package
-NULL
+"_PACKAGE"
 
 
 
@@ -215,20 +213,18 @@ NULL
 #'   like `label: tbl-foo` and refer to them via `@tbl-foo`.
 #'
 #'   In quarto versions 1.4 and above, when compiling to PDF,
-#'   quarto cross-referencing no longer works, and labels starting with
-#'   `tbl-` will cause an error. (This is a quarto
-#'   issue.) Instead, set labels within huxtable using [label()] or
+#'   quarto cross-referencing no longer works.
+#'   Instead, set labels within huxtable using [label()] or
 #'   [set_label()] and refer to them with TeX-only referencing using
-#'   `\ref{label}`. You must also set a caption, either via quarto or via
-#'   huxtable.
+#'   `\ref{label}`. You must also set a caption.
 #'
 #'   Here's an example:
 #'
 #'   ````
-#'   A reference to Table \ref{tab:jams}.
+#'   A reference to Table \ref{tbl-jams}.
 #'
 #'   ```{r}
-#'   label(jams) <- "tab:jams"
+#'   label(jams) <- "tbl-jams"
 #'   caption(jams) <- "Some jams"
 #'   jams
 #'   ```
@@ -270,7 +266,7 @@ NULL
 #'   or a feature request, please report it to
 #'   <https://github.com/hughjonesd/huxtable/issues>.
 #'   Otherwise, ask a question on [StackOverflow](https://stackoverflow.com) or
-#'   <https://community.rstudio.com>. That way, other people will benefit from
+#'   <https://forum.posit.co>. That way, other people will benefit from
 #'   the answers you get.
 #'
 #' * Can I email you directly?
@@ -279,8 +275,7 @@ NULL
 #'   may be able to help.
 #'
 #' @name huxtable-FAQ
-#' @docType package
-NULL
+"_PACKAGE"
 
 
 
@@ -290,5 +285,4 @@ NULL
 #'
 #' @includeRmd NEWS.md
 #' @name huxtable-news
-#' @docType package
-NULL
+"_PACKAGE"
