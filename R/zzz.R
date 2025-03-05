@@ -41,20 +41,13 @@
 
   if (requireNamespace("dplyr", quietly = TRUE)) {
     register_s3_method("dplyr", "arrange")
-    register_s3_method("dplyr", "arrange_")
     register_s3_method("dplyr", "filter")
-    register_s3_method("dplyr", "filter_")
     register_s3_method("dplyr", "mutate")
-    register_s3_method("dplyr", "mutate_")
     register_s3_method("dplyr", "slice")
-    register_s3_method("dplyr", "slice_")
     register_s3_method("dplyr", "transmute")
-    register_s3_method("dplyr", "transmute_")
     if (utils::packageVersion("dplyr") <= "0.8.5") {
       register_s3_method("dplyr", "rename")
-      register_s3_method("dplyr", "rename_")
       register_s3_method("dplyr", "select")
-      register_s3_method("dplyr", "select_")
     }
   }
 }
@@ -70,3 +63,6 @@ set_default_option <- function (opt, value) {
   names(ol) <- opt
   options(ol)
 }
+
+# This is for a mocked binding in test-print.R
+requireNamespace <- NULL

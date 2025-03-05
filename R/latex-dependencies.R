@@ -58,7 +58,7 @@ report_latex_dependencies <- function(quiet = FALSE, as_string = FALSE) {
     cat(paste0(report, collapse = ""))
     cat("% These are LaTeX packages. You can install them using your LaTex management software,\n")
     cat("% or by running `huxtable::install_latex_dependencies()` from within R.\n")
-    cat("% Other packages may be required if you use non-standard tabulars (e.g. tabulary).")
+    cat("% Other packages may be required if you use non-standard tabulars (e.g. tabulary).\n")
   }
 
   if (as_string) {
@@ -135,7 +135,7 @@ install_latex_dependencies <- function () {
 
   tinytex_available <- requireNamespace("tinytex", quietly = TRUE)
   install_ok <- if (tinytex_available) {
-    tinytex::tlmgr_install(ld) == 0
+    tlmgr_install_wrapper(ld) == 0
   } else {
     warning("R package tinytex not found, trying to install packages directly with tlmgr")
     system2("tlmgr", c("install", ld)) == 0
@@ -177,11 +177,16 @@ check_adjustbox <- function (quiet = TRUE) {
     system2("tlmgr", args, stdout = TRUE)
   }
 
-  ok <- adjustbox_rev == "1.3a" || as.package_version(adjustbox_rev) >= "1.2"
+  ok <- grepl("1.3", adjustbox_rev, fixed = TRUE)
   if (! ok && ! quiet) {
     warning("TeX package 'adjustbox' is out of date.\n",
       "Update it with your package manager or via `install_latex_dependencies()`.")
   }
 
   return(ok)
+}
+
+
+tlmgr_install_wrapper <- function (...) {
+  tinytex::tlmgr_install(...)
 }

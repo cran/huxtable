@@ -1,3 +1,18 @@
+# huxtable 5.6.0
+
+## Breaking changes
+
+* Removed underscore dplyr verbs (`slice_`, `select_` etc.) These have long
+  been deprecated in dplyr itself.
+  
+## Other changes
+
+* Bugfix: add newline at end of report_latex_dependencies() output. 
+  Thanks @ceresek.
+* You can now add multiple huxtables to the same Excel worksheet in
+  `as_Workbook()`. Suggestion by @oobd.
+  
+  
 # huxtable 5.5.7
 
 * Bugfix: fix quarto referencing in quarto 1.5

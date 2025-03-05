@@ -7,9 +7,28 @@
 \description{
 This help page simply gives the contents of NEWS.md.
 }
-\section{huxtable (development version)}{
+\section{huxtable 5.6.0}{
+\subsection{Breaking changes}{
+\itemize{
+\item Removed underscore dplyr verbs (\code{slice_}, \code{select_} etc.) These have
+long been deprecated in dplyr itself.
+}
+}
+
+\subsection{Other changes}{
+\itemize{
+\item Bugfix: add newline at end of report_latex_dependencies() output.
+Thanks @ceresek.
+\item You can now add multiple huxtables to the same Excel worksheet in
+\code{as_Workbook()}. Suggestion by @oobd.
+}
+}
+}
+
+\section{huxtable 5.5.7}{
 \itemize{
 \item Bugfix: fix quarto referencing in quarto 1.5
+\item Bugfix: integer overflow on very large huxtables. Thanks @kpagacz.
 }
 }
 
