@@ -1,4 +1,3 @@
-
 skip_if_not_installed("knitr")
 skip_if_not_installed("rmarkdown")
 skip_without_pandoc()
@@ -8,10 +7,8 @@ require_temp_artefacts_dir()
 oo_al <- options("huxtable.autolabel" = FALSE)
 
 
-teardown({
-  options(oo_al)
-  if (dir.exists("libs")) try(unlink("libs", recursive = TRUE))
-})
+# Note: This test file sets autolabel = FALSE and cleans up libs directory
+# The option will be restored when the test session ends
 
 
 validate_markdown <- function(md_string) {
@@ -21,25 +18,26 @@ validate_markdown <- function(md_string) {
   })
 
   tf <- tempfile(
-          pattern = "markdown-example",
-          fileext = ".md",
-          tmpdir = "temp-artefacts"
-        )
+    pattern = "markdown-example",
+    fileext = ".md",
+    tmpdir = "temp-artefacts"
+  )
   cat(md_string, file = tf)
 
   expect_silent(
-    outfile  <- rmarkdown::render(tf,
-                  output_format     = rmarkdown::html_document(
-                                        pandoc_args = c("--metadata",
-                                          "title=\"Avoid warnings\""
-                                        )
-                                      ),
-                  output_file       = NULL,
-                  output_dir        = "temp-artefacts",
-                  intermediates_dir = "temp-artefacts",
-                  clean             = TRUE,
-                  quiet             = TRUE
-                )
+    outfile <- rmarkdown::render(tf,
+      output_format = rmarkdown::html_document(
+        pandoc_args = c(
+          "--metadata",
+          "title=\"Avoid warnings\""
+        )
+      ),
+      output_file = NULL,
+      output_dir = "temp-artefacts",
+      intermediates_dir = "temp-artefacts",
+      clean = TRUE,
+      quiet = TRUE
+    )
   )
 }
 
@@ -52,14 +50,15 @@ test_render <- function(path, format, output_dir = "temp-artefacts") {
     options(oo)
     if (file.exists(output)) try(file.remove(output), silent = TRUE)
   })
-  expect_error(output <- rmarkdown::render(path,
-          output_format     = format,
-          quiet             = TRUE,
-          output_dir        = output_dir,
-          intermediates_dir = "temp-artefacts"
-        ),
+  expect_error(
+    output <- rmarkdown::render(path,
+      output_format     = format,
+      quiet             = TRUE,
+      output_dir        = output_dir,
+      intermediates_dir = "temp-artefacts"
+    ),
     regexp = NA,
-    info   = list(path = path, format = format)
+    info = list(path = path, format = format)
   )
 }
 
@@ -86,8 +85,10 @@ test_that("Can knit .Rhtml files to HTML", {
   on.exit(try(file.remove(output_files), silent = TRUE))
   for (i in seq_along(in_files)) {
     expect_error(
-      output_files[i] <- knitr::knit(in_files[i], output = output_files[i],
-            quiet = TRUE),
+      output_files[i] <- knitr::knit(in_files[i],
+        output = output_files[i],
+        quiet = TRUE
+      ),
       regexp = NA
     )
     expect_true(file.exists(output_files[i]))
@@ -99,24 +100,26 @@ test_that("guess_knitr_output_format() gets it right", {
   skip_on_cran()
   out <- character(0)
   on.exit({
-    lapply(out, function (x) {
+    lapply(out, function(x) {
       if (file.exists(x)) try(file.remove(x), silent = TRUE)
     })
   })
   expect_silent(out[1] <- knitr::knit("guess-output-format-test.Rhtml",
-        quiet = TRUE))
+    quiet = TRUE
+  ))
   expect_silent(out[2] <- knitr::knit("guess-output-format-test.Rnw",
-        quiet = TRUE))
+    quiet = TRUE
+  ))
 
   test_render("guess-output-format-test-Rmd-html.Rmd", "html_document")
   test_render("guess-output-format-test-Rmd-pdf.Rmd", "pdf_document")
-
 })
 
 
 test_that("Four spaces does not cause <pre><code> markup", {
   output <- rmarkdown::render("fourspace-html-test.Rmd",
-        output_dir = "temp-artefacts", quiet = TRUE)
+    output_dir = "temp-artefacts", quiet = TRUE
+  )
   on.exit(if (exists("output")) try(file.remove(output), silent = TRUE))
   lines <- readLines(output)
   expect_false(any(grepl("findme&lt;/td&gt;", lines)))
@@ -140,7 +143,7 @@ test_that("echo = TRUE does not cause option clash", {
 test_that("Various Rmd files render without errors", {
   skip_on_cran()
 
-  test_render_all <- function (path) {
+  test_render_all <- function(path) {
     test_render(path, "pdf_document")
     test_render(path, "html_document")
   }
@@ -175,8 +178,9 @@ test_that("quarto files", {
   skip_if_not(is.character(qp))
 
   on.exit({
-    for (f in c("quarto-test-out.pdf", "quarto-test-out.html"))
-    if (file.exists(f)) try(file.remove(f), silent = TRUE)
+    for (f in c("quarto-test-out.pdf", "quarto-test-out.html")) {
+      if (file.exists(f)) try(file.remove(f), silent = TRUE)
+    }
     if (file.exists("quarto-test_files")) {
       try(unlink("quarto-test_files", recursive = TRUE), silent = TRUE)
     }
@@ -184,35 +188,75 @@ test_that("quarto files", {
 
   if (quarto::quarto_version() < "1.4") {
     expect_silent(
-      quarto::quarto_render("quarto-test.qmd", output_format = "pdf",
-                              output_file = "quarto-test-out.pdf",
-                              execute_dir = "temp-artefacts",
-                              debug = FALSE, quiet = TRUE)
+      quarto::quarto_render("quarto-test.qmd",
+        output_format = "pdf",
+        output_file = "quarto-test-out.pdf",
+        execute_dir = "temp-artefacts",
+        debug = FALSE, quiet = TRUE
+      )
     )
   } else {
     # for some reason (probably due to use of processx::) I can't
     # capture the specific huxtable error from make_label() here
     expect_error(
-      quarto::quarto_render("quarto-test.qmd", output_format = "pdf",
-                              output_file = "quarto-test-out.pdf",
-                              execute_dir = "temp-artefacts",
-                              debug = FALSE, quiet = TRUE)
+      quarto::quarto_render("quarto-test.qmd",
+        output_format = "pdf",
+        output_file = "quarto-test-out.pdf",
+        execute_dir = "temp-artefacts",
+        debug = FALSE, quiet = TRUE
+      )
     )
     expect_silent(
-      quarto::quarto_render("quarto-test-tex-labels.qmd", output_format = "pdf",
-                              output_file = "quarto-test-tex-labels-out.pdf",
-                              execute_dir = "temp-artefacts",
-                              debug = FALSE, quiet = TRUE)
+      quarto::quarto_render("quarto-test-tex-labels.qmd",
+        output_format = "pdf",
+        output_file = "quarto-test-tex-labels-out.pdf",
+        execute_dir = "temp-artefacts",
+        debug = FALSE, quiet = TRUE
+      )
     )
   }
 
   expect_silent(
-    quarto::quarto_render("quarto-test.qmd", output_format = "html",
-                            output_file = "quarto-test-out.html",
-                            execute_dir = "temp-artefacts",
-                            debug = FALSE, quiet = TRUE)
+    quarto::quarto_render("quarto-test.qmd",
+      output_format = "html",
+      output_file = "quarto-test-out.html",
+      execute_dir = "temp-artefacts",
+      debug = FALSE, quiet = TRUE
+    )
   )
+})
 
+
+quarto_typst_is_valid <- function(qmd, output_dir = "temp-artefacts") {
+  args <- c("render", qmd, "--to", "typst", "--output-dir", output_dir, "--debug")
+  res <- system2("quarto", args)
+  if (!identical(res, 0L)) {
+    return(FALSE)
+  }
+  typ_file <- file.path(dirname(qmd), sub("\\.qmd$", ".typ", basename(qmd)))
+  if (!file.exists(typ_file)) {
+    return(FALSE)
+  }
+  res2 <- system2(
+    "quarto",
+    c("typst", "compile", typ_file, "/dev/null", "--format", "pdf")
+  )
+  identical(res2, 0L)
+}
+
+test_that("quarto typst output is valid", {
+  skip_on_cran()
+  if (Sys.which("quarto") == "") skip("quarto CLI not found")
+  require_temp_artefacts_dir()
+  on.exit(
+    {
+      for (f in c("quarto-typst.typ", file.path("temp-artefacts", "quarto-typst.pdf"))) {
+        if (file.exists(f)) try(file.remove(f), silent = TRUE)
+      }
+    },
+    add = TRUE
+  )
+  expect_true(quarto_typst_is_valid("quarto-typst.qmd", "temp-artefacts"))
 })
 
 
@@ -234,25 +278,32 @@ test_that("huxtable.long_minus", {
   expect_silent(to_md(ht))
 
   expect_silent(quick_html(ht,
-        file = file.path("temp-artefacts", "long-minus-test.html"), open = FALSE))
+    file = file.path("temp-artefacts", "long-minus-test.html"), open = FALSE
+  ))
   expect_silent(quick_latex(ht,
-        file = file.path("temp-artefacts", "long-minus-test.tex"), open = FALSE))
+    file = file.path("temp-artefacts", "long-minus-test.tex"), open = FALSE
+  ))
   expect_silent(quick_rtf(ht,
-        file = file.path("temp-artefacts", "long-minus-test.rtf"), open = FALSE))
+    file = file.path("temp-artefacts", "long-minus-test.rtf"), open = FALSE
+  ))
 
   skip_if_not_installed("openxlsx")
   expect_silent(quick_xlsx(ht,
-        file = file.path("temp-artefacts", "long-minus-test.xlsx"), open = FALSE))
+    file = file.path("temp-artefacts", "long-minus-test.xlsx"), open = FALSE
+  ))
 
   skip_if_not_installed("flextable")
   expect_silent(quick_docx(ht,
-        file = file.path("temp-artefacts", "long-minus-test.docx"), open = FALSE))
+    file = file.path("temp-artefacts", "long-minus-test.docx"), open = FALSE
+  ))
   expect_silent(quick_pptx(ht,
-        file = file.path("temp-artefacts", "long-minus-test.pptx"), open = FALSE))
+    file = file.path("temp-artefacts", "long-minus-test.pptx"), open = FALSE
+  ))
 
   skip_on_cran()
   expect_silent(quick_pdf(ht,
-        file = file.path("temp-artefacts", "long-minus-test.pdf"), open = FALSE))
+    file = file.path("temp-artefacts", "long-minus-test.pdf"), open = FALSE
+  ))
 })
 
 

@@ -3,14 +3,11 @@
 \name{print_screen}
 \alias{print_screen}
 \alias{to_screen}
-\alias{to_screen.huxtable}
 \title{Print a huxtable on screen}
 \usage{
 print_screen(ht, ...)
 
-to_screen(ht, ...)
-
-\method{to_screen}{huxtable}(
+to_screen(
   ht,
   min_width = ceiling(getOption("width")/6),
   max_width = getOption("width", Inf),
@@ -52,13 +49,15 @@ Screen display shows the following features:
 \item Text color, bold and italic (if the "crayon" package is installed)
 }
 
-Cell padding, widths and heights are not shown, nor are border styles.
+Cell padding, widths and heights are not shown.
 }
 \examples{
 bottom_border(jams)[1, 1:2] <- 1
 bold(jams)[1, 1:2] <- TRUE
-jams <- map_text_color(jams,
-      by_regex("berry" = "red"))
+jams <- map_text_color(
+  jams,
+  by_regex("berry" = "red")
+)
 
 print_screen(jams)
 }
@@ -67,6 +66,7 @@ Other printing functions:
 \code{\link{print_html}()},
 \code{\link{print_latex}()},
 \code{\link{print_md}()},
-\code{\link{print_rtf}()}
+\code{\link{print_rtf}()},
+\code{\link{print_typst}()}
 }
 \concept{printing functions}

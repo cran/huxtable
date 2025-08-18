@@ -1,5 +1,3 @@
-
-
 #' @import assertthat
 NULL
 
@@ -19,8 +17,10 @@ NULL
 #' @export
 #'
 #' @examples
-#' jams <- add_footnote(jams,
-#'       "* subject to availability")
+#' jams <- add_footnote(
+#'   jams,
+#'   "* subject to availability"
+#' )
 #' jams
 add_footnote <- function(ht, text, border = 0.8, number_format = NA, ...) {
   nr <- nrow(ht) + 1
@@ -31,9 +31,9 @@ add_footnote <- function(ht, text, border = 0.8, number_format = NA, ...) {
   ht <- set_left_border(ht, nr, 1, 0)
   ht <- set_right_border(ht, nr, 1, 0)
   ht <- set_bottom_border(ht, nr, 1, 0)
-  if (! is.null(border)) ht <- set_top_border(ht, nr, everywhere, border)
+  if (!is.null(border)) ht <- set_top_border(ht, nr, everywhere, border)
   wrap(ht)[nr, 1] <- TRUE
-  if (! missing(...)) ht <- set_cell_properties(ht, nr, 1, ...)
+  if (!missing(...)) ht <- set_cell_properties(ht, nr, 1, ...)
   ht <- set_number_format(ht, nr, 1, number_format)
 
   ht
@@ -43,10 +43,10 @@ add_footnote <- function(ht, text, border = 0.8, number_format = NA, ...) {
 
 #' Escape text for various formats
 #'
-#' This escapes a string for LaTeX, HTML or RTF.
+#' This escapes a string for LaTeX, HTML, Typst or RTF.
 #'
 #' @param str A character object.
-#' @param type `"latex"`, `"html"` or `"rtf"`.
+#' @param type `"latex"`, `"html"`, `"typst"` or `"rtf"`.
 #'
 #' @return The sanitized character object.
 #'
@@ -58,7 +58,7 @@ add_footnote <- function(ht, text, border = 0.8, number_format = NA, ...) {
 #' @examples
 #' txt <- "Make $$$ with us"
 #' sanitize(txt, type = "latex")
-sanitize <- function (str, type = c("latex", "html", "rtf")) {
+sanitize <- function(str, type = c("latex", "html", "typst", "rtf")) {
   type <- match.arg(type)
   result <- str
 
@@ -78,18 +78,27 @@ sanitize <- function (str, type = c("latex", "html", "rtf")) {
     result <- gsub("^", "\\textasciicircum ", result, fixed = TRUE)
     result <- gsub("~", "\\~{}", result, fixed = TRUE)
     result <- gsub("SANITIZE.BACKSLASH", "$\\backslash$",
-                result, fixed = TRUE)
-  }
-  else if (type == "html"){
-    result <- gsub("&",  "&amp;", result, fixed = TRUE)
-    result <- gsub(">",  "&gt;",  result, fixed = TRUE)
-    result <- gsub("<",  "&lt;",  result, fixed = TRUE)
-    result <- gsub("\n", "<br>",  result, fixed = TRUE)
+      result,
+      fixed = TRUE
+    )
+  } else if (type == "html") {
+    result <- gsub("&", "&amp;", result, fixed = TRUE)
+    result <- gsub(">", "&gt;", result, fixed = TRUE)
+    result <- gsub("<", "&lt;", result, fixed = TRUE)
+    result <- gsub("\n", "<br>", result, fixed = TRUE)
   } else if (type == "rtf") {
-    result <- gsub("\\", "\\\\",   result, fixed = TRUE)
-    result <- gsub("{",  "\\{",    result, fixed = TRUE)
-    result <- gsub("}",  "\\}",    result, fixed = TRUE)
+    result <- gsub("\\", "\\\\", result, fixed = TRUE)
+    result <- gsub("{", "\\{", result, fixed = TRUE)
+    result <- gsub("}", "\\}", result, fixed = TRUE)
     result <- gsub("\n", "\\line ", result, fixed = TRUE)
+  } else if (type == "typst") {
+    # There is a reason why this one has to come first!!!
+    result <- gsub("\\", "\\\\", result, fixed = TRUE)
+    to_escape <- c("#", "[", "]", "*", "$", "_", "`", "<", ">", "=", "@", "-", "+", "/")
+    for (char in to_escape) {
+      escaped <- paste0("\\", char)
+      result <- gsub(char, escaped, result, fixed = TRUE)
+    }
   }
 
   return(result)
@@ -123,7 +132,7 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
   escape_contents(mondrian) <- FALSE
   align(mondrian) <- "centre"
   font(mondrian) <- "DejaVu Sans"
-  if (latex && ! getOption("huxtable.latex_use_fontspec", FALSE)) {
+  if (latex && !getOption("huxtable.latex_use_fontspec", FALSE)) {
     font(mondrian) <- "cmss"
   }
   mondrian <- set_all_borders(mondrian, if (html) 2 else 1.2)
@@ -136,17 +145,19 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
   bold(mondrian)[h_square] <- TRUE
 
   colspan_ok <- setdiff(1:30, letter_squares - 6)
-  colspan2 <- rep(- 6, 2)
+  colspan2 <- rep(-6, 2)
   for (i in 1:2) {
     colspan2[i] <- sample(colspan_ok, 1)
-    colspan_ok  <- setdiff(colspan_ok, c(colspan2 - 6, colspan2 + 6))
+    colspan_ok <- setdiff(colspan_ok, c(colspan2 - 6, colspan2 + 6))
   }
 
   # -7 to avoid being top-left of any letter_squares (as we may get 2x2 cells)
   # also avoid breaking colspans
-  rowspan_ok <- setdiff(1:36, c(1:6 * 6, letter_squares - 1, letter_squares - 7, colspan2 - 1,
-        colspan2 + 5, colspan2 + 6, colspan2))
-  rowspan2 <- rep(- 1, 3)
+  rowspan_ok <- setdiff(1:36, c(
+    1:6 * 6, letter_squares - 1, letter_squares - 7, colspan2 - 1,
+    colspan2 + 5, colspan2 + 6, colspan2
+  ))
+  rowspan2 <- rep(-1, 3)
   for (i in 1:3) {
     rowspan2[i] <- sample(rowspan_ok, 1)
     rowspan_ok <- setdiff(rowspan_ok, c(rowspan2 - 1, rowspan2 + 1))
@@ -157,9 +168,9 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
 
   if (html) {
     mondrian <- set_all_padding(mondrian, 2)
-    width(mondrian)  <- "120pt"
+    width(mondrian) <- "120pt"
     height(mondrian) <- "120pt"
-    col_width(mondrian)  <- "20pt"
+    col_width(mondrian) <- "20pt"
     row_height(mondrian) <- "20pt"
   }
   if (latex) {
@@ -185,8 +196,10 @@ hux_logo <- function(latex = FALSE, html = FALSE) {
 #'   `options("huxtable.knitr_output_format")` in [huxtable-options]
 #' @examples
 #' \dontrun{
-#'   # to print LaTeX output:
-#'   options(huxtable.print = print_latex)
+#' # to print LaTeX output:
+#' options(huxtable.print = print_latex)
+#' # to print Typst output:
+#' options(huxtable.print = print_typst)
 #' }
 print.huxtable <- function(x, ...) {
   meth <- getOption("huxtable.print", default = print_screen)
@@ -197,7 +210,7 @@ print.huxtable <- function(x, ...) {
 
 
 #' @rdname print.huxtable
-#' @param output Output format. One of `"html"`, `"latex"`, `"md"`, `"screen"` or `"rtf"`.
+#' @param output Output format. One of `"html"`, `"latex"`, `"md"`, `"screen"`, `"rtf"` or `"typst"`.
 #'
 #' @return `format` returns a string representation from [to_latex()], [to_html()] etc.
 #' @export
@@ -206,7 +219,8 @@ print.huxtable <- function(x, ...) {
 #'
 #' format(jams, output = "screen")
 #' format(jams, output = "md")
-format.huxtable <- function(x, ..., output = c("latex", "html", "md", "screen", "rtf")) {
+#' format(jams, output = "typst")
+format.huxtable <- function(x, ..., output = c("latex", "html", "md", "screen", "rtf", "typst")) {
   output <- match.arg(output)
 
   fn <- paste0("to_", output)

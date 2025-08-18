@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 5.6.0
+Version: 5.7.0
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -23,9 +23,9 @@ Imports: assertthat, base64enc, commonmark, fansi, generics, glue,
         1.2.0), tidyselect, utils, xml2
 Suggests: AER, bookdown, broom (>= 0.5.1), broom.mixed, covr, crayon,
         devtools, dplyr (>= 0.7.0), flextable (>= 0.6.9), ftExtra (>=
-        0.0.2), ggplot2, httr, knitr, lme4, lmtest, nlme, nnet,
+        0.0.2), ggplot2, httr, knitr, lme4, lmtest, lintr, nlme, nnet,
         officer, openxlsx, psych, quarto, R.rsp, rmarkdown, sandwich,
-        scales, testthat, tibble, tinytex
+        scales, styler, testthat, tibble, tinytex, W3CMarkupValidator
 SystemRequirements: LaTeX packages: adjustbox, array, calc, caption,
         colortbl, fontspec, graphicx, hhline, hyperref, multirow,
         siunitx, tabularx, threeparttable, ulem, wrapfig
@@ -36,6 +36,6 @@ RoxygenNote: 7.3.2
 Depends: R (>= 2.10)
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2025-03-05 07:43:46 UTC; davidhugh-jones
+Packaged: 2025-08-18 14:03:36 UTC; davidhugh-jones
 Repository: CRAN
-Date/Publication: 2025-03-05 13:20:12 UTC
+Date/Publication: 2025-08-18 19:00:09 UTC

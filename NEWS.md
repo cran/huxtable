@@ -1,3 +1,24 @@
+# huxtable 5.7.0
+
+## Breaking changes
+
+* Functions are no longer generic, so you can't subclass a huxtable object.
+  AFAIK nobody has ever done this; if I'm wrong, please tell me.
+* Reworked internals, with the help of OpenAI Codex.
+
+## Other changes
+
+* HTML tables now wrap header rows in `<thead>` (using `<th>` cells) and
+  body rows in `<tbody>` when header rows are at the top of the table.
+* Added Typst export via `to_typst()` and `print_typst()`. Quarto integration
+  is available as well as `quick_typst()`, `quick_typst_pdf()`, `quick_typst_png()`, and
+  `quick_typst_svg()` functions.
+* HTML output now uses CSS classes with a shared `<style>` block instead of
+  long inline styles.
+* Added `as_html()` for obtaining table as `htmltools` tags.
+* `to_screen()` now displays double, dashed and dotted border styles.
+
+
 # huxtable 5.6.0
 
 ## Breaking changes
@@ -11,8 +32,8 @@
   Thanks @ceresek.
 * You can now add multiple huxtables to the same Excel worksheet in
   `as_Workbook()`. Suggestion by @oobd.
-  
-  
+
+
 # huxtable 5.5.7
 
 * Bugfix: fix quarto referencing in quarto 1.5

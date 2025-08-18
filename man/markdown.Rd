@@ -8,26 +8,23 @@
 \title{Interpret cell content as markdown}
 \usage{
 markdown(ht)
+
 markdown(ht) <- value
+
 set_markdown(ht, row, col, value = TRUE)
+
 map_markdown(ht, row, col, fn)
 }
 \arguments{
 \item{ht}{A huxtable.}
+
+\item{value}{A logical vector or matrix. Set to \code{NA} to reset to the default, which is \code{FALSE}.}
 
 \item{row}{A row specifier. See \link{rowspecs} for details.}
 
 \item{col}{An optional column specifier.}
 
 \item{fn}{A mapping function. See \link{mapping-functions} for details.}
-
-\item{value}{A logical vector or matrix.
-
-Set to \code{NA} to reset to the default, which is \code{FALSE}.}
-}
-\value{
-\code{markdown()} returns the \code{markdown} property.
-\code{set_markdown()} returns the modified huxtable.
 }
 \description{
 Cells where the markdown property is \code{TRUE} will be interpreted as
@@ -53,6 +50,7 @@ There are some quirks:
 \item Strikethrough will probably not work in Word.
 \item To make lists work in LaTeX, set \code{\link[=width]{width()}} and ensure \code{\link[=wrap]{wrap()}} is \code{TRUE}.
 \item Inline images in RTF work using the INCLUDEPICTURE field type.
+\item Only local images (not urls) work in typst.
 }
 
 If you try to use markdown tables within a table cell, then seek psychiatric
@@ -67,7 +65,6 @@ TeX or whatever.
 }
 
 \examples{
-
 jams[3, 2] <- "~2.10~ **Sale!** 1.50"
 set_markdown(jams, 3, 2)
 

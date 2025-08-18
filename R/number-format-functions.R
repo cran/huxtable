@@ -1,10 +1,11 @@
-
-
+#' Description for `fmt_` functions
+#'
 #' @description
 #' `fmt_` functions are designed to work with [number_format()].
 #'
 #' @return An object you can pass into [number_format()].
 #' @name fmt-numbers
+#' @keywords internal
 NULL
 
 #' Format numbers as percent
@@ -21,13 +22,17 @@ NULL
 #'
 #' @examples
 #'
-#' jams$Sugar <- c("Sugar content",
-#'       0.4, 0.35, 0.45)
-#' set_number_format(jams, -1, "Sugar",
-#'       fmt_percent(1))
+#' jams$Sugar <- c(
+#'   "Sugar content",
+#'   0.4, 0.35, 0.45
+#' )
+#' set_number_format(
+#'   jams, -1, "Sugar",
+#'   fmt_percent(1)
+#' )
 #'
-fmt_percent <- function (digits = 1, format = "f", ...) {
-  list(function (x) {
+fmt_percent <- function(digits = 1, format = "f", ...) {
+  list(function(x) {
     paste0(formatC(round(x * 100, digits), format = format, ..., digits = digits), "%")
   })
 }
@@ -45,13 +50,17 @@ fmt_percent <- function (digits = 1, format = "f", ...) {
 #'
 #' @examples
 #'
-#' jams$Sales <- c("Sales", 35000,
-#'       55500, 20000)
-#' set_number_format(jams, -1, "Sales",
-#'       fmt_pretty())
+#' jams$Sales <- c(
+#'   "Sales", 35000,
+#'   55500, 20000
+#' )
+#' set_number_format(
+#'   jams, -1, "Sales",
+#'   fmt_pretty()
+#' )
 #'
-fmt_pretty <- function (big.mark = ",", ..., scientific = FALSE) {
-  list(function (x) {
+fmt_pretty <- function(big.mark = ",", ..., scientific = FALSE) {
+  list(function(x) {
     prettyNum(x, big.mark = big.mark, scientific = scientific, ...)
   })
 }

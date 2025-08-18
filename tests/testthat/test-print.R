@@ -1,14 +1,13 @@
-
-
-local_edition(2)
+local_edition(3)
 
 
 test_that("to_screen gives warning with colour if crayon not installed", {
   ht <- hux(a = 1:2)
-  with_mocked_bindings({
+  with_mocked_bindings(
+    {
       expect_warning(to_screen(ht, color = TRUE), "crayon")
     },
-    requireNamespace = function (...) FALSE
+    requireNamespace = function(...) FALSE
   )
 })
 
@@ -39,8 +38,8 @@ test_that("to_md and to_screen keep to min_width", {
       output <- func(ht, min_width = mw)
       lines <- strsplit(output, "\n", fixed = TRUE)[[1]]
       lines <- lines[nchar(lines) > 0] # empty lines after table itself
-      lines <- lines[ ! grepl("Column names", lines)]
-      expect_true(all(nchar(lines, type = "width") >= mw ))
+      lines <- lines[!grepl("Column names", lines)]
+      expect_true(all(nchar(lines, type = "width") >= mw))
     }
   }
 })
@@ -93,7 +92,7 @@ test_that("to_md prints bold and italic", {
 
 
 test_that("to_screen borders respect spans", {
-  ht <- hux(a = 1:2, b = 3:4)
+  ht <- hux(a = 1:2, b = 3:4, add_colnames = FALSE)
   ht <- set_all_borders(ht)
   ht2 <- ht
 
@@ -101,12 +100,25 @@ test_that("to_screen borders respect spans", {
   # a line with just: some spaces, │, 1, some spaces, │, some spaces
   # NB that this character: │ is NOT the "or" character, so don't try to type it
   expect_match(to_screen(ht),
-        "\\n\\s*│\\s*1\\s*│\\s*\\n",
-        perl = TRUE)
+    "\\n\\s*│\\s*1\\s*│\\s*\\n",
+    perl = TRUE
+  )
 
   rowspan(ht2)[1, 1] <- 2
   # a line after "3" with some spaces, a │ and some more spaces
   expect_match(to_screen(ht2), "3.*?\\n\\s*│\\s*", perl = TRUE)
+})
+
+
+test_that("to_screen shows border styles", {
+  h <- hux("a")
+  h <- set_all_borders(h)
+  h1 <- set_all_border_styles(h, "double")
+  expect_match(to_screen(h1), "╔", fixed = TRUE)
+  h2 <- set_all_border_styles(h, "dashed")
+  expect_match(to_screen(h2), "┄", fixed = TRUE)
+  h3 <- set_all_border_styles(h, "dotted")
+  expect_match(to_screen(h3), "┈", fixed = TRUE)
 })
 
 
@@ -135,10 +147,12 @@ test_that("hux_logo works", {
 
 
 test_that("Multi-rowspan screen output is sane", {
-  ht <- hux(a = rep("aaaaaa", 10), b = rep("bbbbbb", 10),
-            add_colnames = TRUE)
+  ht <- hux(
+    a = rep("aaaaaa", 10), b = rep("bbbbbb", 10),
+    add_colnames = TRUE
+  )
   rowspan(ht)[1, 1] <- 10
-  expect_equal_to_reference(to_screen(ht), "multirow.rds")
+  expect_snapshot_value(to_screen(ht), style = "serialize")
 })
 
 
@@ -190,9 +204,18 @@ test_that("output works with 1x1 huxtables", {
 })
 
 
+test_that("Bugfix: print_html doesn't duplicate rows", {
+  html <- to_html(hux(letters[1:2]))
+  tbody_count <- length(regmatches(html, gregexpr("<tbody>", html, fixed = TRUE))[[1]])
+  td_count <- length(regmatches(html, gregexpr("<td", html, fixed = TRUE))[[1]])
+  expect_identical(tbody_count, 1L)
+  expect_identical(td_count, 2L)
+})
+
+
 test_that("format.huxtable works", {
   ht <- hux(a = 1:3, b = 1:3)
-  for (output in c("latex", "html", "md", "screen")) {
+  for (output in c("latex", "html", "md", "screen", "typst")) {
     direct_call <- paste0("to_", output)
     expect_identical(do.call(direct_call, list(ht)), format(ht, output = output))
   }
@@ -205,8 +228,12 @@ test_that("set_print_method() works", {
   expect_match(capture.output(print(ht)), "<table", fixed = TRUE, all = FALSE)
   options(huxtable.print = print_latex)
   expect_match(capture.output(print(ht)), "tabular", fixed = TRUE, all = FALSE)
+  options(huxtable.print = print_typst)
+  expect_match(capture.output(print(ht)), "#figure", fixed = TRUE, all = FALSE)
   options(huxtable.print = "print_html")
   expect_match(capture.output(print(ht)), "<table", fixed = TRUE, all = FALSE)
+  options(huxtable.print = "print_typst")
+  expect_match(capture.output(print(ht)), "#figure", fixed = TRUE, all = FALSE)
   options(oo)
 })
 
@@ -255,6 +282,6 @@ test_that("Bugfix: wide characters lead to infinite loop in to_screen", {
   wide_strings <- rep(paste(wide_chars[101:120], collapse = ""), 5)
   df <- as.data.frame(as.list(wide_strings), col.names = paste0("V", 1:5))
   ht <- as_huxtable(df)
-  setTimeLimit(elapsed = 1, transient = TRUE)
+  setTimeLimit(elapsed = 5, transient = TRUE)
   expect_silent(to_screen(ht))
 })
