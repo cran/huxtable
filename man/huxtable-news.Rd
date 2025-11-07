@@ -7,6 +7,17 @@
 \description{
 This help page simply gives the contents of NEWS.md.
 }
+\section{huxtable 5.8.0}{
+\subsection{Other changes}{
+\itemize{
+\item Redesigned \code{hux_logo()} function to spell out “huxtable” with
+customizable layout, fonts, and colors. Added \code{compact} and \code{latex}
+parameters for different output formats.
+\item Workaround for a bug in stringr 1.6.0.
+}
+}
+}
+
 \section{huxtable 5.7.0}{
 \subsection{Breaking changes}{
 \itemize{

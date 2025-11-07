@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 5.7.0
+Version: 5.8.0
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -10,11 +10,11 @@ Authors@R:
 Author: David Hugh-Jones [aut, cre]
 Maintainer: David Hugh-Jones <davidhughjones@gmail.com>
 Description: Creates styled tables for data presentation. Export to HTML, LaTeX,
-  RTF, 'Word', 'Excel', and 'PowerPoint'. Simple, modern interface to manipulate 
-  borders, size, position, captions, colours, text styles and number formatting.
-  Table cells can span multiple rows and/or columns.
-  Includes  a 'huxreg' function for creation of regression tables, and 'quick_*' 
-  one-liners to print data to a new document.
+  RTF, 'Word', 'Excel', 'PowerPoint', 'typst', SVG and PNG. Simple, modern 
+  interface to manipulate borders, size, position, captions, colours, 
+  text styles and number formatting. Table cells can span multiple rows and/or columns.
+  Includes  a 'huxreg' function to create regression tables, and 'quick_*' 
+  one-liners to print tables to a new document.
 License: MIT + file LICENSE
 URL: https://hughjonesd.github.io/huxtable/
 BugReports: https://github.com/hughjonesd/huxtable/issues
@@ -24,18 +24,18 @@ Imports: assertthat, base64enc, commonmark, fansi, generics, glue,
 Suggests: AER, bookdown, broom (>= 0.5.1), broom.mixed, covr, crayon,
         devtools, dplyr (>= 0.7.0), flextable (>= 0.6.9), ftExtra (>=
         0.0.2), ggplot2, httr, knitr, lme4, lmtest, lintr, nlme, nnet,
-        officer, openxlsx, psych, quarto, R.rsp, rmarkdown, sandwich,
-        scales, styler, testthat, tibble, tinytex, W3CMarkupValidator
+        officer, openxlsx, psych, quarto, rmarkdown, sandwich, scales,
+        styler, testthat, tibble, tinytex
 SystemRequirements: LaTeX packages: adjustbox, array, calc, caption,
         colortbl, fontspec, graphicx, hhline, hyperref, multirow,
         siunitx, tabularx, threeparttable, ulem, wrapfig
-VignetteBuilder: R.rsp
+VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
 Depends: R (>= 2.10)
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2025-08-18 14:03:36 UTC; davidhugh-jones
+Packaged: 2025-11-06 16:42:19 UTC; davidhugh-jones
 Repository: CRAN
-Date/Publication: 2025-08-18 19:00:09 UTC
+Date/Publication: 2025-11-07 06:10:36 UTC
