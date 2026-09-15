@@ -116,7 +116,7 @@ sides <- c("left_", "right_", "top_", "bottom_")
 props <- list()
 props[["Cell Text"]] <- sort(c("text_color", "wrap", "bold", "italic", "font",
       "font_size", "na_string", "escape_contents", "markdown", "number_format",
-      "rotation"))
+      "rotation", "cell_note"))
 
 props[["Cell"]] <- sort(c(
         "align", "valign", "rowspan", "colspan", "background_color", 
@@ -129,8 +129,8 @@ props[["Cell"]] <- sort(c(
 props[["Row"]]    <- c("row_height", "header_rows")
 props[["Column"]] <- c("col_width", "header_cols")
 props[["Table"]]  <- sort(c("width", "height", "position", "caption", 
-  "caption_pos", "caption_width", "tabular_environment", "table_environment", 
-  "label", "latex_float"))
+  "caption_pos", "caption_width", "table_notes", "note_symbol", "breakable", "tabular_environment",
+  "table_environment", "label", "latex_float"))
 
 maxl <- max(sapply(props, length))
 props <- lapply(props, function(x) c(x, rep("", maxl - length(x))))

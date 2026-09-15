@@ -18,8 +18,9 @@ application. Or you can try \code{\link[=install_latex_dependencies]{install_lat
 
 In some rmarkdown and LaTeX formats, you also need to add LaTeX dependencies
 manually. Run \code{\link[=report_latex_dependencies]{report_latex_dependencies()}} and add
-the output to your LaTeX preamble, or in Rmarkdown formats, add it to the
-rmarkdown header like this:
+the output to your LaTeX preamble. Also add the command definitions printed
+by \code{cat(latex_commands(), sep = "\\\\n")}. In Rmarkdown formats, add
+the package dependencies to the rmarkdown header like this:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{header-includes:
   - \\usepackage\{array\}
@@ -77,32 +78,21 @@ set the label using \code{\link[=label]{label()}}, then in markdown text do e.g.
 }\if{html}{\out{</div>}}
 \item How do I refer to tables in quarto?
 
-In quarto versions up to 1.3, or when compiling to HTML and
-other formats, simply use quarto cell labels
-like \code{label: tbl-foo} and refer to them via \verb{@tbl-foo}.
+Set the Quarto \code{label} and \code{tbl-cap} cell options, then use Quarto's
+\verb{@tbl-foo} syntax. This works across Quarto output formats:
 
-In quarto versions 1.4 and above, when compiling to PDF,
-quarto cross-referencing no longer works.
-Instead, set labels within huxtable using \code{\link[=label]{label()}} or
-\code{\link[=set_label]{set_label()}} and refer to them with TeX-only referencing using
-\verb{\\ref\{label\}}. You must also set a caption.
-
-Here's an example:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{A reference to Table \\ref\{tbl-jams\}.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{See @tbl-jams.
 
 ```\{r\}
-label(jams) <- "tbl-jams"
-caption(jams) <- "Some jams"
+#| label: tbl-jams
+#| tbl-cap: "Some jams"
 jams
 ```
 }\if{html}{\out{</div>}}
-}
 
-If you really need cross-referencing for both PDF and other output
-formats, either downgrade to quarto 1.3, use a different package,
-or write code to emit appropriate references.
-\itemize{
+Quarto captions and table labels override values set with \code{\link[=caption]{caption()}} and
+\code{\link[=label]{label()}}. Huxtable warns if both mechanisms explicitly set the same
+property.
 \item I called \code{library(huxtable)} and now my \code{data.table} objects are getting
 printed!
 
@@ -149,5 +139,10 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: David Hugh-Jones \email{davidhughjones@gmail.com}
+
+Authors:
+\itemize{
+  \item David Hugh-Jones \email{davidhughjones@gmail.com}
+}
 
 }

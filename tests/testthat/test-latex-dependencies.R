@@ -21,6 +21,17 @@ test_that("install/report_latex_dependencies", {
     as_string = TRUE
   ))
   expect_match(package_str, "\\\\usepackage\\{array\\}")
+  expect_no_match(package_str, "\\\\providecommand\\{\\\\huxb\\}")
+})
+
+
+test_that("latex_commands returns required command definitions", {
+  commands <- latex_commands()
+
+  expect_true(any(grepl("\\providecommand{\\huxb}", commands, fixed = TRUE)))
+  expect_true(any(grepl("\\providecommand{\\huxvb}", commands, fixed = TRUE)))
+  expect_true(any(grepl("\\providecommand{\\huxtpad}", commands, fixed = TRUE)))
+  expect_true(any(grepl("\\providecommand{\\huxbpad}", commands, fixed = TRUE)))
 })
 
 

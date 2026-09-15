@@ -2,6 +2,28 @@
 NULL
 
 
+#' LaTeX commands used by huxtables
+#'
+#' Returns the LaTeX command definitions used by huxtables. You can add these
+#' to the preamble of a LaTeX document alongside the output from
+#' [report_latex_dependencies()].
+#'
+#' @return A character vector of LaTeX command definitions.
+#' @export
+#' @seealso [report_latex_dependencies()]
+#'
+#' @examples
+#' cat(latex_commands(), sep = "\n")
+latex_commands <- function() {
+  c(
+    "\\providecommand{\\huxb}[2]{\\arrayrulecolor[RGB]{#1}\\global\\arrayrulewidth=#2pt}",
+    "\\providecommand{\\huxvb}[2]{\\color[RGB]{#1}\\vrule width #2pt}",
+    "\\providecommand{\\huxtpad}[1]{\\rule{0pt}{#1}}",
+    "\\providecommand{\\huxbpad}[1]{\\rule[-#1]{0pt}{#1}}"
+  )
+}
+
+
 huxtable_latex_dependencies <- list(
   list(name = "array"),
   list(name = "caption"),
@@ -13,7 +35,9 @@ huxtable_latex_dependencies <- list(
   list(name = "hhline"),
   list(name = "calc"),
   list(name = "tabularx"),
+  list(name = "longtable"),
   list(name = "threeparttable"),
+  list(name = "threeparttablex"),
   list(name = "wrapfig"),
   list(name = "adjustbox"),
   list(name = "hyperref")
@@ -33,6 +57,7 @@ huxtable_latex_dependencies <- list(
 #'   `"\\\\usepackage\\{...\\}"` statements; otherwise it returns a list of
 #'   `rmarkdown::latex_dependency` objects, invisibly.
 #' @export
+#' @seealso [latex_commands()]
 #'
 #' @examples
 #' report_latex_dependencies()
@@ -170,7 +195,7 @@ install_latex_dependencies <- function() {
 tlmgr_packages <- function() {
   ld <- report_latex_dependencies(quiet = TRUE)
   ld <- vapply(ld, `[[`, character(1), "name")
-  ld <- setdiff(ld, c("graphicx", "calc", "array", "hhline", "tabularx"))
+  ld <- setdiff(ld, c("graphicx", "calc", "array", "hhline", "tabularx", "longtable"))
   ld <- c(ld, "tools")
 
   return(ld)

@@ -9,16 +9,15 @@ default_table_width_unit <- "\\textwidth"
 
 #' @export
 #' @rdname to_latex
-print_latex <- function(ht, ...) {
-  cat(to_latex(ht, ...))
+print_latex <- function(ht, dependencies = TRUE, ...) {
+  cat(to_latex(ht, ..., dependencies = dependencies))
 }
 
 
 #' Create LaTeX representing a huxtable
 #'
-#' @param ht A huxtable.
+#' @inheritParams to_html
 #' @param tabular_only Return only the LaTeX tabular, not the surrounding float.
-#' @param ... Arguments passed to methods.
 #'
 #' @details
 #' If we appear to be in a rmarkdown document with the Pandoc markdown `+raw_attribute` extension
@@ -37,20 +36,41 @@ print_latex <- function(ht, ...) {
 #'   b = letters[1:3]
 #' )
 #' print_latex(ht)
-to_latex <- function(ht, tabular_only = FALSE, ...) {
-  assert_that(is.flag(tabular_only))
-  tabular <- build_tabular(ht)
-  commands <- "
-  \\providecommand{\\huxb}[2]{\\arrayrulecolor[RGB]{#1}\\global\\arrayrulewidth=#2pt}
-  \\providecommand{\\huxvb}[2]{\\color[RGB]{#1}\\vrule width #2pt}
-  \\providecommand{\\huxtpad}[1]{\\rule{0pt}{#1}}
-  \\providecommand{\\huxbpad}[1]{\\rule[-#1]{0pt}{#1}}\n"
+to_latex <- function(ht, tabular_only = FALSE, dependencies = TRUE, ...) {
+  assert_that(is.flag(tabular_only), is.flag(dependencies))
+  if (breakable(ht)) {
+    if (!is.na(height(ht))) {
+      stop("Breakable LaTeX tables cannot have a fixed height.", call. = FALSE)
+    }
+    if (position(ht) %in% c("wrapleft", "wrapright")) {
+      stop("Breakable LaTeX tables cannot use a wrapping position.", call. = FALSE)
+    }
+
+  }
+
+  tabular <- build_tabular(ht, include_caption = !tabular_only)
+  if (!breakable(ht) && !is.na(table_background_color(ht))) {
+    bg <- format_color(table_background_color(ht))
+    tabular <- paste0(
+      "{\\setlength{\\fboxsep}{0pt}%\n",
+      "\\colorbox[RGB]{", bg, "}{", tabular, "}}"
+    )
+  }
+  commands <- if (dependencies) {
+    paste0("\n  ", paste(latex_commands(), collapse = "\n  "), "\n")
+  } else {
+    ""
+  }
 
   if (tabular_only) {
     return(maybe_markdown_fence(paste0(commands, tabular)))
   }
 
   tabular <- paste0("\\setlength{\\tabcolsep}{0pt}\n", tabular)
+
+  if (breakable(ht)) {
+    return(maybe_markdown_fence(paste0(commands, tabular)))
+  }
 
   resize_box <- if (is.na(height <- height(ht))) {
     c("", "")
@@ -86,13 +106,39 @@ to_latex <- function(ht, tabular_only = FALSE, ...) {
     right = c("\\begin{raggedleft}\n", "\\par\\end{raggedleft}\n")
   )
 
-  cap_top <- grepl("top", caption_pos(ht))
+  cap_top <- get_caption_vpos(ht) == "top"
   cap <- if (cap_top) c(cap, "") else c("", cap)
 
-  tpt <- c("\\begin{threeparttable}\n", "\n\\end{threeparttable}")
+  notes <- sanitize(table_notes(ht), "latex")
+  cell_notes <- resolve_cell_notes(ht)
+  note_items <- if (length(notes) > 0L) paste0("\\item[] ", notes) else character()
+  if (length(cell_notes$notes) > 0L) {
+    note_items <- c(
+      note_items,
+      paste0(
+        "\\item[", sanitize(cell_notes$markers, "latex"), "] ",
+        sanitize(cell_notes$notes, "latex")
+      )
+    )
+  }
+  notes_tex <- if (length(note_items) > 0L) {
+    paste0(
+      "\n\\begin{tablenotes}[flushleft]\n",
+      paste(note_items, collapse = "\n"),
+      "\n\\end{tablenotes}"
+    )
+  } else {
+    ""
+  }
+  tpt <- c(
+    "\\begin{threeparttable}\n",
+    paste0(notes_tex, "\n\\end{threeparttable}")
+  )
 
   res <- if (is.na(caption_width(ht))) {
     nest_strings(table_env, pos_text, tpt, cap, tabular)
+  } else if (length(note_items) > 0L) {
+    nest_strings(table_env, cap, pos_text, tpt, tabular)
   } else {
     nest_strings(table_env, cap, pos_text, tabular)
   }
@@ -102,14 +148,16 @@ to_latex <- function(ht, tabular_only = FALSE, ...) {
 }
 
 
-build_latex_caption <- function(ht, lab) {
-  lab <- make_label(ht)
-  cap_has_label <- FALSE
+build_latex_caption <- function(ht, longtable = FALSE) {
+  caption_data <- resolve_caption(ht, "latex")
+  lab <- caption_data$label
+  cap <- caption_data$text
 
-  if (is.na(cap <- make_caption(ht, lab, "latex"))) {
+  if (is.na(cap) && is.na(lab)) return("")
+
+  if (is.na(cap)) {
     cap <- ""
   } else {
-    cap_has_label <- !is.null(attr(cap, "has_label"))
     hpos <- get_caption_hpos(ht)
     cap_just <- switch(hpos,
       left   = "raggedright",
@@ -117,7 +165,7 @@ build_latex_caption <- function(ht, lab) {
       right  = "raggedleft"
     )
     cap_width <- caption_width(ht)
-    if (is.na(cap_width)) {
+    if (is.na(cap_width) || longtable) {
       cap_margins <- ""
     } else {
       if (!is.na(suppressWarnings(as.numeric(cap_width)))) {
@@ -138,9 +186,10 @@ build_latex_caption <- function(ht, lab) {
     )
   }
 
-  lab <- if (is.na(lab) || cap_has_label) "" else sprintf("\\label{%s}\n", lab)
+  lab <- if (is.na(lab) || caption_data$label_in_caption) "" else sprintf("\\label{%s}\n", lab)
   cap <- paste(cap, lab)
-  if (using_quarto(min_version = "1.4") &&
+  if (nzchar(trimws(cap)) &&
+    using_quarto(min_version = "1.4") &&
     getOption(
       "huxtable.knitr_output_format",
       guess_knitr_output_format()
@@ -155,7 +204,7 @@ build_latex_caption <- function(ht, lab) {
 }
 
 
-build_tabular <- function(ht) {
+build_tabular <- function(ht, include_caption = TRUE) {
   if (!check_positive_dims(ht)) {
     return("")
   }
@@ -175,7 +224,7 @@ build_tabular <- function(ht) {
 
   ## PREPARE INDICES -----------
   dc_pos_matrix <- as.matrix(display_cells[, c("display_row", "display_col")])
-  dc_map <- matrix(1:length(contents), nrow(ht), ncol(ht))
+  dc_map <- matrix(seq_along(contents), nrow(ht), ncol(ht))
   # dc_map gives the display cells corresponding to real cells, in as.vector(cell_contents) space
   dc_map <- c(dc_map[dc_pos_matrix])
   dc_idx <- !display_cells$shadowed
@@ -278,7 +327,11 @@ build_tabular <- function(ht) {
   ## inner_cell has padding, alignment, wrap and row_height TeX added
   ## inner_cell data comes from the 'display cell' at the top left of the display area
 
-  inner_cell_bldc <- clean_contents(ht, output_type = "latex")[bl_dc]
+  inner_cell_bldc <- clean_contents(
+    ht,
+    output_type = "latex",
+    include_cell_notes = include_caption
+  )[bl_dc]
   fs_bldc <- font_size(ht)[bl_dc]
   line_space_bldc <- round(fs_bldc * 1.2, 2)
   has_fs_bldc <- !is.na(fs_bldc)
@@ -500,10 +553,11 @@ build_tabular <- function(ht) {
     paste(row, "\\tabularnewline[-0.5pt]")
   })
 
-  table_body <- paste(content_rows, hhlines[-1], sep = "\n", collapse = "\n")
+  row_blocks <- paste(content_rows, hhlines[-1], sep = "\n")
+  table_body <- paste(row_blocks, collapse = "\n")
   table_body <- paste(hhlines[1], table_body, sep = "\n")
 
-  tenv <- tabular_environment(ht)
+  tenv <- if (breakable(ht)) "longtable" else tabular_environment(ht)
   if (is.na(tenv)) tenv <- if (is.na(width(ht))) "tabular" else "tabularx"
   tenv_tex <- paste0(c("\\begin{", "\\end{"), tenv, "}")
   width_spec <- if (tenv %in% c("tabularx", "tabular*", "tabulary")) {
@@ -523,7 +577,88 @@ build_tabular <- function(ht) {
   colspec_top <- paste0(colspec_top, collapse = " ")
   colspec_top <- sprintf("{%s}\n", colspec_top)
 
-  res <- paste0(tenv_tex[1], width_spec, colspec_top, table_body, tenv_tex[2])
+  if (breakable(ht)) {
+    pos <- c(left = "l", center = "c", right = "r")[[position(ht)]]
+    tenv_tex[1] <- sprintf("\\begin{longtable}[%s]", pos)
+    notes <- if (include_caption) sanitize(table_notes(ht), "latex") else character()
+    cell_notes <- if (include_caption) {
+      resolve_cell_notes(ht)
+    } else {
+      list(markers = character(), notes = character())
+    }
+    note_items <- if (length(notes) > 0L) paste0("\\item[] ", notes) else character()
+    if (length(cell_notes$notes) > 0L) {
+      note_items <- c(
+        note_items,
+        paste0(
+          "\\item[", sanitize(cell_notes$markers, "latex"), "] ",
+          sanitize(cell_notes$notes, "latex")
+        )
+      )
+    }
+    last_footer <- if (length(note_items) > 0L) {
+      "\\insertTableNotes\n\\endlastfoot"
+    } else {
+      ""
+    }
+
+    first_nonheader <- match(FALSE, header_rows(ht), nomatch = nrow(ht) + 1L)
+    header_count <- first_nonheader - 1L
+    if (header_count > 0L) {
+      header_body <- paste(c(hhlines[1], row_blocks[seq_len(header_count)]), collapse = "\n")
+      body_rows <- if (header_count < nrow(ht)) {
+        row_blocks[seq.int(header_count + 1L, nrow(ht))]
+      } else {
+        character()
+      }
+      table_body <- paste(
+        header_body,
+        "\\endfirsthead",
+        header_body,
+        "\\endhead",
+        last_footer,
+        paste(body_rows, collapse = "\n"),
+        sep = "\n"
+      )
+    } else if (nzchar(last_footer)) {
+      table_body <- paste(last_footer, table_body, sep = "\n")
+    }
+
+    cap <- if (include_caption) build_latex_caption(ht, longtable = TRUE) else ""
+    if (!nzchar(trimws(cap))) cap <- ""
+    if (!is.na(caption(ht)) && nzchar(cap)) {
+      cap <- paste0(cap, "\\tabularnewline\n")
+    }
+    if (nzchar(cap)) {
+      table_body <- if (get_caption_vpos(ht) == "top") {
+        paste(cap, table_body, sep = "\n")
+      } else {
+        paste(table_body, cap, sep = "\n")
+      }
+    }
+
+    cap_width <- caption_width(ht)
+    if (is.na(cap_width)) cap_width <- latex_table_width(ht)
+    if (is.na(cap_width)) cap_width <- "\\linewidth"
+    if (is.numeric(cap_width)) cap_width <- paste0(cap_width, "\\textwidth")
+
+    res <- paste0(
+      "{\n\\setlength{\\LTcapwidth}{", cap_width, "}\n",
+      tenv_tex[1], colspec_top, table_body, tenv_tex[2], "\n}"
+    )
+    if (length(note_items) > 0L) {
+      res <- paste0(
+        "\\begin{ThreePartTable}\n",
+        "\\begin{TableNotes}[flushleft]\n",
+        paste(note_items, collapse = "\n"),
+        "\n\\end{TableNotes}\n",
+        res,
+        "\n\\end{ThreePartTable}"
+      )
+    }
+  } else {
+    res <- paste0(tenv_tex[1], width_spec, colspec_top, table_body, tenv_tex[2])
+  }
   return(res)
 }
 

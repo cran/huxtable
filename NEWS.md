@@ -1,3 +1,38 @@
+# huxtable 6.0.1
+
+* Bugfix: huxtables printed in knitr documents now include their HTML styles or
+  LaTeX command definitions when there is no R Markdown dependency processor.
+  The new `latex_commands()` returns the required LaTeX definitions
+  for adding to a document preamble manually.
+
+# huxtable 6.0.0
+
+* This is the last update which will be released on CRAN. Future updates will 
+  be available on GitHub or via https://hughjonesd.r-universe.dev. The CRAN
+  version will still receive bugfixes in response to check failures.
+* New table property `breakable()` allows tables to break between rows across
+  pages. Breakable tables are implemented in LaTeX via the `longtable` package, 
+  meaning this is a new LaTeX package dependency.
+* Table notes. Use `add_table_note()` for notes beneath the table, and
+  `set_cell_note()` for notes associated with a particular cell. The old
+  `add_footnote()` mechanism, which simply added a table row, is soft-deprecated.
+  `threeparttablex` is a new LaTeX dependency for this.
+* New table property `table_background_color()` sets the background color of
+  a table.
+* Multiple huxtables printed in one knitr chunk now get unique
+  automatic labels like "chunk", "chunk-2", "chunk-3" etc.
+* The new `html_css()` returns default CSS for HTML tables.
+* In knitr/Rmarkdown/Quarto, HTML styles and LaTeX commands are now printed 
+  just once, instead of for every table. Outside those documents, `to_html()`, 
+  `print_html()`, `to_latex()` and `print_latex()` include these dependencies by 
+  default; use `dependencies = FALSE` to leave them out.
+* Quarto table captions and labels now override captions and labels set
+  directly on a huxtable.
+* Bugfix: `add_rownames()` should no longer add a 1 in the header row of a
+  data frame.
+* `as_Workbook()` is now much faster when adding many tables to an Excel
+  workbook. Thanks @lemonad for the report.
+  
 # huxtable 5.8.0
 
 ## Other changes
@@ -780,6 +815,3 @@ For example, the following code now does what you probably want:
 
 * Added a `NEWS.md` file to track changes to the package.
 * First CRAN release.
-
-
-

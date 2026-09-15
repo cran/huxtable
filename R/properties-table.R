@@ -168,6 +168,55 @@ set_width <- function(ht, value) {
 }
 
 
+#' Set the table background color
+#'
+#' `table_background_color()` sets a background color for the whole table.
+#' Individual [background_color()] values override the table background.
+#'
+#' Colors can be specified as described in [background_color()]. The default,
+#' `NA`, leaves the table background unset.
+#'
+#' Output formats handle table backgrounds differently:
+#'
+#' * HTML applies the color to the `<table>` element.
+#' * LaTeX wraps non-breakable tables in a zero-padding `\colorbox`.
+#'   Breakable LaTeX tables ignore the property because a `longtable` cannot be
+#'   placed inside a `\colorbox`.
+#' * Typst uses the table's `fill` setting. Individual cell fills override it.
+#' * RTF, Excel, Word and PowerPoint output apply the table color to
+#'   cells which do not have an individual background color.
+#' * On-screen output applies the color to the whole table area, including
+#'   borders. Individual cell backgrounds still override it.
+#' * Markdown output ignores the property.
+#'
+#' @inherit hux_prop_params params return
+#' @param value A string or `NA`. `r rd_default("table_background_color")`
+#'
+#' @family formatting functions
+#'
+#' @examples
+#' set_table_background_color(jams, "grey95")
+#'
+#' @name table_background_color
+NULL
+
+#' @rdname table_background_color
+#' @export
+table_background_color <- function(ht) prop_get(ht, "table_background_color")
+
+#' @rdname table_background_color
+#' @export
+`table_background_color<-` <- function(ht, value) {
+  prop_set_table(ht, value, "table_background_color", check_fun = is.string)
+}
+
+#' @rdname table_background_color
+#' @export
+set_table_background_color <- function(ht, value) {
+  prop_set_table(ht, value, "table_background_color", check_fun = is.string)
+}
+
+
 #' Set the table height
 #'
 #' `height()` sets the height of the entire table, while [row_height()] sets the
@@ -203,6 +252,42 @@ set_height <- function(ht, value) {
 }
 
 
+#' Allow a table to break across pages
+#'
+#' `breakable()` controls whether a table may break between rows across pages.
+#' Individual rows are kept together. It affects paged HTML, LaTeX, RTF, Typst,
+#' and Word output; other output formats ignore it.
+#'
+#' In LaTeX, breakable tables use the `longtable` environment and therefore
+#' require a one-column layout. They cannot have a fixed [height()] or use a
+#' wrapping [position()].
+#'
+#' @inherit hux_prop_params params return
+#' @param value Logical. `r rd_default("breakable")`
+#'
+#' @examples
+#' set_breakable(jams, TRUE)
+#'
+#' @name breakable
+NULL
+
+#' @rdname breakable
+#' @export
+breakable <- function(ht) prop_get(ht, "breakable")
+
+#' @rdname breakable
+#' @export
+`breakable<-` <- function(ht, value) {
+  prop_set_table(ht, value, "breakable", check_fun = is.flag)
+}
+
+#' @rdname breakable
+#' @export
+set_breakable <- function(ht, value) {
+  prop_set_table(ht, value, "breakable", check_fun = is.flag)
+}
+
+
 #' Set the table caption
 #'
 #' By default, captions are displayed above the table. You can change this
@@ -213,6 +298,10 @@ set_height <- function(ht, value) {
 #'
 #' @details
 #' Captions are not escaped. See the example for a workaround.
+#'
+#' Table captions set via the Quarto `tbl-cap` or `tbl-subcap` chunk options
+#' override captions set by this mechanism. A warning is issued if both are set.
+#'
 #' @family caption properties
 #'
 #' @examples
@@ -241,6 +330,136 @@ caption <- function(ht) prop_get(ht, "caption")
 #' @export
 set_caption <- function(ht, value) {
   prop_set_table(ht, value, "caption", check_fun = is.string)
+}
+
+
+#' Set notes beneath a table
+#'
+#' Table notes are stored separately from the table's cells. They do not change
+#' the number of rows in the huxtable. Each element of `value` is printed as a
+#' separate note beneath the table.
+#'
+#' Use `NA` or `NULL` to remove all table notes.
+#'
+#' @inherit hux_prop_params params
+#' @param value A character vector, or `NA`/`NULL` to remove all notes.
+#' @return `table_notes()` returns a character vector. The replacement function,
+#'   `set_table_notes()` and `add_table_note()` return the modified huxtable.
+#'
+#' @details
+#' Table notes are plain text. Huxtable escapes them as required for each output
+#' format.
+#'
+#' HTML, LaTeX, Typst and Word output use their native table-footer or table-note
+#' structures. RTF, Markdown and screen output print notes immediately after the
+#' table. Excel writes each note to a merged row below the table. Breakable LaTeX
+#' tables use the `threeparttablex` package.
+#'
+#' Use [cell_note()] to add notes referenced from individual cells. Referenced
+#' cell notes are printed after unreferenced table notes.
+#'
+#' [add_footnote()] is retained for compatibility only. It adds an ordinary,
+#' full-width row to the table and is soft-deprecated in favour of
+#' `add_table_note()`.
+#'
+#' @examples
+#' ht <- set_table_notes(jams, "Note: Prices exclude delivery.")
+#' ht <- add_table_note(ht, "Source: The jam growers' association.")
+#' table_notes(ht)
+#' table_notes(ht) <- NULL
+#'
+#' @name table_notes
+NULL
+
+#' @rdname table_notes
+#' @export
+table_notes <- function(ht) {
+  notes <- prop_get(ht, "table_notes") %||% character()
+  notes[!is.na(notes)]
+}
+
+#' @rdname table_notes
+#' @export
+`table_notes<-` <- function(ht, value) {
+  # Table properties use a scalar NA as their internal empty value. Normalize
+  # zero-length inputs because validate_prop() cannot replace them with a default.
+  if (is.null(value) || length(value) == 0L || all(is.na(value))) {
+    value <- NA_character_
+  }
+  prop_set_table(ht, value, "table_notes",
+    check_fun = function(x) is.character(x) && !anyNA(x)
+  )
+}
+
+#' @rdname table_notes
+#' @export
+set_table_notes <- function(ht, value) {
+  # See the replacement method above for why empty input is normalized here.
+  if (is.null(value) || length(value) == 0L || all(is.na(value))) {
+    value <- NA_character_
+  }
+  prop_set_table(ht, value, "table_notes",
+    check_fun = function(x) is.character(x) && !anyNA(x)
+  )
+}
+
+#' @rdname table_notes
+#' @export
+add_table_note <- function(ht, value) {
+  stopifnot(is.character(value), !anyNA(value))
+  table_notes(ht) <- c(table_notes(ht), value)
+  ht
+}
+
+
+#' Set the symbols used for cell note references
+#'
+#' `note_symbol` is a table property controlling marks for [cell_note()]. The
+#' marks themselves are assigned when a huxtable is rendered rather than stored
+#' in its cells, so subsetting does not modify cell-note metadata.
+#'
+#' @inherit hux_prop_params params
+#' @param value One of `"numeric"`, `"roman"` or `"alphabetic"`, or a
+#'   non-empty string whose individual characters form a custom symbol
+#'   sequence. `r rd_default("note_symbol")`
+#' @return `note_symbol()` returns a character string. The replacement function
+#'   and `set_note_symbol()` return the modified huxtable.
+#'
+#' @details
+#' Numeric symbols are `1`, `2`, ...; Roman symbols are `i`, `ii`, ...; and
+#' alphabetic symbols are `a`, `b`, ..., `z`, `aa`, .... Custom strings are
+#' treated like a custom alphabet. For example, `"+*"` produces `+`, `*`,
+#' `++`, `+*`, `*+`, ....
+#'
+#' Custom Unicode symbols require support from the output format's font and
+#' rendering engine.
+#'
+#' @examples
+#' ht <- set_cell_note(jams, 1, 1, "Price estimated")
+#' ht <- set_note_symbol(ht, "+*")
+#' note_symbol(ht)
+#'
+#' @name note_symbol
+NULL
+
+#' @rdname note_symbol
+#' @export
+note_symbol <- function(ht) prop_get(ht, "note_symbol")
+
+#' @rdname note_symbol
+#' @export
+`note_symbol<-` <- function(ht, value) {
+  prop_set_table(ht, value, "note_symbol",
+    check_fun = function(x) is.string(x) && nzchar(x)
+  )
+}
+
+#' @rdname note_symbol
+#' @export
+set_note_symbol <- function(ht, value) {
+  prop_set_table(ht, value, "note_symbol",
+    check_fun = function(x) is.string(x) && nzchar(x)
+  )
 }
 
 
@@ -328,8 +547,10 @@ set_table_environment <- function(ht, value) {
 #' @details
 #' LaTeX table labels typically start with `"tab:"`.
 #'
-#' Within knitr, huxtable labels will default to the same as the knitr chunk label.
-#' To turn off this behaviour, set `options(huxtable.autolabel = FALSE)`.
+#' Within knitr, huxtable labels default to the knitr chunk label. If a chunk
+#' prints more than one huxtable, later labels have `"-2"`, `"-3"` and so on
+#' appended to make them unique. To turn off this behaviour, set
+#' `options(huxtable.autolabel = FALSE)`.
 #'
 #' If you use \href{https://bookdown.org}{bookdown}, and set a label on your
 #' table, the table [caption()] will automatically be prefixed with `(#label)`.
@@ -337,6 +558,9 @@ set_table_environment <- function(ht, value) {
 #' with `"tab:"`; if it doesn't, the `"tab:"` prefix will be added
 #' automatically. To turn off this behaviour, set
 #' `options(huxtable.bookdown = FALSE)`.
+#'
+#' Quarto table labels override labels set by this mechanism. A warning is
+#' issued if both are set.
 #'
 #' @examples
 #' set_label(jams, "tab:mytable")

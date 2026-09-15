@@ -1,7 +1,7 @@
 Type: Package
 Package: huxtable
 Title: Easily Create and Style Tables for LaTeX, HTML and Other Formats
-Version: 5.8.0
+Version: 6.0.1
 Authors@R: 
     person(given = "David",
            family = "Hugh-Jones",
@@ -16,26 +16,28 @@ Description: Creates styled tables for data presentation. Export to HTML, LaTeX,
   Includes  a 'huxreg' function to create regression tables, and 'quick_*' 
   one-liners to print tables to a new document.
 License: MIT + file LICENSE
-URL: https://hughjonesd.github.io/huxtable/
+URL: https://hughjonesd.github.io/huxtable/,
+        https://github.com/hughjonesd/huxtable
 BugReports: https://github.com/hughjonesd/huxtable/issues
 Imports: assertthat, base64enc, commonmark, fansi, generics, glue,
         htmltools, memoise, R6, rlang, stats, stringi, stringr (>=
         1.2.0), tidyselect, utils, xml2
 Suggests: AER, bookdown, broom (>= 0.5.1), broom.mixed, covr, crayon,
-        devtools, dplyr (>= 0.7.0), flextable (>= 0.6.9), ftExtra (>=
-        0.0.2), ggplot2, httr, knitr, lme4, lmtest, lintr, nlme, nnet,
+        devtools, dplyr (>= 0.7.0), flextable (>= 0.9.1), ftExtra (>=
+        0.0.2), ggplot2, httr, knitr, lme4, lmtest, nlme, nnet,
         officer, openxlsx, psych, quarto, rmarkdown, sandwich, scales,
         styler, testthat, tibble, tinytex
 SystemRequirements: LaTeX packages: adjustbox, array, calc, caption,
-        colortbl, fontspec, graphicx, hhline, hyperref, multirow,
-        siunitx, tabularx, threeparttable, ulem, wrapfig
+        colortbl, fontspec, graphicx, hhline, hyperref, longtable,
+        multirow, siunitx, tabularx, threeparttable, threeparttablex,
+        ulem, wrapfig
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
 Depends: R (>= 2.10)
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
 NeedsCompilation: no
-Packaged: 2025-11-06 16:42:19 UTC; davidhugh-jones
+Packaged: 2026-09-15 04:13:35 UTC; davidhugh-jones
 Repository: CRAN
-Date/Publication: 2025-11-07 06:10:36 UTC
+Date/Publication: 2026-09-15 09:30:02 UTC

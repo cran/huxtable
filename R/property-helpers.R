@@ -22,17 +22,22 @@ huxtable_cell_attrs <- c(
   "font_size",
   "rotation",
   "number_format",
-  "font"
+  "font",
+  "cell_note"
 )
 huxtable_col_attrs <- c("col_width", "header_cols")
 huxtable_row_attrs <- c("row_height", "header_rows")
 huxtable_table_attrs <- c(
   "width",
   "height",
+  "table_background_color",
   "position",
   "caption",
+  "table_notes",
+  "note_symbol",
   "caption_pos",
   "caption_width",
+  "breakable",
   "tabular_environment",
   "table_environment",
   "label",
@@ -40,6 +45,8 @@ huxtable_table_attrs <- c(
 )
 
 huxtable_env <- new.env()
+huxtable_env$autolabel_cache <- list()
+huxtable_env$autolabel_chunk <- list(label = NULL, options = NULL)
 huxtable_env$huxtable_default_attrs <- list(
   rowspan             = 1,
   colspan             = 1,
@@ -49,6 +56,7 @@ huxtable_env$huxtable_default_attrs <- list(
   height              = NA_real_,
   col_width           = NA_real_,
   row_height          = NA_real_,
+  table_background_color = NA_character_,
   header_cols         = FALSE,
   header_rows         = FALSE,
   background_color    = NA_character_,
@@ -62,8 +70,11 @@ huxtable_env$huxtable_default_attrs <- list(
   bottom_padding      = 6,
   wrap                = TRUE,
   caption             = NA_character_,
+  table_notes         = NA_character_,
+  note_symbol         = "numeric",
   caption_pos         = "top",
   caption_width       = NA_real_,
+  breakable           = FALSE,
   position            = "center",
   tabular_environment = NA_character_,
   table_environment   = "table",
@@ -77,7 +88,8 @@ huxtable_env$huxtable_default_attrs <- list(
   font_size           = NA_real_,
   rotation            = 0,
   number_format       = list("%.3g"),
-  font                = NA_character_
+  font                = NA_character_,
+  cell_note           = NA_character_
 )
 
 #' Property helper functions
@@ -87,6 +99,22 @@ huxtable_env$huxtable_default_attrs <- list(
 #' @noRd
 prop_get <- function(ht, prop) {
   attr(ht, prop)
+}
+
+
+#' Resolve cell backgrounds with a table background fallback
+#'
+#' For formats without a table-level background, use the table background for
+#' otherwise unfilled cells. Explicit cell backgrounds take precedence.
+#'
+#' @param ht A huxtable.
+#' @return A character matrix of background colors.
+#' @noRd
+background_color_with_fallback <- function(ht) {
+  result <- background_color(ht)
+  table_color <- table_background_color(ht)
+  if (!is.na(table_color)) result[is.na(result)] <- table_color
+  result
 }
 
 #' Validate and normalise property values
@@ -124,7 +152,7 @@ validate_prop <- function(value, prop, check_fun = NULL, check_values = NULL,
 #' @param check_fun    Optional validation function.
 #' @param check_values Optional vector of allowed values.
 #' @param extra        Extra code to run after validation.
-#' @param reset_na     Passed to [`validate_prop`].
+#' @param reset_na     Should `NA` values be replaced with the huxtable default?
 #'
 #' @noRd
 prop_set <- function(ht, prop, row, col, value = NULL, fn = NULL,

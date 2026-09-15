@@ -60,9 +60,26 @@ to_screen <- function(ht,
   
   # Generate the core table display
   table_result <- generate_table_display(ht, config$min_width, config$max_width, config$color, compact)
-  
+
+  result <- table_result$content
+  cell_notes <- resolve_cell_notes(ht)
+  referenced_notes <- if (length(cell_notes$notes) > 0L) {
+    paste0("[", cell_notes$markers, "] ", cell_notes$notes)
+  } else {
+    character()
+  }
+  notes <- c(
+    table_notes(ht),
+    referenced_notes
+  )
+  if (length(notes) > 0L) {
+    note_width <- max(1, min(config$max_width, table_result$char_matrix_ncol))
+    note_lines <- unlist(lapply(notes, strwrap, width = note_width))
+    result <- paste0(result, paste0(note_lines, collapse = "\n"), "\n")
+  }
+
   # Add caption if present
-  result <- add_caption_if_present(table_result$content, ht, config$max_width, table_result$char_matrix_ncol)
+  result <- add_caption_if_present(result, ht, config$max_width, table_result$char_matrix_ncol)
   
   # Add column names if requested
   result <- add_column_names_if_requested(result, ht, config$colnames, config$max_width, table_result$last_col, ncol(ht))
@@ -103,14 +120,16 @@ generate_table_display <- function(ht, min_width, max_width, color, compact) {
   charmat_with_borders <- add_borders_to_matrix(ht, charmat_data, color)
   
   # Remove empty border rows if compact mode
-  final_charmat <- apply_compact_formatting(charmat_with_borders, compact, charmat_data$border_rows)
+  compact_matrices <- apply_compact_formatting(
+    charmat_with_borders, charmat_data$width_mat, compact, charmat_data$border_rows
+  )
   
   # Convert matrix to positioned string
-  result <- format_matrix_to_string(final_charmat, ht, max_width, charmat_data$width_mat)
+  result <- format_matrix_to_string(compact_matrices$charmat, ht, max_width, compact_matrices$width_mat)
   
   list(
     content = result,
-    char_matrix_ncol = ncol(final_charmat),
+    char_matrix_ncol = ncol(compact_matrices$charmat),
     last_col = charmat_data$last_ht_col
   )
 }
@@ -152,6 +171,12 @@ add_borders_to_matrix <- function(ht, charmat_data, color) {
   # Apply border colors if enabled
   if (color) {
     charmat <- apply_border_colors(charmat, ht, border_rows, border_cols)
+
+    table_bg <- table_background_color(ht)
+    if (!is.na(table_bg)) {
+      table_style <- crayon::make_style(table_bg, bg = TRUE)
+      charmat[] <- table_style(charmat)
+    }
   }
   
   charmat
@@ -295,19 +320,20 @@ apply_border_colors <- function(charmat, ht, border_rows, border_cols) {
 
 
 # Remove empty horizontal border rows in compact mode
-apply_compact_formatting <- function(charmat, compact, border_rows) {
-  if (!compact) return(charmat)
-  
-  empty_borders <- apply(charmat, 1, function(x) {
-    all(grepl(" ", x, fixed = TRUE) | grepl("[\u2502\u2551\u2506\u250a]", x))
-  })
-  empty_borders <- intersect(border_rows, which(empty_borders))
-  
-  if (length(empty_borders) > 0) {
-    charmat <- charmat[-empty_borders, , drop = FALSE]
+apply_compact_formatting <- function(charmat, width_mat, compact, border_rows) {
+  if (compact) {
+    empty_borders <- apply(charmat, 1, function(x) {
+      all(grepl(" ", x, fixed = TRUE) | grepl("[\u2502\u2551\u2506\u250a]", x))
+    })
+    empty_borders <- intersect(border_rows, which(empty_borders))
+
+    if (length(empty_borders) > 0) {
+      charmat <- charmat[-empty_borders, , drop = FALSE]
+      width_mat <- width_mat[-empty_borders, , drop = FALSE]
+    }
   }
-  
-  charmat
+
+  list(charmat = charmat, width_mat = width_mat)
 }
 
 
@@ -338,12 +364,7 @@ add_caption_if_present <- function(result, ht, max_width, charmat_ncol) {
   if (is.na(cap)) return(result)
   
   # Determine horizontal position for caption
-  poss_pos <- c("left", "center", "right")
-  hpos <- if (any(found <- sapply(poss_pos, grepl, x = caption_pos(ht)))) {
-    poss_pos[found]
-  } else {
-    position_no_wrap(ht)
-  }
+  hpos <- get_caption_hpos(ht)
   
   # Wrap caption if too wide
   if (ncharw(cap) > max_width) cap <- strwrap(cap, max_width)
@@ -354,7 +375,7 @@ add_caption_if_present <- function(result, ht, max_width, charmat_ncol) {
   cap <- paste0(cap, "\n")
   
   # Position caption above or below table
-  if (grepl("top", caption_pos(ht))) {
+  if (get_caption_vpos(ht) == "top") {
     paste0(cap, result)
   } else {
     paste0(result, cap)
@@ -522,7 +543,7 @@ format_cell_contents <- function(dc, widths, ht, markdown) {
   }
   
   # Calculate text dimensions
-  dc$text_height <- sapply(dc$strings, length)
+  dc$text_height <- lengths(dc$strings)
   dc$text_width <- sapply(dc$strings, function(x) max(ncharw(x, type = "chars")))
   
   dc

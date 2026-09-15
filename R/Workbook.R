@@ -76,13 +76,45 @@ as_Workbook.huxtable <- function(ht,
   }
   wb <- if (missing(Workbook) || is.null(Workbook)) openxlsx::createWorkbook() else Workbook
   if (!sheet %in% names(wb)) openxlsx::addWorksheet(wb, sheet)
-  top_cap <- write_excel_caption(wb, ht, sheet, write_caption, start_row, start_col)
+  cell_notes <- resolve_cell_notes(ht)
+  referenced_notes <- if (length(cell_notes$notes) > 0L) {
+    paste0("[", cell_notes$markers, "] ", cell_notes$notes)
+  } else {
+    character()
+  }
+  notes <- c(
+    table_notes(ht),
+    referenced_notes
+  )
+  top_cap <- write_excel_caption(
+    wb, ht, sheet, write_caption, start_row, start_col,
+    notes_offset = length(notes)
+  )
 
   contents <- clean_contents(ht, output_type = "excel") # character matrix
 
   write_excel_contents(wb, sheet, contents, start_row, start_col, top_cap)
 
   apply_excel_styles(wb, sheet, ht, contents, start_row, start_col, top_cap)
+
+  if (length(notes) > 0L) {
+    note_rows <- start_row + as.integer(top_cap) + nrow(ht) + seq_along(notes) - 1L
+    note_cols <- start_col - 1L + seq_len(ncol(ht))
+    note_style <- openxlsx::createStyle(halign = "left", wrapText = TRUE)
+    for (i in seq_along(notes)) {
+      openxlsx::writeData(
+        wb, sheet, notes[[i]],
+        startRow = note_rows[[i]], startCol = start_col
+      )
+      if (ncol(ht) > 1L) {
+        openxlsx::mergeCells(wb, sheet, cols = note_cols, rows = note_rows[[i]])
+      }
+    }
+    openxlsx::addStyle(
+      wb, sheet, style = note_style, rows = note_rows, cols = note_cols,
+      gridExpand = TRUE
+    )
+  }
 
   set_excel_dimensions(wb, sheet, ht, start_row, start_col)
 
@@ -92,11 +124,11 @@ as_Workbook.huxtable <- function(ht,
 #' Write caption to an Excel worksheet
 #'
 #' @noRd
-write_excel_caption <- function(wb, ht, sheet, write_caption, start_row, start_col) {
+write_excel_caption <- function(wb, ht, sheet, write_caption, start_row, start_col,
+                                notes_offset = 0L) {
   cap <- caption(ht)
-  cap_pos <- caption_pos(ht)
-  top_cap <- write_caption && !is.na(cap) && grepl("top", cap_pos)
-  cap_row <- if (top_cap) start_row else start_row + nrow(ht)
+  top_cap <- write_caption && !is.na(cap) && get_caption_vpos(ht) == "top"
+  cap_row <- if (top_cap) start_row else start_row + nrow(ht) + notes_offset
   if (write_caption && !is.na(cap)) {
     openxlsx::writeData(wb, sheet, x = cap, startRow = cap_row)
     cap_style <- openxlsx::createStyle(halign = get_caption_hpos(ht))
@@ -113,39 +145,26 @@ write_excel_caption <- function(wb, ht, sheet, write_caption, start_row, start_c
 #'
 #' @noRd
 write_excel_contents <- function(wb, sheet, contents, start_row, start_col, top_cap) {
-  nr <- nrow(contents)
   contents <- as.data.frame(contents, stringsAsFactors = FALSE)
-  is_a_number_mx <- suppressWarnings(apply(contents, 2, function(col) {
-    !is.na(as.numeric(col))
-  }))
-  dim(is_a_number_mx) <- dim(contents) # apply might return a vector :-/
-  for (j in seq_len(ncol(contents))) {
-    col_contents <- contents[[j]]
-    ws_col <- start_col - 1 + j
+  nr <- nrow(contents)
+  if (nr == 0 || ncol(contents) == 0) return(invisible(NULL))
 
-    for (i in seq_len(nr)) {
-      ws_row <- start_row - 1 + i
-      if (top_cap) ws_row <- ws_row + 1
+  is_numeric <- suppressWarnings(!is.na(as.numeric(as.matrix(contents))))
+  dim(is_numeric) <- dim(contents)
+  same_as_previous <- apply(is_numeric[-1, , drop = FALSE] ==
+    is_numeric[-nr, , drop = FALSE], 1, all)
+  starts <- c(1, which(!same_as_previous) + 1)
+  ends <- c(starts[-1] - 1, nr)
 
-      is_a_number_col <- is_a_number_mx[i:nr, j]
-      if (all(is_a_number_col) || all(!is_a_number_col)) {
-        insert <- col_contents[i:nr]
-        if (all(is_a_number_col)) insert <- as.numeric(insert)
-
-        openxlsx::writeData(wb, sheet, insert,
-          startRow = ws_row, startCol = ws_col,
-          colNames = FALSE, rowNames = FALSE, borders = "none", borderStyle = "none"
-        )
-        break
-      } else {
-        insert <- col_contents[i]
-        if (is_a_number_col[1]) insert <- as.numeric(insert)
-        openxlsx::writeData(wb, sheet, insert,
-          startRow = ws_row, startCol = ws_col,
-          colNames = FALSE, rowNames = FALSE, borders = "none", borderStyle = "none"
-        )
-      }
-    }
+  for (i in seq_along(starts)) {
+    rows <- starts[i]:ends[i]
+    insert <- contents[rows, , drop = FALSE]
+    numeric_cols <- is_numeric[starts[i], ]
+    insert[numeric_cols] <- lapply(insert[numeric_cols], as.numeric)
+    openxlsx::writeData(wb, sheet, insert,
+      startRow = start_row + top_cap + starts[i] - 1, startCol = start_col,
+      colNames = FALSE, rowNames = FALSE, borders = "none", borderStyle = "none"
+    )
   }
 }
 
@@ -154,6 +173,7 @@ write_excel_contents <- function(wb, sheet, contents, start_row, start_col, top_
 #' @noRd
 apply_excel_styles <- function(wb, sheet, ht, contents, start_row, start_col, top_cap) {
   dcells <- display_cells(ht, all = FALSE)
+  style_groups <- list()
   for (r in seq_len(nrow(dcells))) {
     dcell <- dcells[r, ]
     drow <- dcell$display_row
@@ -167,7 +187,7 @@ apply_excel_styles <- function(wb, sheet, ht, contents, start_row, start_col, to
     null_args$tc <- text_color(ht)[drow, dcol]
     null_args$fs <- font_size(ht)[drow, dcol]
     null_args$ft <- font(ht)[drow, dcol]
-    null_args$bgc <- background_color(ht)[drow, dcol]
+    null_args$bgc <- background_color_with_fallback(ht)[drow, dcol]
     null_args <- lapply(null_args, function(x) if (is.na(x)) NULL else x)
 
     nf <- number_format(ht)[[drow, dcol]]
@@ -208,16 +228,31 @@ apply_excel_styles <- function(wb, sheet, ht, contents, start_row, start_col, to
       wrapText = wrap(ht)[drow, dcol],
       textRotation = rotation(ht)[drow, dcol]
     )
-    openxlsx::addStyle(wb, sheet,
-      style = style, rows = workbook_rows, cols = workbook_cols,
-      gridExpand = TRUE
-    )
+    style_rows <- rep(workbook_rows, each = length(workbook_cols))
+    style_cols <- rep(workbook_cols, times = length(workbook_rows))
+    style_group <- which(vapply(style_groups, function(x) {
+      identical(x$style, style)
+    }, logical(1)))[1]
+    if (is.na(style_group)) {
+      style_groups[[length(style_groups) + 1]] <- list(
+        style = style, rows = style_rows, cols = style_cols
+      )
+    } else {
+      style_groups[[style_group]]$rows <- c(style_groups[[style_group]]$rows, style_rows)
+      style_groups[[style_group]]$cols <- c(style_groups[[style_group]]$cols, style_cols)
+    }
     if (dcell$rowspan > 1 || dcell$colspan > 1) {
       openxlsx::mergeCells(wb, sheet,
         cols = workbook_cols,
         rows = workbook_rows
       )
     }
+  }
+
+  for (group in style_groups) {
+    openxlsx::addStyle(wb, sheet,
+      style = group$style, rows = group$rows, cols = group$cols
+    )
   }
 }
 

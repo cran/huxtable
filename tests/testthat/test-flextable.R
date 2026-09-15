@@ -36,6 +36,20 @@ test_that("background colour works", {
 })
 
 
+test_that("table background fills otherwise unfilled flextable cells", {
+  hx <- set_table_background_color(
+    huxtable(a = 1:2, b = 3:4, add_colnames = FALSE),
+    "red"
+  )
+  background_color(hx)[1, 1] <- "blue"
+  ft <- as_flextable(hx)
+  expect_equal(
+    unname(ft$body$styles$cells$background.color$data),
+    matrix(c("blue", "red", "red", "red"), 2, 2)
+  )
+})
+
+
 test_that("merged cells work", {
   hx <- huxtable(a = 1:3, b = 4:6)
   colspan(hx)[1, 1] <- 2
@@ -72,6 +86,41 @@ test_that("caption works", {
   hx <- huxtable(a = 1:3, b = 4:6)
   caption(hx) <- "a caption"
   expect_silent(as_flextable(hx))
+})
+
+
+test_that("flextable maps breakable to Word pagination", {
+  skip_if_not_installed("flextable", minimum_version = "0.9.1")
+  ht <- hux(a = 1:2, b = 3:4)
+
+  ft <- as_flextable(ht)
+  expect_false(ft$properties$opts_word$split)
+  expect_true(all(ft$body$styles$pars$keep_with_next$data))
+
+  breakable(ht) <- TRUE
+  ft <- as_flextable(ht)
+  expect_false(ft$properties$opts_word$split)
+  expect_false(any(ft$body$styles$pars$keep_with_next$data))
+})
+
+
+test_that("Bugfix: Quarto captions override huxtable captions in Word", {
+  skip_if_not_installed("flextable")
+  skip_if_not_installed("knitr")
+  old_current <- knitr::opts_current$get()
+  old_knit <- knitr::opts_knit$get()
+  on.exit({
+    knitr::opts_current$restore(old_current)
+    knitr::opts_knit$restore(old_knit)
+  })
+  knitr::opts_knit$set(quarto.version = "1.7.0")
+  knitr::opts_current$set(label = "tbl-quarto", `tbl-cap` = "Quarto caption")
+
+  expect_warning(
+    ft <- as_flextable(set_caption(hux(a = 1), "Huxtable caption")),
+    "caption"
+  )
+  expect_null(ft$caption$value)
 })
 
 

@@ -7,6 +7,47 @@
 \description{
 This help page simply gives the contents of NEWS.md.
 }
+\section{huxtable 6.0.1}{
+\itemize{
+\item Bugfix: huxtables printed in knitr documents now include their HTML
+styles or LaTeX command definitions when there is no R Markdown
+dependency processor. The new \code{latex_commands()} returns the required
+LaTeX definitions for adding to a document preamble manually.
+}
+}
+
+\section{huxtable 6.0.0}{
+\itemize{
+\item This is the last update which will be released on CRAN. Future updates
+will be available on GitHub or via
+\url{https://hughjonesd.r-universe.dev}. The CRAN version will still
+receive bugfixes in response to check failures.
+\item New table property \code{breakable()} allows tables to break between rows
+across pages. Breakable tables are implemented in LaTeX via the
+\code{longtable} package, meaning this is a new LaTeX package dependency.
+\item Table notes. Use \code{add_table_note()} for notes beneath the table, and
+\code{set_cell_note()} for notes associated with a particular cell. The old
+\code{add_footnote()} mechanism, which simply added a table row, is
+soft-deprecated. \code{threeparttablex} is a new LaTeX dependency for this.
+\item New table property \code{table_background_color()} sets the background
+color of a table.
+\item Multiple huxtables printed in one knitr chunk now get unique automatic
+labels like “chunk”, “chunk-2”, “chunk-3” etc.
+\item The new \code{html_css()} returns default CSS for HTML tables.
+\item In knitr/Rmarkdown/Quarto, HTML styles and LaTeX commands are now
+printed just once, instead of for every table. Outside those
+documents, \code{to_html()}, \code{print_html()}, \code{to_latex()} and
+\code{print_latex()} include these dependencies by default; use
+\code{dependencies = FALSE} to leave them out.
+\item Quarto table captions and labels now override captions and labels set
+directly on a huxtable.
+\item Bugfix: \code{add_rownames()} should no longer add a 1 in the header row of
+a data frame.
+\item \code{as_Workbook()} is now much faster when adding many tables to an Excel
+workbook. Thanks @lemonad for the report.
+}
+}
+
 \section{huxtable 5.8.0}{
 \subsection{Other changes}{
 \itemize{
@@ -929,5 +970,10 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: David Hugh-Jones \email{davidhughjones@gmail.com}
+
+Authors:
+\itemize{
+  \item David Hugh-Jones \email{davidhughjones@gmail.com}
+}
 
 }

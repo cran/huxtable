@@ -19,7 +19,8 @@
 #' ht <- huxtable(
 #'   First = rnorm(5),
 #'   Second = rnorm(5),
-#'   add_rownames = FALSE
+#'   add_rownames = FALSE,
+#'   add_colnames = FALSE
 #' )
 #' add_rownames(ht)
 #' add_colnames(ht)
@@ -34,7 +35,7 @@
 #' add_colnames(add_rownames(ht, ""))
 #'
 #' @export
-add_colnames <- function(ht, rowname = NULL, ...) {
+add_colnames <- function(ht, rowname = "", ...) {
   if (!missing(rowname)) assert_that(is.null(rowname) || is.string(rowname))
 
   dateish_cols <- which(sapply(ht, function(x) class(x)[1] %in% c("Date", "POSIXct", "POSIXlt")))
@@ -48,8 +49,9 @@ add_colnames <- function(ht, rowname = NULL, ...) {
   number_format(ht)[1, ] <- NA
   colnames(ht) <- cn
   header_rows(ht)[1] <- TRUE
-  if (!is.null(rowname)) rownames(ht) <- c(rowname, rn)
-
+  if (! is.null(rowname)) {
+    if (! rowname %in% rn) rownames(ht) <- c(rowname, rn)
+  }
   ht
 }
 

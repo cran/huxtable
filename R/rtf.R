@@ -61,7 +61,7 @@ to_rtf <- function(ht, fc_tables = rtf_fc_tables(ht), ...) {
   cb <- get_visible_borders(ht)
   cbc <- collapsed_border_colors(ht)
   cbs <- collapsed_border_styles(ht)
-  bgc <- background_color(ht)
+  bgc <- background_color_with_fallback(ht)
   tc <- text_color(ht)
 
   ## MAKE CELLX DEFINITIONS ----
@@ -137,6 +137,7 @@ to_rtf <- function(ht, fc_tables = rtf_fc_tables(ht), ...) {
     table_width <- 0.5
   }
 
+  text_width_twips <- 6 * 72 * 20
   col_width <- col_width(ht)
   # if it's pt, make it numeric and use it as is (in twips)
   if (all(grepl("pt", col_width, fixed = TRUE))) {
@@ -149,14 +150,14 @@ to_rtf <- function(ht, fc_tables = rtf_fc_tables(ht), ...) {
       col_width <- rep(1 / ncol(ht), ncol(ht))
     }
     # assumed 6 inches wide, 1 inch = 72 pt, 1 pt = 20 twips:
-    text_width_twips <- 6 * 72 * 20
     col_width <- col_width * text_width_twips * table_width
   }
 
   # \cellx specifies the position of the RH cell edge:
   right_edges <- ceiling(cumsum(col_width))
+  table_width_twips <- right_edges[length(right_edges)]
 
-  cellx_def <- sprintf("\\cellx%d ", right_edges)
+  cellx_def <- sprintf("\\cellx%d", right_edges)
 
   # cellx_def has to go along rows:
   cellx <- paste0(
@@ -180,7 +181,7 @@ to_rtf <- function(ht, fc_tables = rtf_fc_tables(ht), ...) {
 
   ft <- font(ht)
   findex <- match(ft[!is.na(ft)], fc_tables$fonts) - 1
-  if (any(is.na(findex))) {
+  if (anyNA(findex)) {
     warning(
       "Font not found in font table.\n",
       "(Did you change a font after calling `rtf_fc_table`?)"
@@ -209,7 +210,7 @@ to_rtf <- function(ht, fc_tables = rtf_fc_tables(ht), ...) {
   rh <- row_height(ht)
   table_height <- height(ht)
   row_heights <- ""
-  if (any(!is.na(rh)) || !is.na(table_height)) {
+  if (!all(is.na(rh)) || !is.na(table_height)) {
     if (!is.numeric(rh) && !all(is.na(rh))) warning("to_rtf can only handle numeric row_height.")
     if (!is.numeric(table_height) && !is.na(table_height)) {
       warning(
@@ -218,11 +219,18 @@ to_rtf <- function(ht, fc_tables = rtf_fc_tables(ht), ...) {
     }
     if (!is.numeric(table_height) || is.na(table_height)) table_height <- 0.33
     page_height <- 10 * 72 * 20 # 10 inches in twips
-    if (any(is.na(as.numeric(rh)))) rh <- rep(1 / nrow(ht), nrow(ht))
+    if (anyNA(as.numeric(rh))) rh <- rep(1 / nrow(ht), nrow(ht))
     rh <- ceiling(rh * page_height * table_height)
     row_heights <- sprintf("\\trrh%d ", rh)
   }
-  rows <- paste0("{\n\\trowd\n", row_align, row_heights, cellx_rows, cell_content_rows, "\n\\row\n}\n")
+  row_keep <- rep("\\trkeep ", nrow(ht))
+  if (!breakable(ht) && nrow(ht) > 1L) {
+    row_keep[-nrow(ht)] <- paste0(row_keep[-nrow(ht)], "\\trkeepfollow ")
+  }
+  rows <- paste0(
+    "{\n\\trowd\n", row_align, row_keep, row_heights,
+    cellx_rows, " ", cell_content_rows, "\n\\row\n}\n"
+  )
 
   ## CAPTION ----
 
@@ -243,12 +251,33 @@ to_rtf <- function(ht, fc_tables = rtf_fc_tables(ht), ...) {
     }
   }
   caption_par <- if (is.na(caption)) "" else sprintf("{\\pard %s %s {%s} \\par}", cap_align, cap_width, caption)
-  # \ri<twips> and \li<twips> are indents
-  # or use a "frame", \absw<twips> and \nowrap to stop text wrapping around it
+  notes <- sanitize(table_notes(ht), "rtf")
+  cell_notes <- resolve_cell_notes(ht)
+  if (length(cell_notes$notes) > 0L) {
+    note_markers <- sanitize(cell_notes$markers, "rtf")
+    note_text <- sanitize(cell_notes$notes, "rtf")
+    notes <- c(
+      notes,
+      paste0("{\\super ", note_markers, "\\nosupersub} ", note_text)
+    )
+  }
+  notes <- c(utf8_to_rtf(matrix(notes, ncol = 1L)))
+  spare_width <- max(text_width_twips - table_width_twips, 0)
+  note_indents <- switch(position_no_wrap(ht),
+    left = c(0, spare_width),
+    center = c(floor(spare_width / 2), ceiling(spare_width / 2)),
+    right = c(spare_width, 0)
+  )
+  notes_par <- paste0(
+    "{\\pard \\ql \\li", note_indents[[1]], "\\ri", note_indents[[2]],
+    " {", notes, "} \\par}",
+    collapse = "\n"
+  )
 
   ## PASTE EVERYTHING TOGETHER ----
   result <- paste(rows, collapse = "\n")
-  result <- if (grepl("top", caption_pos(ht))) {
+  if (length(notes) > 0L) result <- paste(result, notes_par, sep = "\n")
+  result <- if (get_caption_vpos(ht) == "top") {
     paste(caption_par, result, sep = "\n")
   } else {
     paste(
@@ -308,7 +337,10 @@ rtf_fc_tables <- function(..., extra_fonts = "Times", extra_colors = character(0
   fonts <- stats::na.omit(fonts)
 
   colors <- unlist(lapply(hts, function(ht) {
-    c(text_color(ht), background_color(ht), unlist(collapsed_border_colors(ht)))
+    c(
+      text_color(ht), background_color(ht), table_background_color(ht),
+      unlist(collapsed_border_colors(ht))
+    )
   }))
   colors <- unique(c(extra_colors, colors))
   colors <- stats::na.omit(colors)
@@ -356,7 +388,7 @@ color_table_string <- function(x) {
 #' @param x An `rtfFCTables` object.
 #' @param ... Unused.
 #' @return A combined font and color table string.
-#' @noRd
+#' @export
 format.rtfFCTables <- function(x, ...) {
   paste(font_table_string(x), color_table_string(x), sep = "\n")
 }
@@ -367,7 +399,7 @@ format.rtfFCTables <- function(x, ...) {
 #' @param x An `rtfFCTables` object.
 #' @param ... Arguments passed to [format()].
 #' @return The input is returned invisibly.
-#' @noRd
+#' @export
 print.rtfFCTables <- function(x, ...) {
   cat(format(x, ...))
   invisible(x)

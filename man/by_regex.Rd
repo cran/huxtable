@@ -22,7 +22,7 @@ normally resets to the default.}
 A function for use in \verb{map_***} functions.
 }
 \description{
-\code{by_regex()} sets properties on cells which match a \link[=regex]{regular expression}.
+\code{by_regex()} sets properties on cells which match a \link[base:regex]{regular expression}.
 }
 \examples{
 ht <- hux(c("The cat sat", "on the", "mat"))
@@ -40,13 +40,13 @@ map_bold(ht, by_regex(
 \seealso{
 \link{mapping-functions}
 
-Other mapping functions: 
-\code{\link{by_cases}()},
-\code{\link{by_colorspace}()},
-\code{\link{by_function}()},
-\code{\link{by_quantiles}()},
-\code{\link{by_ranges}()},
-\code{\link{by_rows}()},
-\code{\link{by_values}()}
+Other mapping functions:
+\code{\link[=by_cases]{by_cases()}},
+\code{\link[=by_colorspace]{by_colorspace()}},
+\code{\link[=by_function]{by_function()}},
+\code{\link[=by_quantiles]{by_quantiles()}},
+\code{\link[=by_ranges]{by_ranges()}},
+\code{\link[=by_rows]{by_rows()}},
+\code{\link[=by_values]{by_values()}}
 }
 \concept{mapping functions}

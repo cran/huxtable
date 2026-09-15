@@ -99,7 +99,7 @@ as_flextable.huxtable <- function(x, colnames_to_header = FALSE, ...) {
     if (italic(x)[drow, dcol]) ft <- flextable::italic(ft, i = drow, j = dcol)
     if (!is.na(fs <- font_size(x)[drow, dcol])) ft <- flextable::fontsize(ft, i = drow, j = dcol, size = fs)
     if (!is.na(tc <- text_color(x)[drow, dcol])) ft <- flextable::color(ft, i = drow, j = dcol, color = tc)
-    if (!is.na(bgc <- background_color(x)[drow, dcol])) ft <- flextable::bg(ft, i = drow, j = dcol, bg = bgc)
+    if (!is.na(bgc <- background_color_with_fallback(x)[drow, dcol])) ft <- flextable::bg(ft, i = drow, j = dcol, bg = bgc)
     ft <- flextable::align(ft, i = drow, j = dcol, align = real_align(x)[drow, dcol])
 
     ft <- flextable::padding(ft,
@@ -157,8 +157,8 @@ as_flextable.huxtable <- function(x, colnames_to_header = FALSE, ...) {
   # if we only have width, use it and use equal col widths
   # if we have neither, use autofit
   # if we have both, multiply col_widths by width
-  if (!is.numeric(tw) && is.numeric(cw) && !any(is.na(cw))) tw <- 0.5
-  if (!is.numeric(cw) || any(is.na(cw))) cw <- rep(1 / ncol(x), ncol(x))
+  if (!is.numeric(tw) && is.numeric(cw) && !anyNA(cw)) tw <- 0.5
+  if (!is.numeric(cw) || anyNA(cw)) cw <- rep(1 / ncol(x), ncol(x))
   if (is.numeric(tw) && !is.na(tw)) {
     tw <- tw * 6 # flextable sizes are in inches
     cw <- cw * tw
@@ -172,8 +172,8 @@ as_flextable.huxtable <- function(x, colnames_to_header = FALSE, ...) {
   # if we have row heights, set height to 0.5
   # if we only have height, set row_heights to equal
   # otherwise, do nothing - don't call autofit again unless you overwrite
-  if (!is.numeric(th) && is.numeric(rh) && !any(is.na(rh))) th <- 0.5
-  if (!is.numeric(rh) || any(is.na(rh))) rh <- rep(1 / nrow(x), nrow(x))
+  if (!is.numeric(th) && is.numeric(rh) && !anyNA(rh)) th <- 0.5
+  if (!is.numeric(rh) || anyNA(rh)) rh <- rep(1 / nrow(x), nrow(x))
   if (is.numeric(th) && !is.na(th)) {
     rh <- rh * 9 # inches again, so this is roughly A4 with 2 1" margins
     rh <- rh * th
@@ -181,10 +181,26 @@ as_flextable.huxtable <- function(x, colnames_to_header = FALSE, ...) {
     if (flextable_version >= "0.5.7") ft <- flextable::hrule(ft, rule = "atleast")
   }
 
+  cell_notes <- resolve_cell_notes(x)
+  referenced_notes <- if (length(cell_notes$notes) > 0L) {
+    paste0("[", cell_notes$markers, "] ", cell_notes$notes)
+  } else {
+    character()
+  }
+  notes <- c(
+    table_notes(x),
+    referenced_notes
+  )
+  if (length(notes) > 0L) {
+    ft <- flextable::add_footer_lines(ft, values = notes, top = FALSE)
+    ft <- flextable::align(ft, align = "left", part = "footer")
+  }
+
   # set caption
-  if (!is.null(caption(x)) & !is.na(caption(x))) {
+  caption_data <- resolve_caption(x, "docx")
+  if (!is.null(caption_data$text) && !is.na(caption_data$text)) {
     if (flextable_version >= "0.5.5") {
-      ft <- flextable::set_caption(ft, caption(x))
+      ft <- flextable::set_caption(ft, caption_data$text)
     } else {
       message(
         "Use of table captions requires \"flextable\" package version >= 0.5.5.",
@@ -193,6 +209,16 @@ as_flextable.huxtable <- function(x, colnames_to_header = FALSE, ...) {
       )
     }
   }
+
+  ft <- flextable::set_table_properties(
+    ft,
+    opts_word = list(split = FALSE)
+  )
+  ft <- flextable::paginate(
+    ft,
+    init = !breakable(x),
+    hdr_ftr = TRUE
+  )
 
   ft
 }

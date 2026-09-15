@@ -67,11 +67,36 @@ to_typst <- function(ht, ...) {
     row_strings <- row_strings[!hr]
   }
   row_strings <- row_strings[nzchar(row_strings)]
+  notes <- sanitize(table_notes(ht), "typst")
+  cell_notes <- resolve_cell_notes(ht)
+  if (length(cell_notes$notes) > 0L) {
+    note_markers <- sanitize(cell_notes$markers, "typst")
+    note_text <- sanitize(cell_notes$notes, "typst")
+    notes <- c(
+      notes,
+      paste0("#super[", note_markers, "] #h(0.2em) ", note_text)
+    )
+  }
+  footer_block <- ""
+  if (length(notes) > 0L) {
+    note_cells <- sprintf(
+      "    table.cell(colspan: %d, align: left)[%s]",
+      ncol(ht), notes
+    )
+    footer_block <- paste0(
+      "  table.footer(\n",
+      "    repeat: false,\n",
+      paste0(note_cells, collapse = ",\n"),
+      "\n  ),\n"
+    )
+  }
 
   result <- paste0(
     table_start,
     header_block,
     paste0("  ", row_strings, collapse = ",\n"),
+    if (nzchar(footer_block)) ",\n" else "",
+    footer_block,
     "\n)"
   )
 
@@ -151,6 +176,9 @@ typst_table_options <- function(ht) {
 
   table_opts <- c(table_opts, "stroke: none")
 
+  bg <- table_background_color(ht)
+  if (!is.na(bg)) table_opts <- c(table_opts, sprintf("fill: rgb(%s)", format_color(bg)))
+
   table_opts
 }
 
@@ -159,14 +187,14 @@ typst_table_options <- function(ht) {
 #'
 #' @noRd
 typst_figure <- function(ht, text) {
-  lab <- make_label(ht)
-  cap <- if (is.na(caption(ht))) {
+  caption_data <- resolve_caption(ht, "typst")
+  lab <- caption_data$label
+  cap <- if (is.na(caption_data$text)) {
     "none"
   } else {
-    cap_body <- sanitize(make_caption(ht, lab, "typst"), type = "typst")
+    cap_body <- sanitize(caption_data$text, type = "typst")
 
-    cap_pos <- caption_pos(ht)
-    vpos <- if (grepl("top", cap_pos)) "top" else "bottom"
+    vpos <- get_caption_vpos(ht)
     hpos <- get_caption_hpos(ht)
 
     cap_width <- caption_width(ht)
@@ -195,6 +223,17 @@ typst_figure <- function(ht, text) {
     ")",
     lab
   )
+
+  if (breakable(ht)) {
+    fig <- paste(
+      "#[",
+      "#show figure: set block(breakable: true)",
+      "#show table.cell: set table.cell(breakable: false)",
+      fig,
+      "]",
+      sep = "\n"
+    )
+  }
 
   return(fig)
 }

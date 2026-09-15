@@ -2,16 +2,21 @@
 #'
 #' @rdname to_html
 #'
-print_html <- function(ht, ...) cat(huxtable_html_css(), to_html(ht, ...))
+print_html <- function(ht, dependencies = TRUE, ...) {
+  cat(to_html(ht, ..., dependencies = dependencies))
+}
 
 
 #' Create HTML representing a huxtable
 #'
-#' These functions print or return an HTML table. `print_html` also prepends a
-#' `<style>` block defining basic CSS classes.
+#' These functions print or return an HTML table. By default, `to_html()` and
+#' `print_html()` prepend a `<style>` block defining basic CSS classes, while
+#' `as_html()` attaches the same styles as an HTML dependency.
 #'
 #' @param ht A huxtable.
 #' @param ... Arguments passed to methods. Not currently used.
+#' @param dependencies Logical. If `TRUE`, include the CSS styles or LaTeX
+#'   command definitions required by huxtables.
 #'
 #' @return `to_html` returns an HTML string. `as_html` wraps `to_html` and returns an
 #'   `htmltools::HTML` object. `print_html` prints the string and returns `NULL`.
@@ -30,33 +35,92 @@ print_html <- function(ht, ...) cat(huxtable_html_css(), to_html(ht, ...))
 #'
 #' @return `print_notebook` prints HTML output suitable for use in an
 #' RStudio interactive notebook.
-print_notebook <- function(ht, ...) {
-  html <- paste0(huxtable_html_css(), to_html(ht))
+print_notebook <- function(ht, dependencies = TRUE, ...) {
+  html <- to_html(ht, dependencies = dependencies, ...)
   print(rmarkdown::html_notebook_output_html(html))
 }
 
 
-huxtable_html_css <- function() {
-  "<style>\n.huxtable {\n  border-collapse: collapse;\n  border: 0px;\n  margin-bottom: 2em;\n  margin-top: 2em;\n}\n.huxtable-cell {\n  vertical-align: top;\n  text-align: left;\n  white-space: normal;\n  border-style: solid;\n  border-width: 0pt;\n  padding: 6pt;\n  font-weight: normal;\n}\n.huxtable-header {\n  font-weight: bold;\n}\n</style>\n"
+#' Default CSS for HTML huxtables
+#'
+#' Returns the default CSS used by [print_html()]. This can be included once in
+#' an HTML document instead of printing it with every table.
+#'
+#' @return A character string containing a `<style>` element.
+#' @export
+#'
+#' @examples
+#' cat(html_css())
+html_css <- function() {
+  css_path <- system.file("huxtable", "huxtable.css", package = "huxtable", mustWork = TRUE)
+  css <- paste(readLines(css_path, warn = FALSE), collapse = "\n")
+  paste0("<style>\n", css, "\n</style>\n")
+}
+
+
+#' HTML dependency for huxtable styles
+#'
+#' @return An `htmltools::htmlDependency` object.
+#' @noRd
+huxtable_html_dependency <- function() {
+  htmltools::htmlDependency(
+    name = "huxtable",
+    version = as.character(utils::packageVersion("huxtable")),
+    src = "huxtable",
+    stylesheet = "huxtable.css",
+    package = "huxtable"
+  )
 }
 
 #' @export
 #' @rdname to_html
-to_html <- function(ht, ...) {
+to_html <- function(ht, dependencies = TRUE, ...) {
+  assert_that(is.flag(dependencies))
   check_positive_dims(ht)
 
   table_start <- build_table_style(ht)
   cols_html <- build_colgroup(ht)
   cell_html <- build_cell_html(ht)
   row_html <- build_row_html(ht, cell_html)
+  notes <- sanitize(table_notes(ht), "html")
+  cell_notes <- resolve_cell_notes(ht)
+  if (length(cell_notes$notes) > 0L) {
+    note_markers <- sanitize(cell_notes$markers, "html")
+    note_text <- sanitize(cell_notes$notes, "html")
+    notes <- c(
+      notes,
+      paste0(
+        '<sup class="huxtable-note-ref">', note_markers, "</sup> ",
+        note_text
+      )
+    )
+  }
+  notes_html <- ""
+  if (length(notes) > 0L) {
+    note_rows <- sprintf(
+      '<tr><td class="huxtable-cell huxtable-note" colspan="%d">%s</td></tr>',
+      ncol(ht), notes
+    )
+    notes_html <- paste0(
+      "<tfoot class=\"huxtable-notes\">\n",
+      paste0(note_rows, collapse = "\n"),
+      "\n</tfoot>\n"
+    )
+  }
 
-  paste0(table_start, cols_html, row_html, "</table>\n")
+  table_html <- paste0(table_start, cols_html, row_html, notes_html, "</table>\n")
+  if (dependencies) paste0(html_css(), table_html) else table_html
 }
 
 #' @export
 #' @rdname to_html
-as_html <- function(ht, ...) {
-  htmltools::HTML(to_html(ht, ...))
+as_html <- function(ht, dependencies = TRUE, ...) {
+  assert_that(is.flag(dependencies))
+  result <- htmltools::HTML(to_html(ht, ..., dependencies = FALSE))
+  if (dependencies) {
+    result <- htmltools::attachDependencies(result, huxtable_html_dependency())
+  }
+  result
 }
 
 #' Build opening table tag and caption for HTML output
@@ -97,7 +161,20 @@ build_table_style <- function(ht) {
     ""
   )
 
-  lab <- make_label(ht)
+  break_value <- if (breakable(ht)) "auto" else "avoid"
+  break_string <- sprintf(
+    "break-inside: %s; page-break-inside: %s;",
+    break_value, break_value
+  )
+
+  background_string <- if (is.na(table_background_color(ht))) {
+    ""
+  } else {
+    sprintf("background-color: rgb(%s);", format_color(table_background_color(ht)))
+  }
+
+  caption_data <- resolve_caption(ht, "html")
+  lab <- caption_data$label
   id_string <- if (is.na(lab)) "" else sprintf(" id=\"%s\"", lab)
 
   quarto_attribute <- if (getOption("huxtable.quarto_process", FALSE)) {
@@ -105,7 +182,10 @@ build_table_style <- function(ht) {
   } else {
     "data-quarto-disable-processing=\"true\" "
   }
-  style <- paste(width_string, margin_string, height_string, float_string)
+  style <- paste(
+    width_string, margin_string, height_string, float_string, break_string,
+    background_string
+  )
   style <- trimws(style)
   style_attr <- if (nzchar(style)) sprintf(' style="%s"', style) else ""
   table_start <- sprintf(
@@ -115,8 +195,8 @@ build_table_style <- function(ht) {
     id_string
   )
 
-  if (!is.na(cap <- make_caption(ht, lab, "html"))) {
-    vpos <- if (grepl("top", caption_pos(ht))) "top" else "bottom"
+  if (!is.na(cap <- caption_data$text)) {
+    vpos <- get_caption_vpos(ht)
     hpos <- get_caption_hpos(ht)
 
     if (!is.na(cap_width <- caption_width(ht))) {

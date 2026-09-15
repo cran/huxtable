@@ -134,8 +134,9 @@
 #'
 #'   In some rmarkdown and LaTeX formats, you also need to add LaTeX dependencies
 #'   manually. Run [report_latex_dependencies()] and add
-#'   the output to your LaTeX preamble, or in Rmarkdown formats, add it to the
-#'   rmarkdown header like this:
+#'   the output to your LaTeX preamble. Also add the command definitions printed
+#'   by `cat(latex_commands(), sep = "\\n")`. In Rmarkdown formats, add
+#'   the package dependencies to the rmarkdown header like this:
 #'
 #'   ```
 #'   header-includes:
@@ -207,31 +208,22 @@
 #'
 #' * How do I refer to tables in quarto?
 #'
-#'   In quarto versions up to 1.3, or when compiling to HTML and
-#'   other formats, simply use quarto cell labels
-#'   like `label: tbl-foo` and refer to them via `@tbl-foo`.
-#'
-#'   In quarto versions 1.4 and above, when compiling to PDF,
-#'   quarto cross-referencing no longer works.
-#'   Instead, set labels within huxtable using [label()] or
-#'   [set_label()] and refer to them with TeX-only referencing using
-#'   `\ref{label}`. You must also set a caption.
-#'
-#'   Here's an example:
+#'   Set the Quarto `label` and `tbl-cap` cell options, then use Quarto's
+#'   `@tbl-foo` syntax. This works across Quarto output formats:
 #'
 #'   ````
-#'   A reference to Table \ref{tbl-jams}.
+#'   See @tbl-jams.
 #'
 #'   ```{r}
-#'   label(jams) <- "tbl-jams"
-#'   caption(jams) <- "Some jams"
+#'   #| label: tbl-jams
+#'   #| tbl-cap: "Some jams"
 #'   jams
 #'   ```
 #'   ````
 #'
-#'  If you really need cross-referencing for both PDF and other output
-#'  formats, either downgrade to quarto 1.3, use a different package,
-#'  or write code to emit appropriate references.
+#'   Quarto captions and table labels override values set with [caption()] and
+#'   [label()]. Huxtable warns if both mechanisms explicitly set the same
+#'   property.
 #'
 #' * I called `library(huxtable)` and now my `data.table` objects are getting
 #'   printed!
